@@ -1,0 +1,418 @@
+<!doctype html>
+
+<html class="no-js" lang="{{ request.locale.iso_code }}-au" dir="{% render 'direction' %}">
+  <head>
+    
+    {% if page.handle == "essential-range" %}
+      <style>
+        #shopify-section-template--24861199991080__video_FYqWz7 {
+            position: relative;
+            top: -4em;
+        }
+      </style>
+    {% endif %}
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://cdn.shopify.com/s/files/1/0796/3780/7400/files/Showdex.woff2?v=1756366993" as="font" type="font/woff2" crossorigin>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&display=swap" rel="stylesheet"> -->
+    <link
+       href="https://fonts.googleapis.com/css2?
+       family=Barlow:wght@100;200;300;400;500;600;700;800;900&
+       family=Barlow+Semi+Condensed:wght@100;200;300;400;500;600;700;800;900&
+       family=Barlow+Condensed:wght@100;200;300;400;500;600;700;800;900&
+       display=swap"
+       rel="stylesheet">
+
+    <!-- hreflang tags -->
+    <link rel="alternate" href="https://ezydog.com.au/" hreflang="en-au" />
+    <link rel="alternate" href="https://store.ezydog.com/" hreflang="en-us" />
+    <link rel="alternate" href="https://ezydog.co.uk/" hreflang="en-gb" />
+    <link rel="alternate" href="https://ezydog.co.nz/" hreflang="en-nz" />
+
+    <meta name="csrf-token" content="{{ form_authenticity_token }}">
+    
+    {% if canonical_url contains '?page=' %}
+<meta name="robots" content="noindex" />
+{% endif %}
+    <script src="https://analytics.ahrefs.com/analytics.js" data-key="UHzRoeVDE5E8zBYUjawKSw" defer="true"></script>
+     {% render 'canonical' %}
+
+    <!-- Redirect to the same URL without the trailing slash -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.pathname.endsWith("/") && window.location.pathname !== "/") {
+          const newUrl = window.location.origin + window.location.pathname.slice(0, -1) + window.location.search;
+          window.location.replace(newUrl);
+        }
+      });
+    </script> 
+    
+    {%- comment -%}Few prefetch to increase performance on commonly used third-parties{%- endcomment -%}
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+
+    {%- unless settings.heading_font.system? -%}
+      <link rel="preload" href="{{ settings.heading_font | font_url }}" as="font" type="font/woff2" crossorigin>
+    {%- endunless -%}
+
+    {%- unless settings.text_font.system? -%}
+      <link rel="preload" href="{{ settings.text_font | font_url }}" as="font" type="font/woff2" crossorigin>
+    {%- endunless -%}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.css" rel="stylesheet">
+
+    
+    <title>{% if page_title == blank %}{{ shop.name }}{% else %}{{ page_title }}{% if current_page != 1 %}&ndash; {{ 'general.page' | t: page: current_page }}{% endif %}{% endif %}</title>
+
+     {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">      
+    {% else %}
+      <meta name="description" content="{{ page_description | escape }}">    
+    {%- endif -%}
+
+    <!-- adding the meta keywords using the meta fields and theme settings-->
+    
+   {%- if template == 'index' -%}
+   
+    {%  if settings.home_metakey_seolive != blank %}
+          <meta name="keywords" content="{{ settings.home_metakey_seolive }}">
+        {% else %}
+            <meta name="keywords" content="{{ page_title | escape }}">
+         {% endif %}
+   {% endif %}
+
+   {% if template contains 'page' %}
+           {%  if page.metafields.custom.meta_keywords != blank %}
+             <meta name="keywords" content="{{ page.metafields.custom.meta_keywords }}">
+        {% else %}
+           <meta name="keywords" content="{{ page_title | escape }}">
+        {%  endif %}
+    {% endif %}
+
+   {% if template contains 'product'%}
+        {%  if product.metafields.custom.meta_keywords != blank %}
+       <meta name="keywords" content="{{ product.metafields.custom.meta_keywords }}">
+        {% else %}
+           <meta name="keywords" content="{{ page_title | escape }}">
+        {%  endif %}
+    {% endif %}
+
+    {%- if template contains 'collection' -%}
+       {%  if collection.metafields.custom.meta_keywords != blank %}
+           <meta name="keywords" content="{{ collection.metafields.custom.meta_keywords }}">
+        {% else %}
+           <meta name="keywords" content="{{ page_title | escape }}">
+        {%  endif %}
+    {% endif %}
+    
+     {%- if template contains 'article' -%}
+          {%  if article.metafields.custom.meta_keywords != blank %}
+            <meta name="keywords" content="{{ article.metafields.custom.meta_keywords }}">
+        {% else %}
+           <meta name="keywords" content="{{ page_title | escape }}">
+        {%  endif %}
+     {% endif %}
+    
+
+    {%- if settings.favicon -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | image_url: width: 96 }}">
+      <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180 }}">
+    {%- endif -%}
+
+    {%- render 'social-meta-tags' -%}
+    
+    {%- if request.page_type == 'collection' -%}
+      <!-- collection-microdata-schema -->
+      {% render 'collection-microdata-schema' %}
+    {%- else -%}
+      {% render 'microdata-schema' %}
+    {%- endif -%}
+    
+    {%- render 'css-variables' -%}
+    {%- render 'js-variables' -%}
+
+    {%- if request.page_type == 'gift_card' -%}
+      <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer></script>
+    {%- endif -%}
+
+    <script async src="{{ 'es-module-shims.min.js' | asset_url }}"></script>
+
+    <script type="importmap">
+      {%- comment -%}On Safari 16.3 and lower, a polyfill is used to load importmap{%- endcomment -%}
+      {
+        "imports": {
+          "vendor": "{{ 'vendor.min.js' | asset_url }}",
+          "theme": "{{ 'theme.js' | asset_url }}",
+          "photoswipe": "{{ 'photoswipe.min.js' | asset_url }}"
+        }
+      }
+    </script>
+ 
+    <script type="module" src="{{ 'vendor.min.js' | asset_url }}"></script>
+    <script type="module" src="{{ 'theme.js' | asset_url }}"></script>
+
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    
+    {{ content_for_header }}
+    
+    {{ 'fonts.css' | asset_url | stylesheet_tag }}
+    {{- 'theme.css' | asset_url | stylesheet_tag: preload: true -}}
+    {{- 'custom.css' | asset_url | stylesheet_tag: preload: true -}}
+    
+    <link rel="stylesheet" href="{{ 'slick.css' | asset_url }}" charset="UTF-8">
+    <script src="{{ 'custom.js' | asset_url }}" ></script>
+    <script src="{{ 'lethargy.js' | asset_url }}" defer="defer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/ScrollTrigger.min.js" ></script>
+    <!-- cnavas load js -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+    <!-- <script src="{{ 'tesseract.min.js' | asset_url }}"></script> -->
+
+    
+    <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "lctwmhxau0");
+</script>
+     <!-- Hotjar Tracking Code for Site 4965332 (name missing) -->
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:4965332,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Assuming the input field has an ID of 'menu_item'
+    var inputField = document.querySelector('#TextSetting-Label1');
+    if (inputField) {
+        inputField.value += ' Your appended text';
+    }
+});
+</script> 
+
+<style>
+  #readMoreBtn:hover, #readLessBtn:hover, #learnMoreBtn:hover {
+    background: rgb(var(--button-background, var(--button-background-primary)));
+    color: #fff;
+  }
+</style>        
+
+<!-- MS Clarity -->
+<script type="text/javascript">
+  (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "qbl4d5wa0d");
+</script>
+
+    {% if template == 'index' %}
+      <style>
+        @media only screen and (max-width: 640px) {
+          .section-pt {
+              padding-top: 30px;
+          }
+          .section-pb {
+              padding-bottom: 13px;
+          }
+          a.button.button-template--24291562455336__featured_collection_eDWPg4
+          {
+              margin-top: 0;
+          }
+          a.button.button-template--24291562455336__featured_collection_WaGrzM
+          {
+              margin-top: 15px;
+          }
+          p.Barlow-Medium.dfs-30.mfs-28.text-mb-sm {
+              line-height: 1.25;
+          }
+          #shopify-section-template--24291562455336__featured_collection_WaGrzM .slick-dotted.slick-slider {
+              margin-bottom: -5em;
+          }
+          #shopify-section-template--24291562455336__featured_collection_eDWPg4 .slick-dotted.slick-slider {
+              margin-bottom: -2.5em;
+          }
+          #shopify-section-template--24291562455336__featured_collection_eDWPg4 {
+              padding-bottom: 15px;
+          }
+        }     
+        @media screen and (max-width: 768px) {
+          .fs-timeline {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+          }
+        }   
+      </style>
+    {% endif %}
+
+    {% if template == 'customers/account' or template == 'customers/order' or template == 'customers/addresses' %}
+      <style>
+        @media only screen and (min-width: 750px) {
+        .main-content {
+          margin-top: 0px;
+        }
+      }
+      </style>
+    {% endif %}
+  </head>
+
+  {% liquid
+    assign features_class = ''
+
+    if settings.show_button_transition
+      assign features_class = features_class | append: 'features--button-transition '
+    endif
+
+    if settings.show_image_zoom_on_hover
+      assign features_class = features_class | append: 'features--zoom-image '
+    endif
+
+    if settings.show_page_transition
+      assign features_class = features_class | append: 'features--page-transition '
+    endif
+  %}
+
+  <body class="{{ features_class }} {% if template contains 'index' or template contains 'page' %}{{ template | split: '.' | first }}{% else %}{{ template }}{% endif %}">
+    <!-- Google Tag Manager (noscript) --
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MN22NQ6"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    {%- render 'shadow-dom-templates' -%}
+
+    <loading-bar class="loading-bar" aria-hidden="true"></loading-bar>
+    <a href="#main" allow-hash-change class="skip-to-content sr-only">{{ 'general.accessibility.skip_to_content' | t }}</a>
+
+    {%- if request.page_type != 'password' -%}
+      
+      {% if template == 'customers/account' or template == 'customers/order' or template == 'customers/addresses' or page.handle == 'pet-profile' or page.handle == 'order-history' or page.handle == 'preference' or page.handle == 'my-ezydog' %}
+        {% section 'header-account' %}
+      {% else %}
+        {% sections 'header-group' %}
+      {% endif %}
+      {%- sections 'overlay-group' -%}
+    {%- endif -%}
+
+    <main id="main" class="anchor">
+      {{ content_for_layout }}
+    </main>
+
+    {%- if request.page_type != 'password' -%}
+      {% comment %}{% section 'newsletter-form' %}{% endcomment %}
+      {%- sections 'footer-group' -%}
+    {%- endif -%}
+  {%- render 'gwp-free' -%} 
+
+  {% if page.handle == 'ambassadors' %}
+    {% render 'ambassador-form' %}
+  {% endif %}
+
+  <!-- Hide Klaviyo Teaser on Cart Drawer Open -->
+  <script>
+    (function ($) {
+      
+      function updateChatBtnVisibility() {
+        const drawerIsOpen = $('#cart-drawer').is('[open]');
+        // Toggle both the chat iframe and the teaser button
+        $('iframe#chat-button').toggle(!drawerIsOpen);
+        $('.kl-teaser-RmX9Cm').toggle(!drawerIsOpen);
+      }
+    
+      $(updateChatBtnVisibility);
+    
+      $(document).on(
+        'cart:drawer:open cart:drawer:close ' +  
+        'drawer:open drawer:close ' +            
+        'cartdrawer:open cartdrawer:close',      
+        updateChatBtnVisibility
+      );
+    
+      const drawerEl = document.getElementById('cart-drawer');
+      if (drawerEl) {
+        new MutationObserver(updateChatBtnVisibility)
+          .observe(drawerEl, { attributes: true, attributeFilter: ['open'] });
+      }
+    })(window.jQuery);
+  </script>
+  </body>
+</html>
+
+<!-- Begin Shopify-Afterpay JavaScript Snippet (v1.2.0) -->
+<!-- https://developers.afterpay.com/docs/api/platforms/shopify/afterpay-site-messaging -->
+{% if cart.currency.iso_code == shop.currency %}
+<script type="text/javascript">
+// Overrides:
+// var afterpay_msg_size = 'sm';  // Can be 'xs', 'sm', 'md' or 'lg'.
+// var afterpay_bold_amount = true;
+// var afterpay_logo_theme = 'colour';  // Can be 'colour', 'black' or 'white'.
+// var afterpay_modal_open_icon = true;
+// var afterpay_hide_upper_limit = false;
+// var afterpay_hide_lower_limit = true;
+// var afterpay_show_if_outside_limits = true;
+
+// var afterpay_product_integration_enabled = true;
+var afterpay_product_selector = '#product-price-list';
+// var afterpay_variable_price_fallback = false;
+// var afterpay_variable_price_fallback_selector = '';
+// var afterpay_variable_price_fallback_method = 'mutation';  // Can be 'mutation' or 'interval'.
+
+// var afterpay_cart_integration_enabled = true;
+// var afterpay_cart_static_selector = '#cart-subtotal-selector';
+// var afterpay_variable_subtotal_fallback = false;
+// var afterpay_variable_subtotal_fallback_selector = '';
+// var afterpay_variable_subtotal_fallback_method = 'mutation'; // Can be 'mutation' or 'interval'.
+
+// var afterpay_dynamic_cart_integration_enabled = false;
+// var afterpay_dynamic_cart_selector = '.cart-drawer__footer .totals';
+// var afterpay_dynamic_cart_observer_target = '#CartDrawer';
+
+// var afterpay_footer_logo_enabled = true;
+// var afterpay_footer_logo_format = 'icon';  // Can be 'icon', 'stacked' or 'logo'.
+// var afterpay_footer_logo_theme = 'colour'; // Can be 'colour', 'black' or 'white'.
+// var afterpay_footer_logo_background = 'border';  // Can be 'border' or 'transparent'.
+// var afterpay_footer_logo_container = 'footer ul.payment-icons';
+// var afterpay_footer_logo_template = '<li class="payment-icon"><object data="{logo_path}" type="image/svg+xml"></object></li>';
+
+// Non-editable fields:
+var afterpay_js_language = {{ localization.language.iso_code | slice: 0, 2 | json }};
+var afterpay_js_country = {{ localization.country.iso_code | json }};
+var afterpay_shop_currency = {{ shop.currency | json }};
+var afterpay_cart_currency = {{ cart.currency.iso_code | json }};
+var afterpay_shop_money_format = {{ shop.money_format | json }};
+var afterpay_shop_permanent_domain = {{ shop.permanent_domain | json }};
+var afterpay_theme_name = {{ theme.name | json }};
+var afterpay_product = {{ product | json }};
+var afterpay_current_variant = {{ product.selected_or_first_available_variant | json }};
+var afterpay_cart_total_price = {{ cart.total_price | json }};
+var afterpay_js_snippet_version = '1.2.0';
+</script>
+<script type="text/javascript" src="https://static.afterpay.com/shopify-afterpay-javascript.js"></script>
+
+<style>
+  square-placement {
+    display: block !important;
+  }
+</style>
+{% else %}
+<!-- Afterpay disabled: {{ cart.currency.iso_code }} != {{ shop.currency }} -->
+{% endif %}
+
+<!-- End Shopify-Afterpay JavaScript Snippet (v1.2.0) -->  
