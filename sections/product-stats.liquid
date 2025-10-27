@@ -1,0 +1,165 @@
+{% if section.settings.video_style == "Portrait" %}
+  {% render 'product-stats-portrait' %}
+{% else %}
+  {% render 'product-stats-landscape' %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Product stats",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },
+     {
+          "type": "color",
+          "id": "section_background",
+          "label": "Section background"
+        },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "Beach Days"
+      },
+      {
+        "type": "textarea",
+        "id": "content",
+        "label": "Content Text"
+      },
+      {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading"
+      },
+      {
+        "type": "text",
+        "id": "name",
+        "label": "Dog's Name"
+      },
+      {
+        "type": "text",
+        "id": "breed",
+        "label": "Breed"
+      },
+      {
+        "type": "text",
+        "id": "age",
+        "label": "Age"
+      },
+      {
+        "type": "text",
+        "id": "weight",
+        "label": "Weight"
+      },
+      {
+        "type": "text",
+        "id": "girth",
+        "label": "Girth"
+      },
+      {
+        "type": "text",
+        "id": "height",
+        "label": "Height"
+      },
+      {
+        "type": "text",
+        "id": "length",
+        "label": "Length"
+      },
+      {
+        "type": "text",
+        "id": "neck",
+        "label": "Neck"
+      },
+        {
+          "type": "color",
+          "id": "stats_background",
+          "label": "Stats background"
+        },
+      {
+        "type": "richtext",
+        "id": "dog_description",
+        "label": "Dog Description"
+      },
+      {
+      "type": "video",
+      "id": "video",
+      "label": "t:global.video.video",
+      "info": "t:global.video.video_info"
+      },
+      {
+        "type": "select",
+        "id": "video_style",
+        "label": "Video style",
+        "options": [
+         {
+            "value": "Landscape",
+            "label": "Landscape"
+          },          
+          {
+            "value": "Portrait",
+            "label": "Portrait"
+          }
+        ],
+        "default": "Landscape"
+      },
+      {
+        "type": "text",
+        "id": "stats_text",
+        "label": "Stats Text",
+        "default": "MODEL STATS"
+      },
+      {
+        "type": "text",
+        "id": "products_text",
+        "label": "Products Text",
+        "default": "FEATURED PRODUCTS"
+      },
+      {
+        "type": "text",
+        "id": "button_text",
+        "label": "Button Text",
+        "default": "SHOP NOW"
+      },
+      {
+        "type": "url",
+        "id": "button_url",
+        "label": "Button URL"
+       }
+    ],
+    "blocks": [
+      {
+        "type": "product",
+        "name": "Product",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Product"
+
+          }
+        ],
+        "limit": 3
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product stats",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}
+
+
+

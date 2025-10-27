@@ -1,0 +1,336 @@
+{%- if section.blocks.size > 0 -%}
+  <style>
+    #shopify-section-{{ section.id }}{
+      --logo-list-items-per-row: {{ 2 | at_most: section.blocks.size }};
+      --logo-list-item-border-color: {{ section.settings.logo_item_border.rgb }};
+      --logo-list-gap:{% if section.settings.logo_item_border == blank or section.settings.logo_item_border == 'rgba(0,0,0,0)' %}0px{% else %}1px{% endif %};
+    }
+    @media (min-width:700px){
+      #shopify-section-{{ section.id }}{--logo-list-items-per-row:{{ 3 | at_most: section.blocks.size }};}
+    }
+    @media (min-width:1000px){
+      #shopify-section-{{ section.id }}{
+        --logo-list-items-per-row:{{ section.settings.items_per_row | at_most: section.blocks.size }};
+      }
+      .logo-list{grid-template-columns:repeat({{ section.settings.items_per_row | at_most: section.blocks.size }},1fr);}
+    }
+  
+    .logo-slider{ visibility:hidden;  --slide-gap:18px; } 
+    .logo-slider.slick-initialized{ visibility:visible; }
+    .logo-slider .slick-list { margin:0 calc(-1 * var(--slide-gap)); }
+    .logo-slider .slick-slide{ padding:0 var(--slide-gap); }
+
+    .slider-ui{ display:flex; align-items:center; gap:12px; margin-top:16px; }
+    .slider-progress{ position:relative; width:160px; height:6px; background:#e3e3e3; border-radius:3px; overflow:hidden; }
+    .slider-progress-bar{ position:absolute; inset:0; height:100%; width:0; background:#000; }
+
+    .slider-prev,.slider-next{
+      width:32px;
+      height:32px;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:14px;
+      line-height:1;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    .slider-prev:hover,.slider-next:hover{ background:#f3f3f3; }
+    .slider-prev[disabled],.slider-next[disabled]{ opacity:.4; cursor:default; }
+
+    .slider-count{ font-size:14px; user-select:none; }
+  
+    .slider-progress{
+      position:relative;
+      width:180px;
+      height:10px;
+      background:#e0e0e0;
+      border-radius:5px;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+    .slider-progress-bar{
+      position:absolute;left:0;top:0;height:100%;width:0;
+      background:#000;transition:width .3s ease;
+    }
+    .slider-ui.flex.items-center {
+      display: flex;
+      margin-top: 8px;
+    }
+    .logo-block-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: #f8f8f8;
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .logo-top-text, .logo-bottom-text {
+      font-weight: bold;
+      text-align: center;
+      width: 100%;
+    }
+    .logo-top-text {
+      font-size: 20px;
+      font-weight: 900;
+      color: #000000;
+    }
+    .logo-bottom-text {
+      color: #e60000;
+      text-decoration: underline;
+      pointer-events: none;
+    }  
+    @media screen and (max-width: 767px) {
+      h3.logo-top-text {
+        font-size: 16px;
+      }
+    }
+  </style>
+
+  <div class="section-spacing {% if section.settings.separate_section_with_border %}bordered-section{% endif %}">
+    <div class="container container--xl">
+      <div class="section-stack">
+        {%- render 'section-header',
+            subheading: section.settings.subheading,
+            heading:    section.settings.title,
+            text_alignment: 'left', 
+            heading_tag: 'h2' -%}
+
+        <!-- ──────── SLIDER ──────── -->
+        <div class="logo-slider-wrapper">
+          <div class="logo-list logo-slider">
+            {%- for block in section.blocks -%}
+              {%- capture block_content -%}
+                <div class="logo-block-content">
+                  {% if block.settings.top_text != blank %}
+                    <h3 class="logo-top-text">{{ block.settings.top_text }}</h3>
+                  {% endif %}
+              
+                  {% if block.settings.logo != blank %}
+                    {%- capture sizes -%}{{ block.settings.logo_width }}px{%- endcapture -%}
+                    {%- capture widths -%}{{ block.settings.logo_width }},{{ block.settings.logo_width | times: 2 | at_most: block.settings.logo.width }}{%- endcapture -%}
+                    {%- capture max_width -%}--image-max-width:{{ block.settings.logo_width }}px{%- endcapture -%}
+                    {{- block.settings.logo
+                        | image_url: width:block.settings.logo.width
+                        | image_tag: style:max_width,
+                                     widths:widths,
+                                     sizes:sizes,
+                                     loading:'lazy',
+                                     class:'constrained-image' -}}
+                  {% else %}
+                    {{ 'image' | placeholder_svg_tag:'image' }}
+                  {% endif %}
+              
+                  {% if block.settings.bottom_text != blank %}
+                    <div class="logo-bottom-text" role="link" aria-label="{{ block.settings.link }}">{{ block.settings.bottom_text }}</div>
+                  {% endif %}
+                </div>
+              {%- endcapture -%}
+
+              {%- if block.settings.link != blank -%}
+                <a  href="{{ block.settings.link }}"
+                    class="logo-list__item"
+                    style="{% render 'surface', background: section.settings.logo_item_background %}"
+                    {{ block.shopify_attributes }}>{{ block_content }}</a>
+              {%- else -%}
+                <div class="logo-list__item"
+                     style="{% render 'surface', background: section.settings.logo_item_background %}"
+                     {{ block.shopify_attributes }}>{{ block_content }}</div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div><!-- /.logo-slider -->
+
+          <!-- CONTROLS -->
+          <div class="slider-ui">
+            <div class="slider-progress">
+              <span class="slider-progress-bar"></span>
+            </div>
+
+            <button type="button" class="slider-prev" aria-label="Previous">&lt;</button>
+
+            <span class="slider-count">
+              <span class="current">1</span> / <span class="total">1</span>
+            </span>
+
+            <button type="button" class="slider-next" aria-label="Next">&gt;</button>
+          </div>
+        </div><!-- /wrapper -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── JS ───────── -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $slider = $('.logo-slider');          // the <div class="logo-list logo-slider">
+      if (!$slider.length) return;
+  
+      /* --- cache UI elements --- */
+      const $wrap = $slider.closest('.logo-slider-wrapper');
+      const $prev = $wrap.find('.slider-prev');
+      const $next = $wrap.find('.slider-next');
+      const $bar  = $wrap.find('.slider-progress-bar');
+      const $cur  = $wrap.find('.current');
+      const $tot  = $wrap.find('.total');
+  
+      const totalSlides = {{ section.blocks.size }};
+      const desktopShow = {{ section.settings.items_per_row | at_most: section.blocks.size }};
+      const midShow     = 3;   // breakpoint 1000 (same as your CSS)
+      const mobileShow  = 2;   // breakpoint 700
+  
+      /* ---------- build slick ---------- */
+      $slider.slick({
+        slidesToShow   : desktopShow,
+        slidesToScroll : desktopShow,          // scroll a whole “page”
+        arrows         : false,
+        dots           : false,
+        infinite       : false,
+        responsive : [
+          { breakpoint: 1000, settings:{ slidesToShow: midShow,   slidesToScroll: midShow   } },
+          { breakpoint: 700,  settings:{ slidesToShow: mobileShow,slidesToScroll: mobileShow } }
+        ]
+      });
+  
+      /* ---------- progress / counter ---------- */
+      function updateProgress() {
+        const firstSlide     = $slider.slick('slickCurrentSlide');  // 0‑based
+        const slidesToShow   = $slider.slick('slickGetOption','slidesToShow');
+        const totalPages     = Math.ceil(totalSlides / slidesToShow);
+        const currentPage    = Math.floor(firstSlide / slidesToShow) + 1;
+  
+        /* fill bar */
+        $bar.css('width', (currentPage / totalPages * 100) + '%');
+  
+        /* counter */
+        $cur.text(currentPage);
+        $tot.text(totalPages);
+  
+        /* arrow disable */
+        $prev.prop('disabled', currentPage === 1);
+        $next.prop('disabled', currentPage === totalPages);
+      }
+  
+      /* --- initial paint & on change --- */
+      updateProgress();
+      $slider.on('afterChange', updateProgress);
+  
+      /* --- hook buttons --- */
+      $prev.on('click', () => $slider.slick('slickPrev'));
+      $next.on('click', () => $slider.slick('slickNext'));
+    });
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Need Assistance",
+  "class": "shopify-section--logo-list",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "t:global.section.separate_section_with_border",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "t:global.text.subheading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:global.text.heading",
+      "default": "Need Assistance"
+    },
+    {
+      "type": "range",
+      "id": "items_per_row",
+      "min": 3,
+      "max": 7,
+      "label": "t:sections.logo_list.items_per_row_desktop",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "t:global.colors.category"
+    },
+    {
+      "type": "color",
+      "id": "logo_item_background",
+      "label": "t:sections.logo_list.logo_background"
+    },
+    {
+      "type": "color",
+      "id": "logo_item_border",
+      "label": "t:sections.logo_list.logo_border"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "content",
+      "name": "content",
+      "settings": [
+        {
+          "type": "text",
+          "id": "top_text",
+          "label": "Top Text",
+          "default": "BOOK A CONSULT"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "t:sections.logo_list.blocks.logo.logo_image",
+          "info": "t:sections.logo_list.blocks.logo.logo_image_info"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "min": 50,
+          "max": 250,
+          "unit": "px",
+          "step": 10,
+          "label": "t:sections.logo_list.blocks.logo.logo_width",
+          "default": 120
+        },
+        {
+          "type": "text",
+          "id": "bottom_text",
+          "label": "Bottom Text",
+          "default": "BOOK ONLINE"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:global.text.link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Need Assistance",
+      "blocks": [
+        {
+          "type": "content"
+        },
+        {
+          "type": "content"
+        },
+        {
+          "type": "content"
+        },
+        {
+          "type": "content"
+        },
+        {
+          "type": "content"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

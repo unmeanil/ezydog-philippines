@@ -1,0 +1,29 @@
+<div class="breadcrumb-wrapper section-x-spacing">
+  {% render 'breadcrumbs' %}
+</div>
+<style>
+.breadcrumb-wrapper{
+  margin-top: 20px;
+  margin-bottom: 20px; 
+}
+  
+</style>
+{% schema %}
+{
+  "name": "Breadcrumbs",
+  "settings": [
+     {
+        "type": "checkbox",
+        "id": "float",
+        "label": "Apply absolute positioning",
+        "default": false
+      }
+  ],
+  "presets": [
+    {
+      "name": "Breadcrumbs"
+    }
+  ]
+}
+
+{% endschema %}

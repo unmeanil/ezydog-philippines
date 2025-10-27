@@ -1,0 +1,117 @@
+<!-- icon-grid -->
+{% if product.metafields.custom.key_features != blank or section.blocks.size > 0 %}
+  <section id= "section-{{ section.id }}" class="section-x-spacing {% if section.settings.apply_top_padding %} section-mt {% endif %} {% if section.settings.apply_bottom_padding %} section-mb {% endif %}">
+    <p class="dfs-30 mfs-30 heading-{{section.id}} Barlow-Medium">{{ section.settings.title }}</p>
+    <div class="icon-grid-{{section.id}}">
+      {% if product.metafields.custom.key_features != blank %}
+        {% for feature in product.metafields.custom.key_features.value %}
+          <div class="icon-wrapper-{{section.id}} text-center">
+            {% if feature.icon.value != blank %}
+              <img src="{{ feature.icon.value | img_url: '200x200' }}" alt="{{ block.settings.text }}">
+            {% endif %}
+            <p>{{ feature.title }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for block in section.blocks %}
+          <div class="icon-wrapper-{{section.id}} text-center">
+            <img src="{{ block.settings.image | img_url: '200x200' }}" alt="{{ block.settings.text }}">
+            <p>{{ block.settings.text }}</p>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+<style>
+  #section-{{ section.id }}{
+    background: {{ section.settings.background }};
+  }
+  
+  .icon-grid-{{section.id}} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1280px;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+  }
+
+.icon-grid-{{section.id}} img {
+  width: 95px;
+  height: 95px;
+  margin: auto;
+  object-fit: cover;
+}
+
+.heading-{{section.id}}{ margin-bottom: 32px; }
+
+@media (max-width: 640px) {
+  .heading-{{section.id}}{ margin-bottom: 32px; }
+  .icon-grid-{{section.id}} {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .icon-grid-{{section.id}} img {
+    width: 111px;
+    height: 111px;
+  }
+}
+</style>
+
+
+{% schema %}
+{
+  "name": "Icon grid",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:global.colors.background",
+      "default": "#FFF"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Key features"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Feature Image"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Feature Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Icon grid"
+    }
+  ]
+}
+{% endschema %}

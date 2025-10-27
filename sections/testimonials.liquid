@@ -1,0 +1,402 @@
+<!-- sections/testimonials.liquid -->
+{% style %}
+  {% if page.handle == 'black-friday-sale' %}
+    section#section-testimonials {
+      border-block-start-width: 1px;
+    }
+    #shopify-section-testimonials h3.Barlow-Medium.dfs-30.text-mb-sm {
+      margin-top: 25px;
+    }
+    @media only screen and (min-width: 640px) {
+      .text-mb-sm {
+        margin-bottom: 25px;
+      }
+    }
+  {% endif %}
+{% endstyle %}
+
+{%- if section.blocks.size > 0 -%}
+  <style>
+    #shopify-section-{{ section.id }} {
+      --testimonials-font-size: calc(clamp(1.125rem, 1.064516129032258rem + 0.25806451612903225vw, 1.25rem) * {{ section.settings.font_size_factor }});
+    }
+  </style>
+
+  <section id="section-{{section.id}}" class="section-x-spacing {% if section.settings.apply_top_padding %} section-mt {% endif %} {% if section.settings.apply_bottom_padding %} section-mb {% endif %}">    <div class="">
+      <div class="">
+        <div class="section-stack">
+          <div class="testimonial-list testimonial-list-{{section.id}} {% if section.settings.desktop_display == 'grid' %} hidden-tablet-and-up {% endif %}">
+            {%- assign carousel_id = 'carousel-' | append: section.id -%}
+
+            <testimonial-carousel allow-swipe {% if section.settings.auto_rotate_between_testimonials %}autoplay="{{ section.settings.cycle_speed }}"{% endif %} class="testimonial-carousel" id="{{ carousel_id }}">
+              {%- for block in section.blocks -%}
+                <div class="testimonial-item text-center {% if forloop.first %}is-selected{% endif %}" {{ block.shopify_attributes }}>
+                  {%- if block.settings.content != blank -%}
+                    <div class="testimonial-slide-{{section.id}}">
+                      <div class="testimonial-slide-image-{{section.id}}" style="
+                        background: url({{ block.settings.slide_image | img_url: '1200x' }});
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        background-size: cover;">
+                      </div>
+                      <div class="testimonial-slide-text-wrapper-{{section.id}}">
+                        <div class="Barlow dxp-60 slide-top-text-{{section.id}}">
+                          <div>
+                            {% if block.settings.testimonial_heading != blank %}
+                              <p class="dfs-22 mfs-22 Barlow-Medium" style="margin-bottom: 10px;">{{ block.settings.testimonial_heading }}</p>
+                            {% endif %}
+                              <div class="star-wrapper-carousel text-mb-sm text-mt-sm">
+                                {% for i in (1..5) %}
+                                    {% render 'star' %}
+                                {% endfor %}
+                              </div>
+                             <p class="dfs-22 mfs-16 Barlow-Medium">{{- block.settings.author -}}</p>
+                          </div>
+                          <span class="content-{{section.id}} Barlow dfs-14 mfs-14">{{- block.settings.content -}}</span>
+
+                        </div>
+                      </div>
+                    </div>
+                  {%- endif -%}
+
+                  {%- if block.settings.image != blank or block.settings.author != blank -%}
+                    <div class="v-stack justify-items-center gap-4 md:hidden">
+                      {%- if block.settings.image != blank -%}
+                        {%- assign mobile_width = block.settings.image.width | at_most: block.settings.logo_mobile_max_width -%}
+                        {%- assign desktop_width = block.settings.image.width | at_most: block.settings.logo_max_width -%}
+
+                        {%- capture widths -%}{{ mobile_width }}, {{ mobile_width | times: 2 }}, {{ desktop_width }}, {{ desktop_width | times: 2 }}{%- endcapture -%}
+                        {%- capture sizes -%}(max-width: 699px) {{ mobile_width }}px, {{ desktop_width }}px{%- endcapture -%}
+                        {%- capture style_attribute -%}--image-mobile-max-width: {{ mobile_width }}px; --image-max-width: {{ desktop_width }}px{%- endcapture -%}
+                        {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: loading: 'lazy', sizes: sizes, widths: widths, class: 'constrained-image md:hidden', style: style_attribute -}}
+                      {%- endif -%}
+
+
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </testimonial-carousel>
+
+            {%- assign testimonials_with_image = section.blocks | map: 'settings' | where: 'image' -%}
+
+            {%- if section.blocks.size > 1 -%}
+              <carousel-navigation aria-controls="{{ carousel_id }}" class="page-dots {% if testimonials_with_image.size > 0 %}md:hidden{% endif %}">
+                {%- for i in (1..section.blocks.size) -%}
+                  <button class="tap-area" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="{{ 'general.accessibility.go_to_item' | t: index: forloop.index | escape }}">
+                    <span class="sr-only">{{- 'general.accessibility.go_to_item' | t: index: forloop.index -}}</span>
+                  </button>
+                {%- endfor -%}
+              </carousel-navigation>
+            {%- endif -%}
+
+          </div>
+
+          {% comment %} DESKTOP GRID {% endcomment %}
+          {% if section.settings.desktop_display == 'grid' %}
+            <div class="hidden-phone">
+              <h3 class="Barlow-Medium dfs-30 text-mb-sm">{{ section.settings.title }}</h3>
+              <div class="testimonial-grid-{{section.id}}">
+
+              {%- for block in section.blocks -%}
+                  <div class="testimonial-grid-text-{{section.id}}">
+                    <div class="Barlow">
+                        <div class="testimonial-grid-image-{{section.id}}" style="
+                          background: url({{ block.settings.slide_image | img_url: '1200x' }});
+                          background-position: top center;
+                          background-repeat: no-repeat;
+                          min-height: 25vw;
+                          background-size: cover;
+                          border-radius: 10px; ">
+                        </div>
+                      <div class="star-wrapper">
+                        {% for i in (1..5) %}
+                        {% render 'star' %}
+                        {% endfor %}
+                      </div>
+
+                      <div>
+                        <p class="dpb-8 dfs-20">{{- block.settings.author -}}</p>
+                        <span class="Open-Sans">{{- block.settings.content -}}</span>
+                      </div>
+
+                    </div>
+                  </div>
+                {%- endfor -%}
+              <div>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+<style>
+
+  .slide-top-text-{{section.id}}{
+    display: grid; 
+    gap: 64px
+  }
+
+  .testimonial-list-{{section.id}}{ padding-bottom: 3em; }
+  .testimonial-list-{{section.id}} { position: relative; }
+  .testimonial-list-{{section.id}} > carousel-navigation { position: absolute; bottom: 0px; }
+  .testimonial-item{ max-width: unset; }
+  .testimonial-slide-text-wrapper-{{section.id}}, .testimonial-slide-image-{{section.id}}{ border-radius: 10px; }
+
+  .testimonial-slide-text-wrapper-{{section.id}}{
+    padding: 110px 0;
+    display: grid;
+    align-items: center;
+    background: #FAF9F7;
+  }
+
+  .star-wrapper-carousel{
+    display: flex;
+    width: max-content;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 10px;
+  }
+
+  {% if section.settings.desktop_display == 'grid' %}
+    .testimonial-grid-{{section.id}}{ display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 2vw; }
+    .star-wrapper{
+      padding: 24px 0;
+      display: flex;
+      width: max-content;
+      gap: 10px;
+    }
+  @media screen and (min-width: 640px) and (max-width: 800px){
+    .testimonial-grid-{{section.id}}{ display: grid; grid-template-columns: 1fr 1fr; }
+  }
+
+  {% endif %}
+
+  @media screen and (max-width: 640px){
+    #section-{{section.id}}{ background: #FAF9F7; border-radius: 10px; padding: 3em 0;}
+    .content-{{section.id}}{ padding-left: 32px; padding-right: 32px; }
+
+    .testimonial-slide-text-wrapper-{{section.id}}{
+      padding: 40px 0;
+    }
+
+    .slide-top-text-{{section.id}}{
+      display: grid; 
+      gap:48px
+    }
+
+    .star-wrapper{
+      padding: 24px 0;
+      display: flex;
+      width: max-content;
+      margin: auto;
+      gap: 10px;
+    }
+  }
+
+  @media screen and (min-width: 641px){
+    .testimonial-slide-{{section.id}}{
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+    }
+  }
+
+
+  @media screen and (min-width: 641px) and (max-width: 1280px){
+    .testimonial-slide-{{section.id}}{
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media screen and (min-width: 1400px){
+    .testimonial-slide-image-{{section.id}}{
+      min-height: 600px;
+      height: 50vw;
+      max-height: 1000px; 
+      
+    }
+  }
+
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.testimonials.name",
+  "class": "shopify-section--testimonials",
+  "tag": "section",
+  "max_blocks": 5,
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "t:global.section.separate_section_with_border",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "desktop_display",
+      "label": "Desktop display",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_rotate_between_testimonials",
+      "label": "t:sections.testimonials.auto_rotate_between_testimonials"
+    },
+    {
+      "type": "range",
+      "id": "cycle_speed",
+      "min": 3,
+      "max": 20,
+      "step": 1,
+      "unit": "sec",
+      "label": "t:sections.testimonials.cycle_speed",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "font_size_factor",
+      "min": 0.5,
+      "max": 1.5,
+      "label": "t:global.text.font_size_factor",
+      "step": 0.1,
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "t:global.section.header_category"
+    },
+
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:global.text.heading"
+    },
+    {
+      "type": "header",
+      "content": "t:global.colors.category"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:global.colors.background"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:global.colors.text"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "t:sections.testimonials.blocks.testimonial.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "testimonial_heading",
+          "label": "Testimonial heading"
+        },        
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:global.text.content",
+          "default": "<p>Share what your customers are saying about your products, customer service or shipping rates.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "Slide Image",
+          "info": "1000 x 1000px recommended"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Avatar Image",
+          "info": "t:sections.testimonials.blocks.testimonial.avatar_size_recommendation"
+        },
+        {
+          "type": "range",
+          "id": "logo_max_width",
+          "min": 50,
+          "max": 300,
+          "step": 5,
+          "unit": "px",
+          "label": "t:global.image.width",
+          "default": 140
+        },
+        {
+          "type": "range",
+          "id": "logo_mobile_max_width",
+          "min": 50,
+          "max": 170,
+          "step": 5,
+          "unit": "px",
+          "label": "t:global.image.mobile_width",
+          "default": 100
+        },
+        {
+          "type": "inline_richtext",
+          "id": "author",
+          "label": "t:sections.testimonials.blocks.testimonial.author"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonials.presets.testimonials.name",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "content": "<p>Share what your customers are saying about your products, customer service or shipping rates.</p>"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "content": "<p>Share what your customers are saying about your products, customer service or shipping rates.</p>"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "content": "<p>Share what your customers are saying about your products, customer service or shipping rates.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

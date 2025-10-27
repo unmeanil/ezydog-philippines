@@ -1,0 +1,360 @@
+<!-- sections/product-range -->
+{% capture text_column %}
+  <div class="product-text-wrapper-{{ section.id }}">
+    {% for block in section.blocks %}
+      <div class="product-{{ section.id }} product-{{ block.id }} desktop-text-{{section.id}}">
+        <p class="Barlow-Medium mxp-20 dfs-20 block-title-{{ section.id }} {% if forloop.first %} active {% endif %} " data-image-id="image-{{ block.id }}">
+         <a {% if block.settings.use_data_url %} data-url="{{ block.settings.url  }}" {% else %} href="{{ block.settings.url }}" {% endif %}>{{ block.settings.title }}</a>
+        </p>
+      </div>
+      <a  data-url="{{ block.settings.url }}" class="mobile-image-{{section.id}}">
+        <div class="product-{{ section.id }} product-{{ block.id }}">
+          <p class="block-title-{{ section.id }} {% if forloop.first %} active {% endif %} mfs-20  Barlow-Medium" data-image-id="image-{{ block.id }}">
+            {{block.settings.title}}
+          </p>
+        </div>
+        </a>
+    {% endfor %}
+  </div>
+{% endcapture %}
+
+{% capture image_column %}
+  <div class="image-wrapper-{{ section.id }} hidden-phone">
+    {% for block in section.blocks %}
+
+      <a {% if block.settings.use_data_url %} data-url="{{ block.settings.url  }}" {% else %}  href="{{ block.settings.url }}" {% endif %}>
+        <div class="image-{{ section.id }} image-{{ block.id }} {% if forloop.first != true %} d-none {% endif %}"
+          style="background-image: url('{{ block.settings.image | img_url: '1200x1200' }}')">
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% endcapture %}
+
+<section id="section-{{ section.id }}" class="mxp-10 section-x-spacing {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+  {% if section.settings.title != blank %}
+    <p class="Barlow-Medium title-{{ section.id }} hidden-tablet-and-up mpb-24 mfs-30 ">{{ section.settings.title }}</p>
+  {% endif %}
+  <div class="grid-{{ section.id }}">
+    {% if section.settings.image_position == 'right' %}
+      {{ text_column }}
+      {{ image_column }}
+    {% else %}
+      {{ image_column }}
+      {{ text_column }}
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  {% if template == 'index' %}
+    @media screen and (min-width: 679px) {
+      div#shopify-section-{{ section.id }} {
+        margin-bottom: 4em;
+      }
+      .product-text-wrapper-{{ section.id }} {
+        line-height: 1 !important;
+      }
+    }
+  {% endif %}
+  #section-{{ section.id }} { background: {{ section.settings.background }}; }
+
+  .title-{{ section.id }}{ color: {{ section.settings.title_color }}; }
+
+  .block-title-{{ section.id }}{ color: {{ section.settings.link_color_mobile }}; }
+
+  @media screen and (max-width: 640px) {
+    .desktop-text-{{section.id}}{ display: none !important; }
+    .block-title-{{ section.id }}{
+        margin-left: 9px;
+      }
+
+    .product-text-wrapper-{{ section.id }}{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .product-{{ section.id }}{ border-radius: 10px; }
+    {% for block in section.blocks %}
+      .product-{{ block.id }}{
+        height: 50vw;
+        display: flex;
+        align-items: flex-end;
+        background: url({{ block.settings.image | img_url: '1200x1200'  }});
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+    {% endfor %}
+  }
+
+  @media screen and (min-width: 641px) { 
+    .block-title-{{ section.id }}{ color: {{ section.settings.link_color_desktop }}; }
+    .product-{{ section.id }}{ margin-bottom: 10px; min-width: 200px; width: max-content; }
+    .mobile-image-{{section.id}}{ display: none; }
+
+    {% if section.settings.image_position == "right" %}
+      .product-text-wrapper-{{section.id}}{
+        align-items: center;
+        justify-content: center;
+      }
+    {% endif %}
+
+
+    .grid-{{ section.id }} {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 500px;
+      height: 40vw;
+      max-height: 700px;
+    }
+
+    .image-{{ section.id }} {
+      background-size: cover;
+      background-position: center;
+      min-height: 100%;
+      border-radius: 10px;
+    }
+
+    {% for block in section.blocks %}
+      .image-{{ block.id }}{
+        background: url({{ block.settings.product.image | img_url: '1200x1200'  }});
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: {{block.settings.image_size}};
+      }
+    {% endfor %}
+
+    .block-title-{{ section.id }} {
+      cursor: pointer;
+      max-width: 170px;
+      border-radius: 5px;
+      color: #6A6A6A;
+      position: relative;
+      letter-spacing: 0.03em;
+      max-width: max-content;
+      padding-right: 1em; 
+    }
+
+    .block-title-{{ section.id }}.active {
+      color: {{ section.settings.link_active_color_desktop }};
+      border: 1px solid {{ section.settings.link_active_color_desktop }};
+      padding-left: 25px;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .block-title-{{ section.id }}::before {
+      content: '•';
+      position: absolute;
+      left: 0px;
+      margin-left: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5em;
+      color: {{ section.settings.link_active_color_desktop }};
+      font-size: 20px;
+      opacity: 0;
+    }
+    .block-title-{{ section.id }}.active { transition: color .2s, padding-left .3s; }
+    .block-title-{{ section.id }}.deactive { transition: color .2s, padding-left .3s .1s; }
+    .block-title-{{ section.id }}.active::before { opacity: 1; transition: opacity .2s .1s;}
+    .block-title-{{ section.id }}.deactive::before { opacity: 0; transition: opacity .2s;}
+
+
+    .product-text-wrapper-{{ section.id }}{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    
+  }
+
+  @media screen and (min-width: 641px){
+    .product-text-wrapper-{{ section.id }}{
+       {% if section.settings.image_position == "right" %}
+        align-items: flex-start;
+       {% else %}
+         align-items: flex-end;
+      {% endif %}
+    }
+  }
+  @media screen and (min-width: 641px) and (max-width: 1000px) {
+    {% if section.settings.image_position == "right" %}
+    .grid-{{section.id}} {
+      grid-template-columns: 1fr 2fr;
+    }
+    {% else %}
+      .grid-{{section.id}} {
+        grid-template-columns: 2fr 1fr;
+      }
+    {% endif %}
+  }
+
+  @media screen and (min-width: 1001px) {
+    .product-text-wrapper-{{ section.id }}{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+  </style>
+
+<script>
+  $(document).ready(function() {
+    $('.block-title-{{ section.id }}').hover(function() {
+      $('.block-title-{{ section.id }}').removeClass('active').addClass('deactive');
+      $(this).addClass('active').removeClass('deactive');
+      const imageId = $(this).data('image-id');
+      $('.image-{{ section.id }}').addClass('d-none');
+      $('.' + imageId).removeClass('d-none');
+    });
+  });
+</script>
+
+
+
+
+
+
+{% schema %}
+  {
+    "name": "Product range",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Section"
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_top_padding",
+        "label": "Apply top padding",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_padding",
+        "label": "Apply bottom padding",
+        "default": false
+      },
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background"
+      },
+      {
+        "type": "header",
+        "content": "Title"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "info": "Only shows on mobile",
+        "default": "Product Range"
+      },
+      {
+        "type": "header",
+        "content": "Desktop content"
+      },      {
+        "type": "color",
+        "id": "link_color_desktop",
+        "label": "Link colour (Desktop)"
+      },
+      {
+        "type": "color",
+        "id": "link_active_color_desktop",
+        "label": "Link active colour (Desktop)"
+      },
+      {
+        "type": "header",
+        "content": "Mobile content"
+      },
+      {
+        "type": "color",
+        "id": "title_colour",
+        "label": "Title colour"
+      },
+
+      {
+        "type": "color",
+        "id": "link_color_mobile",
+        "label": "Link colour (Mobile)"
+      },
+      {
+        "type": "color",
+        "id": "link_active_color_mobile",
+        "label": "Link active colour (Mobile)"
+      },
+      {
+        "type": "header",
+        "content": "Image"
+      },
+      {
+        "type": "select",
+        "id": "image_position",
+        "label": "Image position",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ],
+        "default": "right"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "text",
+        "name": "Product",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "URL"
+          },
+          {
+            "type": "checkbox",
+            "id": "use_data_url",
+            "label": "Use data-url for SEO",
+            "default": false
+          },          
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image",
+            "info": "940 x 800px recommended"
+          },
+          {
+            "type": "select",
+            "id": "image_size",
+            "label": "Image size",
+            "options": [
+              {
+                "value": "contain",
+                "label": "Contain"
+              },
+              {
+                "value": "cover",
+                "label": "Cover"
+              }
+            ],
+            "default": "cover"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+       "name": "Product range"
+      }
+    ]
+  }
+{% endschema %}

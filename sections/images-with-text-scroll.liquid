@@ -1,0 +1,822 @@
+{%- if section.blocks.size > 0 -%}
+  {%- assign section_carousel_id = 'section-carousel-' | append: section.id -%}
+
+  <style>
+    #shopify-section-{{ section.id }} {
+      {%- assign first_image = section.blocks | map: 'settings' | map: 'image' | compact | first -%}
+
+      --images-with-text-scroll-master-image-ratio: {{ first_image.aspect_ratio | default: 1 }};
+      --images-with-text-scroll-text-alignment: {{ section.settings.text_alignment }};
+
+      {%- if section.settings.overlay_color != 'rgba(0,0,0,0)' -%}
+        --images-with-text-scroll-overlay: {{ section.settings.overlay_color.rgb }} / {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+      {%- endif -%}
+    }
+    
+    .images-with-text-scroll__item {
+      display: flex;
+      justify-content: center;
+      padding-block-start: 6vw;
+    }
+    .is-last  {
+      {% comment %} padding-block-end: calc((100vh - 540px - var(--sticky-area-height)) / 2); {% endcomment %}
+      /* padding-block-end: 30vh; */
+    }
+    .images-with-text-scroll__text img {
+      margin-inline: auto;
+    }
+    {% if section.settings.stack_on_mobile == false %}
+    .mobile-scroll-item {
+      display: contents;
+    }
+    {% elsif section.settings.stack_on_mobile == true %}
+    .mobile-scroll-item {
+      display: block;
+    }
+    .images-with-text-scroll__item:not(.is-selected) {
+      visibility: visible;
+    }
+    {% endif %}
+  </style>
+
+  <images-with-text-scroll class="images-with-text-scroll hidden sm:block section-mb section-x-spacing" style="{% render 'surface', background: section.settings.background, text_color: section.settings.text_color %}">
+
+    <div class="images-with-text-scroll__container">
+
+    {% assign featured_image = section.settings.featured_image %}
+<div style="height: 50vw;
+    display: grid;
+    align-items: center;
+    position: sticky;
+    top: 0;">
+      <div class="featured-sticky-content content-over-media main-image-{{ section.id }}" style="position:sticky; top:var(--sticky-area-height);">
+      {% if featured_image -%}
+        {{- featured_image | image_url: width: featured_image.width | image_tag: loading: 'lazy', widths: '210,420,440,575,630,880,1150,1320,1725', style: 'object-position: inherit', class: 'images-with-text-scroll__image' -}}
+      {%- endif -%}
+
+        <div class="prose content {{ section.settings.desktop_text_position }}" style="color:white;">
+          {%- if section.settings.subheading != blank -%}
+            <h3 class="h6">{{ section.settings.subheading }}</h3>
+          {%- endif -%}
+
+          {%- if section.settings.title != blank -%}
+            <p class="title-{{section.id}} Barlow-Medium h-1" >{{ section.settings.title }}</p>
+          {%- endif -%}
+
+          {%- if section.settings.content != blank -%}
+            {{- section.settings.content -}}
+          {%- endif -%}
+
+          {% assign button_opacity = block.settings.button_opacity | divided_by: 100.0 | prepend: ' / ' %}
+          {%- if section.settings.link_text != blank -%}
+            {%- render 'button', href: section.settings.link_url, content: section.settings.link_text, style: section.settings.link_style, background: section.settings.button_background, button_opacity: button_opacity, text_color: section.settings.button_text_color -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+      <div class="vertical-scrolling-blocks">  
+        {%- for block in section.blocks -%}
+
+          {% if block.type == "blog" %}
+            {% assign blog = block.settings.blog %}
+            {%- for article in block.settings.blog.articles limit: 4 -%}
+              <div class="images-with-text-scroll__item {{ section.settings.content_width }} {% if forloop.first %}is-selected{% endif %} {% if forloop.last %}is-last{% endif %}">
+                <div class=" h-flex justify-center">
+                  <div class="images-with-text-scroll__text" {{ block.shopify_attributes }}>
+                    {%- render 'blog-post-card', article: article, blog: blog, show_category: false, show_excerpt: false, show_read_more: true, sizes: sizes -%}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+          
+          <div class="images-with-text-scroll__item {{ section.settings.content_width }} {% if forloop.first %}is-selected{% endif %} {% if forloop.last %}is-last{% endif %}">
+             <div class="container h-flex justify-center">
+                <div class="images-with-text-scroll__text" {{ block.shopify_attributes }}>
+                {%- case block.type -%}
+                  {%- when 'article' -%}
+
+                  {%- render 'blog-post-card', article: block.settings.article, blog: blog, show_category: false, show_excerpt: false, show_read_more: true, sizes: sizes -%}
+
+                  {%- when 'image_with_text' -%}
+
+                    {% if block.settings.image != blank %}
+
+                  <div style="background: url({{  block.settings.image  | img_url: '1200x' }});
+                      background-position: center;
+                      background-repeat: no-repeat;
+                      background-size: cover;
+                      height: 32vw;
+                      width: 32vw;"></div>
+
+
+
+                   {% comment %}   {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 210px, (max-width: 999px) 440px, 575px', widths: '210,420,440,575,630,880,1150,1320,1725' -}}{% endcomment %}
+                    {% endif %}
+{% comment %}
+                    <div class="prose" style="{% if block.settings.image != blank %}padding-block-start:1rem;{% endif %}">
+                      {%- if block.settings.subheading != blank -%}
+                        <p class="h6">{{ block.settings.subheading }}</p>
+                      {%- endif -%}
+
+                      {%- if block.settings.title != blank -%}
+                        <p class="{{ block.settings.heading_tag }}">{{ block.settings.title }}</p>
+                      {%- endif -%}
+
+                      {{- block.settings.content -}}
+
+                      {%- if block.settings.link_text != blank -%}
+                        {%- render 'button', href: block.settings.link_url, content: block.settings.link_text, external: block.settings.external_link, style: block.settings.link_style, background: section.settings.button_background, text_color: section.settings.button_text_color -%}
+                      {%- endif -%}
+                    </div>
+{% endcomment %}
+                {% endcase %}
+                </div>
+
+              </div>
+             </div>
+            {%- endfor -%}
+
+      </div>
+    </div>
+  </images-with-text-scroll>
+
+
+<!------- MOBILE CAROUSEL ------->
+{% if blog == blank %}
+  <images-with-text-scroll id="{{ section_carousel_id }}" class="images-with-text-scroll {% if section.settings.image_position == 'end' %}images-with-text-scroll--reverse{% endif %} sm:hidden">
+
+    <div class="featured-sticky-content content-over-media">
+     {{- featured_image | image_url: width: featured_image.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 210px, (max-width: 999px) 440px, 575px', widths: '210,420,440,575,630,880,1150,1320,1725', style: 'object-position: inherit', class: 'images-with-text-scroll__image' -}}
+      <div class="prose content {{ section.settings.mobile_text_position }} Barlow" style="color:white; padding-block: 2.5rem; padding-inline:1rem;">
+        {%- if section.settings.subheading != blank -%}
+          <h3 class="h6">{{ section.settings.subheading }}</h3>
+        {%- endif -%}
+
+        {%- if section.settings.title != blank -%}
+          <p class="{{ section.settings.heading_tag }}" style="padding-block-end: 0.5rem;">{{ section.settings.title }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.content != blank -%}
+          {{- block.settings.content -}}
+        {%- endif -%}
+
+        {%- if section.settings.link_text != blank -%}
+          {%- render 'button', href: section.settings.link_url, content: section.settings.link_text, style: section.settings.link_style, background: section.settings.button_background, text_color: section.settings.button_text_color -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="images-with-text-scroll__container" style="{% render 'surface', background: section.settings.background, text_color: section.settings.text_color %}">
+
+      {%- for block in section.blocks -%}
+        <div class="images-with-text-scroll__item mobile-scroll-item {{ section.settings.content_width }} {% if forloop.first %}is-selected{% endif %} {% if forloop.last %}is-last{% endif %}" style="{% render 'surface', background: section.settings.background, text_color: section.settings.text_color %}">
+
+          <div class="images-with-text-scroll__text" {{ block.shopify_attributes }}>
+                {%- case block.type -%}
+                  {%- when 'article' -%}
+
+                  {%- render 'blog-post-card', article: block.settings.article, blog: blog, show_category: false, show_excerpt: true, show_read_more: true, sizes: sizes -%}
+
+                  {%- when 'image_with_text' -%}
+
+                    {% if block.settings.image != blank %}
+                      {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 210px, (max-width: 999px) 440px, 575px', widths: '210,420,440,575,630,880,1150,1320,1725' -}}
+                    {% endif %}
+
+                    <div class="prose" style="{% if block.settings.image != blank %}padding-block-start:1rem;{% endif %}">
+                      {%- if block.settings.subheading != blank -%}
+                        <p class="h6">{{ block.settings.subheading }}</p>
+                      {%- endif -%}
+
+                      {%- if block.settings.title != blank -%}
+                        <p class="{{ block.settings.heading_tag }}">{{ block.settings.title }}</p>
+                      {%- endif -%}
+
+                      {{- block.settings.content -}}
+
+                      {%- if block.settings.link_text != blank -%}
+                        {%- render 'button', href: block.settings.link_url, content: block.settings.link_text, external: block.settings.external_link, style: block.settings.link_style, background: section.settings.button_background, text_color: section.settings.button_text_color -%}
+                      {%- endif -%}
+                    </div>
+                {% endcase %}
+          </div>
+        </div>
+      {%- endfor -%}
+
+      {%- if section.blocks.size > 1 and section.settings.stack_on_mobile == false -%}
+        <carousel-navigation aria-controls="{{ section_carousel_id }}" class="page-dots md:hidden">
+          {%- for i in (1..section.blocks.size) -%}
+            <button class="tap-area" aria-current="{% if forloop.first %}true{% else %}false{% endif %}">
+              <span class="sr-only">{{ 'general.accessibility.go_to_item' | t: index: forloop.index }}</span>
+            </button>
+          {%- endfor -%}
+        </carousel-navigation>
+      {%- endif -%}
+    </div>
+  </images-with-text-scroll>
+  
+{%- endif -%}
+{%- endif -%}
+
+{% if blog != blank %}
+{% capture blog_posts %}
+  <blog-posts class="blog-post-list blog-post-list-{{section.id}} justify-center {% unless section.settings.stack_on_mobile %}blog-post-list--carousel scroll-area snap-x bleed md:unbleed{% endunless %}" {% if settings.stagger_blog_posts_apparition %}reveal-on-scroll="true"{% endif %}>
+    {%- capture sizes -%}(max-width: 699px) 95vw, (max-width: 1149px) calc(100vw / 2), calc((80rem - (5rem * ({{ blog.articles_count | default: 3 | at_most: 3 }} - 1) / 3){%- endcapture -%}
+
+    {%- for article in blog.articles limit: 4 -%}
+      {%- render 'blog-post-card', use_background_image: false , article: article, blog: blog, show_category: section.settings.show_category, show_excerpt: section.settings.show_excerpt, show_read_more: section.settings.show_read_more, sizes: sizes -%}
+    {%- else -%}
+      {%- for i in (1..3) -%}
+        {%- render 'blog-post-card', show_category: section.settings.show_category, show_excerpt: section.settings.show_excerpt, show_read_more: section.settings.show_read_more  -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  </blog-posts>
+{% endcapture %}
+
+<div class="section-x-spacing hidden-tablet-and-up  section-pb ">
+  <div class="">
+    <div class="section-stack section-stack-{{ section.id }}">
+      {%- render 'section-header', subheading: section.settings.subheading, heading: section.settings.title, content: section.settings.content, text_alignment: 'left' -%}
+
+    <div class="mobile-blog-stacked-{{section.id}}">
+      {%- for article in blog.articles limit: 4 -%}
+        {%- render 'blog-post-card', use_background_image: false , article: article, blog: blog, show_category: section.settings.show_category, show_excerpt: section.settings.show_excerpt, show_read_more: section.settings.show_read_more, sizes: sizes -%}
+      {% endfor %}
+    </div>
+
+      <div class="blog-wrapper-{{section.id}}">
+        {{ blog_posts }}
+        <div class="button-{{section.id}} button-desktop-{{section.id}}">
+          {%- assign button_link = section.settings.button_link | default: blog.url -%}
+          {%- render 'button', style: "button", class_attribute: "button", href: blog.url, content: "VIEW ALL" -%}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const element = document.querySelector('.images-with-text-scroll');
+
+element.addEventListener('scroll', function() {
+    // Check if the element is scrolled to the top
+    if (element.scrollTop === 0) {
+        // window.scrollBy({ top: -100, left: 0, behavior: 'smooth' });
+      $('.images-with-text-scroll__image').click();
+
+    }
+
+    // Check if the element is scrolled to the bottom
+    if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+        // window.scrollBy({ top: 100, left: 0, behavior: 'smooth' });
+      $('.images-with-text-scroll__image').click();
+
+    }
+});
+</script>
+
+<style>
+
+ .images-with-text-scroll{
+   height: 50vw;
+    overflow: scroll;
+   min-height: unset;
+}
+
+
+.images-with-text-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+
+.images-with-text-scroll {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+  
+.images-with-text-scroll__container img{ top: 0; }
+  
+ .blog-wrapper-{{section.id}} img { border-radius: 10px; }
+  .blog-post-list { --blog-post-list-column-gap: 10px !important; }
+  .blog-wrapper-{{section.id}}{display: grid; gap: 34px; grid-template-columns: 1fr; }
+  .button-grid-{{section.id}}{ display: grid; justify-content: center;}
+
+  .button-{{ section.id }}{  margin-top: 50px; }
+  .mobile-blog-stacked-{{section.id}}{ display: none; }
+  @media screen and (max-width: 640px){
+  
+    .button-{{ section.id }}{  margin-top: 0px; }
+    .section-stack-{{ section.id }}{ gap: 34px; }
+    .button-{{ section.id }}{  text-align: center;  }
+  }
+  {% if section.settings.stack_on_mobile %}
+    @media screen and (max-width: 640px){
+
+    }
+  {% endif %}
+
+  @media screen and (min-width: 1000px){
+    .blog-wrapper-{{ section.id }}{
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 10px;
+    }
+
+    .button-grid-{{section.id}}{ display: grid; justify-content: left;}
+
+    .button-{{ section.id }}{
+      align-self: end;
+      margin-bottom: 50px;
+      justify-content: center;
+      display: grid;
+    }
+  }
+ .blog-post-card__info-{{section.id}}{
+      text-align: left;
+    }
+</style>
+{% endif %}
+
+
+<style>
+  .main-image-{{ section.id }}{ border-radius: 10px; top: 0 !important;  }
+  @media screen and (max-width: 640px){
+    .blog-post-card__info-{{section.id}}{
+      padding-inline: 0.5rem;
+      margin-right: unset;
+      color: #000;
+      text-align: left;
+    }
+    .blog-post-link{ justify-self: left;  }
+  }
+  @media screen and (min-width: 1600px){
+    .main-image-{{ section.id }}{
+      border-radius: 10px;
+    }
+  }
+  
+</style>
+
+
+{% schema %}
+{
+  "name": "t:sections.images_with_text_scroll.name",
+  "class": "shopify-section--images-with-text-scroll",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.images_with_text_scroll.instructions"
+    },
+    {
+      "type": "checkbox",
+      "id": "stack_on_mobile",
+      "label": "t:sections.text_with_icons.stack_on_mobile",
+      "default": false
+    },
+    {
+      "type": "radio",
+      "id": "content_width",
+      "label": "Scrolling content width",
+      "options": [
+        {
+          "value": "container container--xs",
+          "label": "Inset"
+        },
+        {
+          "value": "container container--sm",
+          "label": "Full width"
+        }
+      ],
+      "default": "container container--xs"
+    },
+    {
+      "type": "image_picker",
+      "id": "featured_image",
+      "label": "Featured image",
+      "info": "3200 x 1200px recommended"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_featured_image",
+      "label": "Mobile featured image",
+      "info": "940 x 800px recommended"
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_position",
+      "label": "t:global.position.mobile_content_position",
+      "options": [
+        {
+          "value": "place-self-start text-start",
+          "label": "t:global.position.top_left"
+        },
+        {
+          "value": "place-self-start-center text-center",
+          "label": "t:global.position.top_center"
+        },
+        {
+          "value": "place-self-start-end text-end",
+          "label": "t:global.position.top_right"
+        },
+        {
+          "value": "place-self-center-start text-start",
+          "label": "t:global.position.middle_left"
+        },
+        {
+          "value": "place-self-center text-center",
+          "label": "t:global.position.middle_center"
+        },
+        {
+          "value": "place-self-center-end text-end",
+          "label": "t:global.position.middle_right"
+        },
+        {
+          "value": "place-self-end-start text-start",
+          "label": "t:global.position.bottom_left"
+        },
+        {
+          "value": "place-self-end-center text-center",
+          "label": "t:global.position.bottom_center"
+        },
+        {
+          "value": "place-self-end text-end",
+          "label": "t:global.position.bottom_right"
+        }
+      ],
+      "default": "place-self-center text-center"
+    },
+    {
+      "type": "select",
+      "id": "desktop_text_position",
+      "label": "t:global.position.desktop_content_position",
+      "options": [
+        {
+          "value": "sm:place-self-start sm:text-start",
+          "label": "t:global.position.top_left"
+        },
+        {
+          "value": "sm:place-self-start-center sm:text-center",
+          "label": "t:global.position.top_center"
+        },
+        {
+          "value": "sm:place-self-start-end sm:text-end",
+          "label": "t:global.position.top_right"
+        },
+        {
+          "value": "sm:place-self-center-start sm:text-start",
+          "label": "t:global.position.middle_left"
+        },
+        {
+          "value": "sm:place-self-center sm:text-center",
+          "label": "t:global.position.middle_center"
+        },
+        {
+          "value": "sm:place-self-center-end sm:text-end",
+          "label": "t:global.position.middle_right"
+        },
+        {
+          "value": "sm:place-self-end-start sm:text-start",
+          "label": "t:global.position.bottom_left"
+        },
+        {
+          "value": "sm:place-self-end-center sm:text-center",
+          "label": "t:global.position.bottom_center"
+        },
+        {
+          "value": "sm:place-self-end sm:text-end",
+          "label": "t:global.position.bottom_right"
+        }
+      ],
+      "default": "sm:place-self-center sm:text-center"
+    },
+    {
+      "type": "header",
+      "content": "t:global.text.content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "t:global.text.subheading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:global.text.heading",
+      "default": "Title"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:global.text.heading_style",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        }
+      ],
+      "default": "h3"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "t:global.text.content",
+      "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+      "info": "t:sections.images_with_text_scroll.blocks.image_with_text.content_info"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "link_text",
+      "label": "t:global.text.button_text"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "t:global.text.button_link"
+    },
+    {
+      "type": "select",
+      "id": "link_style",
+      "label": "t:global.text.button_style",
+      "options": [
+        {
+          "value": "outline",
+          "label": "t:global.text.link_style_options.outline"
+        },
+        {
+          "value": "solid",
+          "label": "t:global.text.link_style_options.solid"
+        },
+        {
+          "value": "link",
+          "label": "t:global.text.link_style_options.link"
+        }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:global.text.alignment",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:global.position.left"
+        },
+        {
+          "value": "center",
+          "label": "t:global.position.center"
+        },
+        {
+          "value": "end",
+          "label": "t:global.position.right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:global.colors.category"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:global.colors.background",
+      "info": "t:sections.images_with_text_scroll.background_info",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:global.colors.text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "t:global.colors.button_background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "t:global.colors.button_text",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "range",
+      "id": "button_opacity",
+      "label": "Button opacity",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "t:global.colors.overlay_color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:global.colors.overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_with_text",
+      "name": "t:sections.images_with_text_scroll.blocks.image_with_text.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:global.image.image",
+          "info": "t:sections.images_with_text_scroll.blocks.image_with_text.image_info"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "subheading",
+          "label": "t:global.text.subheading"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "t:global.text.heading",
+          "default": "Title"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:global.text.heading_style",
+          "options": [
+            {
+              "value": "h1",
+              "label": "H1"
+            },
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            },
+            {
+              "value": "h4",
+              "label": "H4"
+            },
+            {
+              "value": "h5",
+              "label": "H5"
+            },
+            {
+              "value": "h6",
+              "label": "H6"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:global.text.content",
+          "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+          "info": "t:sections.images_with_text_scroll.blocks.image_with_text.content_info"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "link_text",
+          "label": "t:global.text.button_text"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "t:global.text.button_link"
+        },
+        {
+          "type": "checkbox",
+          "id": "external_link",
+          "label": "Open link in new window",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "t:global.text.button_style",
+          "options": [
+            {
+              "value": "outline",
+              "label": "t:global.text.link_style_options.outline"
+            },
+            {
+              "value": "solid",
+              "label": "t:global.text.link_style_options.solid"
+            },
+            {
+              "value": "link",
+              "label": "t:global.text.link_style_options.link"
+            }
+          ],
+          "default": "solid"
+        }
+      ]
+    },
+    {
+      "type": "article",
+      "name": "Article",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:global.image.image",
+          "info": "t:sections.images_with_text_scroll.blocks.image_with_text.image_info"
+        },
+        {
+          "type": "article",
+          "id": "article",
+          "label": "Article"
+        }
+      ]
+    },
+    {
+      "type": "blog",
+      "name": "Blog",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:global.image.image",
+          "info": "t:sections.images_with_text_scroll.blocks.image_with_text.image_info"
+        },
+        {
+          "type": "blog",
+          "id": "blog",
+          "label": "t:sections.blog_posts.blocks.blog.blog"
+        }  
+      ]
+    }    
+  ],
+  "presets": [
+    {
+      "name": "t:sections.images_with_text_scroll.presets.images_with_text_scroll.name",
+      "blocks": [
+        {
+          "type": "image_with_text",
+          "settings": {
+            "title": "#1",
+            "content": "<p>Welcome your customers to your store by sharing temporary offers or explaining to them what your products are about.</p>"
+          }
+        },
+        {
+          "type": "image_with_text",
+          "settings": {
+            "title": "#2",
+            "content": "<p>Create trust with your customers by explaining the story of your brand. Share your values or what is important to you.</p>"
+          }
+        },
+        {
+          "type": "image_with_text",
+          "settings": {
+            "title": "#3",
+            "content": "<p>Share information about your product with your customers. Describe a product, and share info about your production process...</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

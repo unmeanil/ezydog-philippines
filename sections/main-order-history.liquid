@@ -1,0 +1,372 @@
+{% unless customer %}
+   <script>
+    window.location.href = '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
+  </script>
+{% endunless %}
+
+{% comment %} <div class="content-block">
+  <div>
+    <h2 class="content-title">My Products</h2>
+    <p class="banner-image-container" style="text-align: end;">
+      <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/NEW_DOG.png?v=1749458854" class="banner-image" style="vertical-align: middle;">
+    </p>
+  </div>
+</div> {% endcomment %}
+<style>
+   #MainContent {
+    background: #ffffff;
+  }
+  .content-block h2 {
+    font-size: 20px;
+  }
+  .content-block{
+    border: 1px solid #f9f7f7;
+    background: #f9f7f7;
+    margin-top: 6px;
+  }
+  .content-title {
+    position: relative;
+    font-size: 24px;
+    text-transform: uppercase;
+  }
+  .order-history-section {
+    margin-top: -3em;
+  }
+ .banner-image {
+    height: 100px;
+  }
+  .page-width p.banner-image-container,
+  .order-history-page p.banner-image-container {
+    margin-right: 7em;
+  }
+  img.banner-image {
+    right: 120px;
+  }
+  .content-block div {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1180px;
+    margin: 0 auto;
+    align-items: center;
+  }
+  .content-block {
+    margin-bottom: 30px;
+  }
+  @media only screen and (max-width: 767px){
+    .content-title {
+      margin-left: 10px;
+    }
+   }
+  @media only screen and (max-width: 4300px)
+    .content-block h2 {
+      margin-left: 4.5em;
+    }
+  }
+  @media screen and (min-width: 768px){
+    .content-block {
+      padding: 0.25em 4em;
+    }
+  }
+</style> 
+  
+<div class="order-history-page">
+  {% if customer %}
+      <div class="order-history-section">    
+        <div class="content">
+          <h2 style="display: ruby">Products
+            <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/info-no_bg.png?v=1742201672" height="17px" width="17px" class="details-icon" style="vertical-align: middle;">
+          </h2>
+          <div class="details">
+            <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/info-no_bg.png?v=1742201672" height="17px" width="17px" class="details-icon" style="vertical-align: middle;">
+            <div class="text-content">
+              <p style="font-size: 15px;font-weight: 600;">Products</p>
+              <p>Easily view and re-order which products and sizes you previously purchased.</p>
+              <p>Need extra guidance, you can get in touch with our friendly customer service team via our online chat, or by booking a <a href="https://ezydog.com.au/pages/consultation">consult here</a>.</p>
+            </div>
+          </div>
+        </div>
+        
+        <style>
+          .details {
+            display: none;
+            width: 25%;
+            font-size: 12px;
+            text-align: justify;
+            margin-left: 25px;
+            border: 1px solid #d7d6d6;
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            position: absolute;
+            top: calc(11% - 18px);
+            left: calc(35% - 293px);
+            /* top: calc(30% - 214px);
+            left: calc(30% - 305px); */
+          }
+          .details p {
+            font-size: 12px;
+          }
+          .details a {
+            color: #e52020;
+          }
+          .container {
+            position: relative;
+          }
+          .details .text-content {
+            padding: 1em 2em;
+          }
+          .details, .text-content {
+            font-family: Barlow, sans-serif;
+            color: #231f20;
+          }
+          main#MainContent {
+            margin-top: 10px;
+          }
+          @media screen and (max-width: 767px){
+            .details {
+              display: none;
+              width: 70%;
+              font-size: 12px;
+              text-align: justify;
+              margin-left: 25px;
+              border: 1px solid #d7d6d6;
+              background: #f0f0f0;
+              padding: 10px;
+              border-radius: 10px;
+              position: absolute;
+              top: calc(17% - 425px);
+              left: calc(40% - 140px)
+            }
+          }
+          @media only screen and (min-width: 1024px) and (max-width: 1366px) {
+            img.banner-image {
+              top: 5em;
+              margin-left: 53em !important; 
+            }
+          }
+          @media only screen and (min-width: 768px) and (max-width: 1023px) {
+            img.banner-image {
+              top: 5.75em;
+              margin-left: 38em !important;
+            }  
+            .grid.grid--table {
+              display: flex;
+              gap: 2em;
+            }
+          }
+        </style>
+        
+        <script>
+          const detailsIcon = document.querySelector(".details-icon");
+          const detailsDiv = document.querySelector(".details");
+        
+          detailsIcon.addEventListener("click", () => {
+            if (detailsDiv.style.display === "block") {
+              detailsDiv.style.display = "none";
+            } else {
+              detailsDiv.style.display = "block";
+            }
+          });
+      
+          document.addEventListener("click", (event) => {
+            if (!detailsDiv.contains(event.target) && !detailsIcon.contains(event.target)) {
+              detailsDiv.style.display = "none";
+            }
+          });
+        </script>
+        
+        <div class="products-grid">
+            {% assign all_products = '' %}
+            {% for order in customer.orders %}
+                {% for line_item in order.line_items %}
+                    {% assign product = line_item.product %}
+                    {% unless all_products contains product.id %}
+                        <div class="product-item">
+                            <div class="product-image-container">
+                              <img src="{{ product.featured_image | img_url: 'medium' }}" alt="{{ product.title }}" class="product-image">
+                            </div>
+                            <div class="product-details">
+                                <h3>{{ product.title }} - {{ line_item.variant.title }}</h3>
+                                <div class="product-actions">
+                                    <a href="{{ product.url }}" class="view-product-btn">View Product</a>
+                                    <form method="post" action="/cart/add">
+                                      {% for line_item in order.line_items %}
+                                        <input type="hidden" name="id[]" value="{{ line_item.variant_id }}">
+                                        <input type="hidden" name="quantity[]" value="{{ line_item.quantity }}">
+                                      {% endfor %}
+                                      <button type="submit" class="reorder-btn">Re-Order</button>
+                                    </form>  
+                                    <!-- <a href="/cart/{{ line_item.variant.id }}:1" class="reorder-btn">Re-Order</a> -->
+                                </div>
+                            </div>
+                        </div>
+                        {% assign all_products = all_products | append: product.id | append: ',' %}
+                    {% endunless %}
+                {% endfor %}
+            {% endfor %}
+            <!-- Add Product Placeholder -->
+            <div class="product-item add-product">
+                <div class="product-image-container">
+                  <img src="https://cdn.shopify.com/s/files/1/0796/3780/7400/files/ezydog_favicon_primary.png?v=1734934126" alt="Add Product" class="product-image">
+                </div>
+                <div class="product-details">
+                    <h3>+ Add Product</h3>
+                </div>
+            </div>
+        </div>
+      </div>
+  {% else %}
+      <p>Please <a href="/account/login">log in</a> to view your order history.</p>
+  {% endif %}
+</div>
+
+<style>
+  .order-history-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .order-history-page h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .order-history-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #666;
+  }
+  h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6 {
+    letter-spacing: inherit;
+    text-transform: inherit;
+    font-family: Barlow, sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  .hide {
+    display: none;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .product-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .product-image-container {
+    flex: 0 0 150px;
+    margin-right: 15px;
+  }
+  
+  .product-image {
+    width: 85%; /*100%;*/
+    height: auto;
+    max-height: 150px;
+    object-fit: contain;
+  }
+  
+  .product-details {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  @media screen and (min-width: 768px) {
+    .product-details {
+      gap: 1em;
+    }
+  }
+  
+  .product-details h3 {
+    font-size: 16px;
+    margin: 0 0 10px 0;
+    color: #333;
+  }
+  
+  .product-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .view-product-btn, 
+  .reorder-btn {
+    /*padding: 7px 3.2px; /* 9px; */
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  @media screen and (min-width: 767px) {
+    .view-product-btn, .reorder-btn {
+        padding: 8px;
+    }
+  }
+
+  .view-product-btn {
+    background: #ccc;
+    color: #fff;
+  }
+  
+  .reorder-btn {
+    border: none;
+    background: #ff0000;
+    color: #fff;
+  }
+  
+  .add-product {
+    display: flex;
+    align-items: center;
+    background: #f0f0f0;
+    cursor: pointer;
+  }
+  
+  .add-product h3 {
+    color: #ff0000;
+    margin: 0;
+  }
+  .order-history-page {
+    margin-top: 35px;
+  }
+  @media (max-width: 767px) {
+    .product-item {
+        display: flex;
+        gap: 0.25em; /*1em;*/
+    }
+    .product-details {
+      gap: 1em; /*2em;*/
+    }
+    .product-image-container {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    .view-product-btn, 
+    .reorder-btn {
+      font-size: 11px; 
+      padding: 5px;
+    }
+    .product-image {
+        width: 80%;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const addProductCard = document.querySelector(".add-product");
+    if (addProductCard) {
+        addProductCard.addEventListener("click", () => {
+            window.location.href = "/collections/all";
+        });
+    }
+  });
+</script>

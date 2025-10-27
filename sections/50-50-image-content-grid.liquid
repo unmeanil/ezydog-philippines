@@ -1,0 +1,271 @@
+<!-- 50/50-image-content-grid -->
+<section id="section-{{ section.id }} {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+  <div class="hidden-phone">
+    <div class="grid-container-{{section.id}} hidden-phone">
+      <div class="grid-item-{{section.id}} left section-image-bg-{{section.id}}" style="background-image: url('{{ section.settings.left_image | img_url: 'large' }}');">
+        <div class="text-center">
+          <p class="title-{{section.id}} Barlow-Bk  h-1">{{ section.settings.title }}</p>
+          <a class="button" href="{{ section.settings.link_url }}">{{ section.settings.link_text }}</a>
+        </div>
+      </div>
+
+      <div class="grid-item-{{section.id}} right">
+        <div class="content-container-{{section.id}}">
+          {% for block in section.blocks %}
+            <div class="content-{{ section.id }} content-{{ block.id }} {% if forloop.first %} active {% endif %}" data-content-id="{{ block.id }}"></div>
+          {% endfor %}
+        </div>
+
+        <ul class="triggers-{{section.id}}">
+          {% for block in section.blocks %}
+            <li class="{% if forloop.first %} active {% endif %}" data-trigger-for="{{ block.id }}"></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="hidden-tablet-and-up">
+  MOBILE
+    <div class="mobile-grid-container-{{section.id}}">
+
+      <div class="grid-item-{{section.id}} right">
+        <div class="mobile-content-container-{{section.id}}">
+          {% for block in section.blocks %}
+            <div class="grid-item-{{section.id}} left section-image-bg-{{section.id}}" style="
+              background-image: url('{{ section.settings.blog_image | img_url: 'large' }}');
+              background-size: cover;
+              height: 400px;
+              width: 400px;
+              background-repeat: no-repeat;
+            ">
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<div class="your-class">
+ {%- for article in section.settings.blog.articles limit: section.settings.posts_count -%}
+            <div class="grid-item-{{section.id}} left section-image-bg-{{section.id}}" style="
+              background-image: url('{{ article.image | img_url: 'large' }}');
+              background-size: cover;
+              height: 400px;
+              width: 400px;
+              background-repeat: no-repeat;
+            ">
+            </div>
+          {% endfor %}
+</div>
+</section>
+<script>
+
+</script>
+
+<style>
+
+  .mobile-content-container-{{section.id}}{}
+
+  .title-{{section.id}}{ color: {{section.settings.title_color}};     margin-bottom: 2vw; }
+
+  .section-image-bg-{{section.id}}{
+    background-image: url('{{ block.settings.content_image | img_url: '1400x' }}');
+    background-repeat: no-repeat;
+    height: 50vw;
+    max-height: 800px;
+    border-radius: 0 10px 10px 0;
+  }
+
+
+  {% for block in section.blocks %}
+    .content-{{ block.id }}{
+      background-image: url('{{ block.settings.content_image | img_url: '1400x' }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+      height: 80%;
+      background-position: center;
+      width: 100%;
+      border-radius: 10px;
+    }
+  {% endfor %}
+
+  .grid-container-{{section.id}} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .left {
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .right {
+    width: 80%;
+    height: 80%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .content-container-{{section.id}} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+  }
+
+  .content-{{ section.id }}  {
+    display: none;
+  }
+
+  .content-{{ section.id }}.active {
+    display: block;
+  }
+
+  .triggers-{{section.id}} {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    padding-left: 30px;
+    margin-inline-start: 0;
+  }
+
+  .triggers-{{section.id}} li {
+    width: 3px;
+    height: 45px;
+    background-color: #DBDBDB;
+    cursor: pointer;
+    transition: background-color .2s;
+  }
+
+  .triggers-{{section.id}} li.active {
+    background-color: #1C1B1B;
+  }
+
+</style>
+
+<script>
+$(document).ready(function() {
+
+  $('.triggers-{{section.id}} li').on('click', function() {
+    let targetContentId = $(this).data('trigger-for');
+    let targetContent = $(`[data-content-id="${targetContentId}"]`);
+
+    // No fade
+    // $('.triggers-{{section.id}} li, .content-{{ section.id }}').removeClass('active');
+    // $(this).addClass('active');
+    // targetContent.addClass('active');
+    // No fade
+
+    $('.triggers-{{section.id}} li').removeClass('active');
+    $(this).addClass('active');
+
+    // Fade out the currently active content and then fade in the target content
+    $('.content-{{ section.id }}.active').fadeOut(100, function() {
+      $(this).removeClass('active');
+      targetContent.fadeIn(100).addClass('active');
+    });
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Image/Content Grid",
+  "settings": [
+     {
+        "type": "checkbox",
+        "id": "apply_top_padding",
+        "label": "Apply top padding",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_padding",
+        "label": "Apply bottom padding",
+        "default": true
+      },
+       {
+      "type": "image_picker",
+      "id": "blog_image",
+      "label": "Blog image"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "t:sections.blog_posts.blocks.blog.blog"
+    },
+    {
+      "type": "range",
+      "id": "posts_count",
+      "min": 2,
+      "max": 9,
+      "label": "t:sections.blog_posts.blocks.blog.posts_count",
+      "default": 3
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Background Image for Left Column"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title Text",
+      "default": "Your Title Here"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title colour",
+      "default": "#FFF"
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link Text",
+      "default": "Click Here"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "content_block",
+      "name": "Content Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "content_image",
+          "label": "Content Image"
+        }
+      ],
+      "limit": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image/Content Grid"
+    }
+  ]
+}
+
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

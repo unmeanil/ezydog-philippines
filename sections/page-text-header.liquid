@@ -1,0 +1,133 @@
+<!-- page-text-header -->
+<section id="section-{{ section.id }}">
+  {%- if section.settings.show_breadcrumbs -%}
+    {% render 'breadcrumbs', floating: true %}
+  {%- endif -%}
+  <div class="section-x-spacing content-wrapper-{{ section.id }} text-center">
+    <h1 class="h2 Barlow-Medium dfs-30 mfs-30 text-mb-sm">
+      <span class="heading-{{ section.id }}">{{ section.settings.heading_1 }}</span>
+      <span class="heading-1-{{ section.id }}">{{ section.settings.heading_2 }}</span>
+    </h1>
+    {% if section.settings.subheading != blank %}<h3 class="Open-Sans  text-mb-lg subheading-{{ section.id }}">{{ section.settings.subheading }}</h3>{% endif %}
+    <p class="body-{{ section.id }}">{{ section.settings.body }}</p>
+  </div>
+</section>
+
+<style>
+  #section-{{ section.id }} { background: {{ section.settings.background_color }}; }
+  .heading-{{ section.id }} { color: {{ section.settings.heading_color }}; }
+  .heading-2-{{ section.id }} { color: {{ section.settings.heading_2_color }}; }
+  .subheading-{{ section.id }} { color: {{ section.settings.subheading_color }}; }
+  .body-{{ section.id }} { color: {{ section.settings.body_color }}; }
+
+  @media screen and (max-width: 640px){
+    .content-wrapper-{{ section.id }}{
+      padding: 60px 0 90px 0;
+      max-width: 60%;
+    }
+  }
+  
+  @media screen and (min-width: 640px){
+    .content-wrapper-{{ section.id }}{
+      padding: 64px 0;
+      max-width: 60%;
+    }
+  }
+
+{% if section.settings.show_breadcrumbs %}
+  #section-{{ section.id }}{
+    .breadcrumb__list-item+.breadcrumb__list-item:before { color: {{ section.settings.breadcrumb_color }}; }
+    .breadcrumb{ color: {{ section.settings.breadcrumb_color }} }
+  }
+{% endif %}
+  
+</style>
+{% schema %}
+{
+  "name": "Page text header",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "breadcrumb_color",
+      "label": "Breadcrumb color",
+      "default": "#333"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading_1",
+      "label": "Heading part 1",
+      "default": "Heading part "
+    },
+    {
+      "type": "text",
+      "id": "heading_2",
+      "label": "Heading part 2",
+      "default": "Heading part 2"
+    },    
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Your subheading here"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body Text",
+      "default": "Your body text here"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Colour",
+      "default": "#333"
+    },
+    {
+      "type": "color",
+      "id": "heading_2_color",
+      "label": "Heading part 2 colour",
+      "default": "#EA2D24"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Colour",
+      "default": "#333"
+    },    
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Body colour",
+      "default": "#333"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Page text header",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

@@ -1,0 +1,488 @@
+<!-- sections/2-column-image test -->
+  {% comment  %}{% assign block = section.blocks.first %}{% endcomment %}
+  {% for block in section.blocks %}
+    {% case block.type %}
+      {% when "text_on_image" %}
+        {% render "2-col-image-style-1", block: block %}
+      {% when "text_around_image" %}
+        {% render "2-col-image-style-2", block: block %}
+    {% endcase %}
+    {% endfor %}
+
+ 
+ {% schema %}
+ {
+  "name": "2 col image",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "minimise_bottom_padding",
+      "label": "Apply small bottom padding",
+      "info": "Use when section is followed by the same section",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text_on_image",
+      "name": "Text on image",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Col 1"
+        },
+        {	
+          "type": "select",	
+          "id": "mobile_style",	
+          "label": "Mobile Style",
+          "options": [	
+            {	
+              "value": "1",	
+              "label": "1"
+            },	
+            {	
+              "value": "2",
+              "label": "2"
+            }	
+          ],	
+          "default": "1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "Background image",
+          "info": "890 x 460px recommended"
+        },
+        {
+          "type": "url",
+          "id": "url_1",
+          "label": "URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_chat_1",
+          "label": "Trigger chat test",
+          "default": false,
+          "info": "This will cause the button to open the chat app"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_scheduler_1",
+          "label": "Trigger scheduler",
+          "default": false,
+          "info": "This will cause the button to open the scheduling app"
+        },         
+        {
+          "type": "color",
+          "id": "text_color_1",
+          "label": "Image text colour"
+        },
+        {
+          "type": "header",
+          "content": "Image text"
+        },
+        {
+          "type": "text",
+          "id": "title_1",
+          "label": "Image title"
+        },
+        {
+          "type": "textarea",
+          "id": "body_1",
+          "label": "Image Body"
+        },
+        {
+          "type": "select",
+          "id": "desktop_text_position_1",
+          "label": "t:global.position.desktop_content_position",
+          "options": [
+            {
+              "value": "sm:place-self-start sm:text-start",
+              "label": "t:global.position.top_left"
+            },
+            {
+              "value": "sm:place-self-start-center sm:text-center",
+              "label": "t:global.position.top_center"
+            },
+            {
+              "value": "sm:place-self-start-end sm:text-end",
+              "label": "t:global.position.top_right"
+            },
+            {
+              "value": "sm:place-self-center-start sm:text-start",
+              "label": "t:global.position.middle_left"
+            },
+            {
+              "value": "sm:place-self-center sm:text-center",
+              "label": "t:global.position.middle_center"
+            },
+            {
+              "value": "sm:place-self-center-end sm:text-end",
+              "label": "t:global.position.middle_right"
+            },
+            {
+              "value": "sm:place-self-end-start sm:text-start",
+              "label": "t:global.position.bottom_left"
+            },
+            {
+              "value": "sm:place-self-end-center sm:text-center",
+              "label": "t:global.position.bottom_center"
+            },
+            {
+              "value": "sm:place-self-end sm:text-end",
+              "label": "t:global.position.bottom_right"
+            }
+          ],
+          "default": "sm:place-self-center sm:text-center"
+        },
+        {
+          "type": "select",
+          "id": "mobile_text_position_1",
+          "label": "t:global.position.mobile_content_position",
+          "options": [
+            {
+              "value": "place-self-start text-start",
+              "label": "t:global.position.top_left"
+            },
+            {
+              "value": "place-self-start-center text-center",
+              "label": "t:global.position.top_center"
+            },
+            {
+              "value": "place-self-start-end text-end",
+              "label": "t:global.position.top_right"
+            },
+            {
+              "value": "place-self-center-start text-start",
+              "label": "t:global.position.middle_left"
+            },
+            {
+              "value": "place-self-center text-center",
+              "label": "t:global.position.middle_center"
+            },
+            {
+              "value": "place-self-center-end text-end",
+              "label": "t:global.position.middle_right"
+            },
+            {
+              "value": "place-self-end-start text-start",
+              "label": "t:global.position.bottom_left"
+            },
+            {
+              "value": "place-self-end-center text-center",
+              "label": "t:global.position.bottom_center"
+            },
+            {
+              "value": "place-self-end text-end",
+              "label": "t:global.position.bottom_right"
+            }
+          ],
+          "default": "place-self-center text-center"
+        },
+        {
+          "type": "textarea",
+          "id": "content_1",
+          "label": "Content"
+        },
+        {
+          "type": "header",
+          "content": "Col 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Background image"
+        },
+        {
+          "type": "url",
+          "id": "url_2",
+          "label": "URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_chat_2",
+          "label": "Trigger chat",
+          "default": false,
+          "info": "This will cause the button to open the chat app"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_scheduler_2",
+          "label": "Trigger scheduler",
+          "default": false,
+          "info": "This will cause the button to open the scheduling app"
+        },         
+        {
+          "type": "header",
+          "content": "Image text"
+        },
+        {
+          "type": "color",
+          "id": "text_color_2",
+          "label": "Image text colour"
+        },
+        {
+          "type": "text",
+          "id": "title_2",
+          "label": "Image title"
+        },
+        {
+          "type": "textarea",
+          "id": "body_2",
+          "label": "Image Body"
+        },
+        {
+          "type": "select",
+          "id": "desktop_text_position_2",
+          "label": "t:global.position.desktop_content_position",
+          "options": [
+            {
+              "value": "sm:place-self-start sm:text-start",
+              "label": "t:global.position.top_left"
+            },
+            {
+              "value": "sm:place-self-start-center sm:text-center",
+              "label": "t:global.position.top_center"
+            },
+            {
+              "value": "sm:place-self-start-end sm:text-end",
+              "label": "t:global.position.top_right"
+            },
+            {
+              "value": "sm:place-self-center-start sm:text-start",
+              "label": "t:global.position.middle_left"
+            },
+            {
+              "value": "sm:place-self-center sm:text-center",
+              "label": "t:global.position.middle_center"
+            },
+            {
+              "value": "sm:place-self-center-end sm:text-end",
+              "label": "t:global.position.middle_right"
+            },
+            {
+              "value": "sm:place-self-end-start sm:text-start",
+              "label": "t:global.position.bottom_left"
+            },
+            {
+              "value": "sm:place-self-end-center sm:text-center",
+              "label": "t:global.position.bottom_center"
+            },
+            {
+              "value": "sm:place-self-end sm:text-end",
+              "label": "t:global.position.bottom_right"
+            }
+          ],
+          "default": "sm:place-self-center sm:text-center"
+        },
+        {
+          "type": "select",
+          "id": "mobile_text_position_2",
+          "label": "t:global.position.mobile_content_position",
+          "options": [
+            {
+              "value": "place-self-start text-start",
+              "label": "t:global.position.top_left"
+            },
+            {
+              "value": "place-self-start-center text-center",
+              "label": "t:global.position.top_center"
+            },
+            {
+              "value": "place-self-start-end text-end",
+              "label": "t:global.position.top_right"
+            },
+            {
+              "value": "place-self-center-start text-start",
+              "label": "t:global.position.middle_left"
+            },
+            {
+              "value": "place-self-center text-center",
+              "label": "t:global.position.middle_center"
+            },
+            {
+              "value": "place-self-center-end text-end",
+              "label": "t:global.position.middle_right"
+            },
+            {
+              "value": "place-self-end-start text-start",
+              "label": "t:global.position.bottom_left"
+            },
+            {
+              "value": "place-self-end-center text-center",
+              "label": "t:global.position.bottom_center"
+            },
+            {
+              "value": "place-self-end text-end",
+              "label": "t:global.position.bottom_right"
+            }
+          ],
+          "default": "place-self-center text-center"
+        },
+        {
+          "type": "textarea",
+          "id": "content_2",
+          "label": "Content"
+        }
+      ]
+    },
+    {
+      "type": "text_around_image",
+      "name": "Text around image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "Body"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            }      
+          ],
+          "default": "1"
+        },
+        {
+          "type": "header",
+          "content": "Col 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "Background image"
+        },
+        {
+          "type": "color",
+          "id": "text_color_1",
+          "label": "Image text colour"
+        },
+        {
+          "type": "text",
+          "id": "heading_1",
+          "label": "Heading"
+        },
+        {
+          "type": "color",
+          "id": "content_color_1",
+          "label": "Content colour"
+        },
+        {
+          "type": "textarea",
+          "id": "content_1",
+          "label": "Content"
+        },
+        {
+          "type": "url",
+          "id": "url_1",
+          "label": "URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_chat_1",
+          "label": "Trigger chat",
+          "default": false,
+          "info": "This will cause the button to open the chat app"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_scheduler_1",
+          "label": "Trigger scheduler",
+          "default": false,
+          "info": "This will cause the button to open the scheduling app"
+        },         
+        {
+          "type": "text",
+          "id": "button_text_1",
+          "label": "Button text"
+        },
+        {
+          "type": "header",
+          "content": "Col 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Background image"
+        },
+        {
+          "type": "text",
+          "id": "heading_2",
+          "label": "Heading"
+        },
+        {
+          "type": "color",
+          "id": "content_color_2",
+          "label": "Content colour"
+        },
+        {
+          "type": "textarea",
+          "id": "content_2",
+          "label": "Content"
+        },
+        {
+          "type": "url",
+          "id": "url_2",
+          "label": "URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_chat_2",
+          "label": "Trigger chat",
+          "default": false,
+          "info": "This will cause the button to open the chat app"
+        },       
+        {
+          "type": "checkbox",
+          "id": "use_scheduler_2",
+          "label": "Trigger scheduler",
+          "default": false,
+          "info": "This will cause the button to open the scheduling app"
+        },         
+        {
+          "type": "text",
+          "id": "button_text_2",
+          "label": "Button text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "2 col image"
+    }
+  ]
+}
+ {% endschema %}

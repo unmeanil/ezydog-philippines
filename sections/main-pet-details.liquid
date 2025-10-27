@@ -1,0 +1,2333 @@
+{% unless customer %}
+   <script>
+    window.location.href = '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
+  </script>
+{% endunless %}
+
+ 
+<div class="page-content-width">
+  <div class="grid">
+    <div class="grid__item medium-up--two-thirds">
+      <div id="pet-management">
+        <p class="pet-info-heading" style="margin-bottom: 12px;">
+          <b style="font-size: 20px;">Pet Details</b>
+        </p>
+        <div id="pets-list">
+          <!-- List of pets will be dynamically rendered here -->
+        </div>
+        <div class="pet-info-add-bottom">
+          <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932" height="100" width="100">
+          <button id="add-pet-button">+ Add Pet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Pet Modal -->
+<div class="pet-popup-container-new hide">
+  <div class="pet-popup-overlay-new"></div>
+  <div class="pet-popup-new">
+    <div id="pet-form-modal" style="display: none;">
+      <h4 id="modal-title">Add/Edit Pet</h4>
+      <form id="pet-form">
+        <input type="text" id="pet-name" name="pet-name" placeholder="Pet Name" required />
+          <div class="pet-details">
+            <div class="image-upload-container">
+              <input type="file" id="pet-image" name="imageUpload" accept="image/*" />
+              <div class="image-preview-container">
+                <img id="pet-image-preview" src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932" alt="Pet Image Preview" style="max-width: 350px; max-height: 200px; display: none;" />
+                <span id="max-limit-text" style="font-size: 9px; color: red;">Max Size Limit 7 MB</span> 
+                <span id="no-image-text">No image selected</span>
+              </div>
+              <span id="size-warning-text" style="font-size: 14px; color: red; display: none;">Exceeds the maximum size limit of 7MB</span>
+            </div>
+
+           <div class="individual-pet-detail">
+              <h3>Details</h3>
+              <label for="dob" style="margin-right: 10px;">Date of Birth</label>
+              <div class="dob-dropdowns">
+                <select id="dob-day" name="dob-day" required>
+                  <option value="" disabled selected>Day</option>
+                </select>
+                <select id="dob-month" name="dob-month" required>
+                  <option value="" disabled selected>Month</option>
+                </select>
+                <select id="dob-year" name="dob-year" required>
+                  <option value="" disabled selected>Year</option>
+                </select>
+              </div>
+              <label for="gender" style="margin-right: 10px;">Gender</label>
+               <select id="gender">
+                <option selected disabled>Select Gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+               </select>
+         
+              <label for="pure-breed" style="margin-right: 10px;">Single Breed</label>
+              {% render 'pure-breed' %}
+                                   
+              <label for="cross-breed" style="margin-right: 10px;">Mixed Breed</label>
+              {% render 'cross-breed' %}                  
+
+              <label for="weight" style="margin-right: 10px;">Weight (kg)</label>
+              <input type="number" id="weight" name="weight" placeholder="Weight (kg)" />
+
+              <div class="email-preferences-container">
+                  <input type="hidden" name="customer_id" value="{{ customer.id }}">
+                  <input type="hidden" name="store_domain" value="{% if shop.domain contains '.au' %}au{% else %}nz{% endif %}">
+                  <input type="hidden" name="authenticity_token" value="{{ form_authenticity_token }}">
+
+                  <div class="preference-option">
+                    <label>
+                      <input type="checkbox" name="accepts_marketing" id="accepts_marketing"
+                        {% if customer.accepts_marketing or customer.email_marketing_consent.state == 'subscribed' %}checked{% endif %}
+                        value="true">
+                      Subscribe to our email newsletter
+                    </label>
+                    <p class="description">To receive vouchers you need to be subscribed for marketing communications.</p>
+                  </div>
+                </div>
+           </div>
+         </div>
+       
+         <button type="submit" id="save-pet-button">Save Pet</button>
+         <button type="button" id="cancel-pet-button">Cancel</button>
+         <button type="button" id="delete-pet-button" class="delete-button">Delete Pet</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pets = [];
+  let editIndex = null;
+  const customerId = "{{ customer.id }}";
+
+  function generateRandomId() {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+  }
+
+  function setupImagePreview() {
+    const petImageInput = document.getElementById('pet-image');
+    const petImagePreview = document.getElementById('pet-image-preview');
+    const maxLimitText = document.getElementById('max-limit-text');
+    const noImageText = document.getElementById('no-image-text');
+    const sizeWarningText = document.getElementById('size-warning-text');
+    const defaultImageSrc = 'https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932';
+
+    if (!petImageInput || !petImagePreview || !noImageText || !sizeWarningText) {
+      console.error('Image preview or warning elements not found');
+      return;
+    }
+
+    function updateImageVisibility() {
+      if (petImagePreview.src && petImagePreview.src !== defaultImageSrc && petImagePreview.style.display !== 'none') {
+        maxLimitText.style.display = 'none';
+        noImageText.style.display = 'none';
+      } else {
+        maxLimitText.style.display = 'block';
+        noImageText.style.display = 'block';
+      }
+    }
+
+    petImageInput.addEventListener('change', function () {
+      const file = this.files[0];
+      const maxSize = 7 * 1024 * 1024;
+
+      sizeWarningText.style.display = 'none';
+      petImagePreview.style.display = 'none';
+      noImageText.style.display = 'block';
+
+      if (file) {
+        if (file.size > maxSize) {
+          sizeWarningText.style.display = 'block';
+          petImageInput.value = '';
+          maxLimitText.style.display = 'none';
+          noImageText.style.display = 'none';
+
+          setTimeout(() => {
+            sizeWarningText.style.display = 'none';
+          }, 2000);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          petImagePreview.src = e.target.result;
+          petImagePreview.style.display = 'block';
+          updateImageVisibility();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'src') {
+          updateImageVisibility();
+        }
+      });
+    });
+    observer.observe(petImagePreview, { attributes: true });
+
+    updateImageVisibility();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupImagePreview();
+  });
+
+  async function fetchPets() {
+    try {
+      const response = await fetch(`https://ezydog-member-profile-d6aad2c1d7ff.herokuapp.com/shopify/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": "1d956aa7d4081665e3c07131563c159f",
+        },
+        body: JSON.stringify({
+          query: `
+            {
+              customer(id: "gid://shopify/Customer/${customerId}") {
+                metafield(namespace: "custom", key: "pets") {
+                  value
+                }
+              }
+            }
+          `,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.data && data.data.customer && data.data.customer.metafield) {
+        try {
+          const petsData = JSON.parse(data.data.customer.metafield.value || "[]");
+          const pets = petsData.map(pet => {
+            const petId = pet.id || pet.pet_id || generateRandomId();
+            const { id, neck_measurement, girth_measurement, length_measurement, ...rest } = pet;
+            let dateOfBirth = null;
+            if (rest.dateOfBirth && !isNaN(new Date(rest.dateOfBirth))) {
+              dateOfBirth = new Date(rest.dateOfBirth);
+            } else if (rest.dob && rest.dob !== "N/A" && rest.dob.trim() !== "") {
+              const dobDate = new Date(rest.dob);
+              if (!isNaN(dobDate)) {
+                dateOfBirth = dobDate;
+              }
+            }
+            return { ...rest, pet_id: petId, dateOfBirth };
+          });
+          return pets;
+        } catch (error) {
+          console.error("Invalid JSON in metafield value:", error);
+          return [];
+        }
+      } else {
+        console.error("Metafield not found in response:", data);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching pets:", error);
+      return [];
+    }
+  }
+
+  async function savePet(pets) {
+    try {
+      const petsForStorage = pets.map(pet => ({
+          ...pet,
+          dateOfBirth: pet.dateOfBirth instanceof Date ? pet.dateOfBirth.toISOString().split('T')[0] : null
+      }));
+      const response = await fetch(`https://ezydog-member-profile-d6aad2c1d7ff.herokuapp.com/shopify/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": "1d956aa7d4081665e3c07131563c159f",
+        },
+        body: JSON.stringify({
+          query: `
+            mutation customerUpdate($input: CustomerInput!) {
+              customerUpdate(input: $input) {
+                customer {
+                  id
+                  metafields(first: 10) {
+                    edges {
+                      node {
+                        namespace
+                        key
+                        value
+                      }
+                    }
+                  }
+                }
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `,
+          variables: {
+            input: {
+              id: `gid://shopify/Customer/${customerId}`,
+              metafields: [
+                {
+                  namespace: "custom",
+                  key: "pets",
+                  value: JSON.stringify(petsForStorage),
+                  type: "json",
+                },
+              ],
+            },
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.data.customerUpdate.userErrors.length) {
+        console.error("User errors during save:", result.data.customerUpdate.userErrors);
+        return;
+      }
+    } catch (error) {
+      console.error("Error saving pets:", error);
+    }
+  }
+
+  function renderPets(pets) {
+    const petsList = document.getElementById("pets-list");
+    petsList.innerHTML = "";
+
+    const today = new Date();
+    const todayDay = String(today.getDate()).padStart(2, '0');
+    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const todayFormatted = `${todayDay}-${todayMonth}`;
+
+    const birthdayPets = pets.filter(pet => {
+      if (pet.dob) {
+        const dobParts = pet.dob.split("-");
+        if (dobParts.length === 3) {
+          const birthday = `${dobParts[2]}-${dobParts[1]}`;
+          return birthday === todayFormatted;
+        }
+      }
+      return false;
+    });
+
+    const existingBanner = document.getElementById("birthday-banner");
+    if (existingBanner) {
+      existingBanner.remove();
+    }
+
+    let petNames = "";
+
+    if (birthdayPets.length > 0) {
+      petNames = birthdayPets.map(pet => pet.name).join(", ");
+
+      const banner = document.createElement("div");
+      banner.id = "birthday-banner";
+
+      const capitalizeNames = (names) => {
+        if (!names) return "";
+        return names
+          .split(", ")
+          .map(name => name.charAt(0).toUpperCase() + name.slice(1).toLowerCase())
+          .join(", ");
+      };
+
+      const capitalizedPetNames = capitalizeNames(petNames);
+
+      banner.innerHTML = `
+        <div class="birthday-banner-content">
+          <div class="banner-icon">
+            <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/cake-candle.png?v=1743096038" height="87" width="100">
+          </div>
+          <div class="banner-text">
+            <h3>HAPPY BIRTHDAY, ${petNames.toUpperCase()}!</h3>
+            <p>We've sent you a special birthday email for <strong>${petNames.toUpperCase()}</strong>! Inside, you'll find a discount coupon—just use the code at checkout to treat your best friend.</p>
+            <p>Whether it's a fun new toy, a stylish outfit, or a heartwarming surprise, it's our way of saying <strong>Happy Birthday, ${capitalizedPetNames}!</strong></p>
+          </div>
+          <a href="/collections/all" class="shop-now-btn">SHOP NOW</a>
+        </div>
+      `;
+
+      const header = document.querySelector("#pet-management");
+      if (header) {
+        header.insertAdjacentElement("beforebegin", banner);
+      } else {
+        document.body.insertBefore(banner, document.body.firstChild);
+      }
+    }
+
+    const updatedPets = pets.map(pet => {
+      const totalFields = 6;
+      let completedFields = 0;
+
+      if (pet.name && pet.name.trim() !== "") completedFields++;
+      if (pet.image && pet.image.trim() !== "") completedFields++;
+      if (pet.dob && pet.dob.trim() !== "" && pet.dob !== "N/A") completedFields++;
+      if (pet.breed && pet.breed.trim() !== "") completedFields++;
+      if (pet.gender && pet.gender.trim() !== "") completedFields++;
+      if (pet.weight && pet.weight !== "0" && pet.weight !== "") completedFields++;
+
+      const profileCompletion = Math.round((completedFields / totalFields) * 100);
+
+      let dateOfBirth = null;
+      if (pet.dob && pet.dob !== "N/A" && pet.dob.trim() !== "") {
+        const dobDate = new Date(pet.dob);
+        if (!isNaN(dobDate)) {
+          dateOfBirth = dobDate;
+        }
+      }
+
+      return { ...pet, profile_completion: profileCompletion, dateOfBirth };
+    });
+
+    pets.splice(0, pets.length, ...updatedPets);
+    
+    updatedPets.forEach((pet, index) => {
+      try {
+        const petDiv = document.createElement("div");
+
+        let formattedDob = "N/A";
+        let birthday = "N/A";
+
+        if (pet.dob) {
+          const dobParts = pet.dob.split("-");
+          if (dobParts.length === 3) {
+            formattedDob = `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}`;
+            birthday = `${dobParts[2]}-${dobParts[1]}`;
+          }
+        }
+
+        petDiv.innerHTML = `
+          <div class="top-details">
+            <div class="top-content">
+              <h2 style="text-transform: uppercase;">${pet.name}</h2>
+              <div class="progress-bar-container">
+                <span>Profile Completion Progress</span>
+                <progress id="form-progress-${index}" value="${pet.profile_completion}" max="100" style="height: 9px;border: 1px solid green;border-radius: 5px;"></progress>
+                <span id="progress-percentage-${index}">${pet.profile_completion}%</span>
+              </div>
+            </div>
+            <a onclick="editPet(${index})" class="edit-details">
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="20" viewBox="-50 0 24 24" style="fill:#FA5252;">
+                <path d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z"></path>
+              </svg>
+            </a>
+          </div>
+          <div class="pet-details">
+            <p>${pet.image ? `<img src="${pet.image}" alt="${pet.name}" width="300" />` : '<img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932" alt="No Image" height="200px" style="height: 200px;" />'}</p>
+            <div class="individual-pet-detail">
+              <div class="header-with-tooltip" style="display: ruby;">
+                <h3 style="display: inline;">Details</h3>
+                <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/info-no_bg.png?v=1742201672" height="17px" width="17px" class="details-icon" data-tooltip-id="details-tooltip-${index}">
+                <div class="details-tooltip" id="details-tooltip-${index}">
+                  <div class="details-icons" bis_skin_checked="1">
+                    <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/info-no_bg.png?v=1742201672" height="17px" width="17px">
+                    <span class="close-tooltip" data-tooltip-id="details-tooltip-${index}">×</span>
+                  </div>
+                  <div class="details-text" bis_skin_checked="1">
+                    <p style="font-size: 15px; font-weight: 600;">Details</p>
+                    <p>Enter your Dog’s date of birth & we’ll send you special Birthday Treats each year!</p>
+                    <p>By selecting your Dog’s Breed we can recommend the best products and sizes for your Dog.</p>
+                    <p>If your dog is Purebred, select from the list of Breeds in Purebred.</p>
+                    <p>If your dog is a Common cross breed (ie Labradoodle), select from the list of Breeds in Common x Breeds.</p>
+                    <p>Need extra guidance, you can get in touch with our friendly customer service team via our online chat, or by booking a consult <a href="https://ezydog.com.au/pages/consultation">here</a>.</p>
+                  </div>
+                </div>
+              </div>
+              <p>Date of Birth:<br><strong>${formattedDob}</strong></p>
+              <p>Gender:<br><strong>${pet.gender}</strong></p>
+              <p>Breed:<br><strong>${pet.breed || "N/A"}</strong></p>
+              <p>Birthday (DD-MM):<br><strong>${birthday}</strong></p>
+              <p>Weight:<br><strong>${pet.weight || '0'}kg</strong></p>
+            </div>
+          </div>
+        `;
+
+        petsList.appendChild(petDiv);
+
+        const progressBar = petDiv.querySelector(`#form-progress-${index}`);
+        if (pet.profile_completion === 100) {
+          progressBar.style.accentColor = "green";
+        } else {
+          progressBar.style.accentColor = "red";
+        }
+
+        const detailsIcon = petDiv.querySelector(`.details-icon[data-tooltip-id="details-tooltip-${index}"]`);
+        const detailsTooltip = petDiv.querySelector(`#details-tooltip-${index}`);
+        const closeButtons = petDiv.querySelectorAll(`.close-tooltip`);
+
+        detailsIcon.addEventListener("click", () => {
+          detailsTooltip.style.display = detailsTooltip.style.display === "block" ? "none" : "block";
+        });
+
+        closeButtons.forEach(button => {
+          button.addEventListener("click", () => {
+            const tooltipId = button.getAttribute("data-tooltip-id");
+            const tooltip = petDiv.querySelector(`#${tooltipId}`);
+            if (tooltip) {
+              tooltip.style.display = "none";
+            } else {
+              console.error(`Tooltip with ID ${tooltipId} not found for pet at index ${index}`);
+            }
+          });
+        });
+      } catch (error) {
+        console.error(`Error rendering pet at index ${index}:`, error);
+      }
+    });
+
+    if (window._learnq && '{{ customer.email }}') {
+      const petDOBs = {};
+
+      for (let i = 1; i <= 5; i++) {
+        petDOBs[`pet${i}_dob`] = null;
+      }
+
+      updatedPets.forEach((pet, index) => {
+        petDOBs[`pet${index + 1}_dob`] = pet.dateOfBirth instanceof Date 
+          ? pet.dateOfBirth.toISOString().split('T')[0] 
+          : null;
+      });
+
+      _learnq.push(['identify', {
+        $email: '{{ customer.email }}',
+        ...petDOBs,
+        pets: updatedPets.map(pet => ({
+          ...pet,
+          dateOfBirth: pet.dateOfBirth instanceof Date ? pet.dateOfBirth.toISOString().split('T')[0] : null
+        }))
+      }]);
+    } else {
+      console.error("Klaviyo sync failed: _learnq or customer email not available");
+    }
+
+    savePet(updatedPets).then(() => {
+    }).catch(error => {
+      console.error("Failed to save updated pets to Shopify:", error);
+    });
+
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      .details-tooltip, .sizing-tooltip {
+        display: none;
+        width: 500px;
+        font-size: 12px;
+        text-align: justify;
+        border: 1px solid #bababa;
+        background: #bababa;
+        padding: 10px;
+        border-radius: 10px;
+        position: absolute;
+        z-index: 10;
+        top: 100%;
+        left: 0;
+      }
+
+      .header-with-tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .details-icon, .sizing-icon {
+        vertical-align: middle;
+        margin-left: 5px;
+        cursor: pointer;
+      }
+
+      .close-tooltip {
+        position: absolute;
+        font-size: 22px;
+        cursor: pointer;
+        color: #ff0000;
+        right: 20px;
+        top: 17px;
+      }
+
+      .close-tooltip:hover {
+        color: #000;
+      }
+      .details-icons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .details-text {
+        padding: 0 15px !important;
+        font-family: 'Barlow';
+        color: #231f20;
+      }
+      .header-with-tooltip {
+        padding: 0px !important;
+      }
+      @media screen and (max-width: 767px) {
+        .details-tooltip, .sizing-tooltip {
+          width: 300px;
+          left: calc(30% - 70px);
+          top: calc(100% - 12px);
+        }
+      }
+      
+      #birthday-banner {
+        width: 96%;
+        z-index: 1000;
+        background: #f0f0f0;
+        border: 2px solid #f0f0f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px auto;
+      }
+
+      .birthday-banner-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        gap: 20px;
+      }
+
+      .banner-icon {
+        flex: 0 0 auto;
+      }
+
+      .banner-text {
+        flex: 1;
+        text-align: left;
+      }
+
+      .banner-text h3 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #231f20;
+        margin: 0 0 10px;
+        text-transform: uppercase;
+      }
+
+      .banner-text p {
+        font-size: 16px;
+        color: #231f20;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .banner-text p strong {
+        font-weight: bold;
+      }
+
+      .shop-now-btn {
+        background-color: #FF0000;
+        color: #fff;
+        padding: 10px 20px;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 5px;
+        text-transform: uppercase;
+        flex: 0 0 auto;
+      }
+
+      .shop-now-btn:hover {
+        background-color: #CC0000;
+      }
+      #birthday-banner .shop-now-btn:hover {
+        color: #fff;
+      }
+      @media screen and (max-width: 767px) {
+        .birthday-banner-content {
+          gap: 10px;
+        }
+
+        .banner-text {
+          text-align: left;
+        }
+
+        .banner-text h3 {
+          font-size: 20px;
+        }
+
+        .banner-text p {
+          font-size: 14px;
+        }
+
+        .shop-now-btn {
+          padding: 8px 16px;
+        }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  }
+
+  async function sendToKlaviyoProxy(endpoint, payload, retries = 3, delay = 1000) {
+    try {
+      const response = await fetch(`https://klaviyo-custom-object-a0f901e1430c.herokuapp.com/klaviyo/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': '1d956aa7d4081665e3c07131563c159f'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.status === 429 && retries > 0) {
+        console.warn(`Rate limit hit, retrying after ${delay}ms... (${retries} retries left)`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return sendToKlaviyoProxy(endpoint, payload, retries - 1, delay * 2);
+      }
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`Proxy error response: ${errorBody}`);
+        throw new Error(`Proxy error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error sending to Klaviyo proxy:', error);
+      throw error;
+    }
+  }
+
+  async function sendToEzydogWebhook(payload, retries = 3, delay = 1000) {
+    const webhookURL = 'https://primary-production-8cbf1.up.railway.app/webhook/ezydog-au-pet-profiles';
+
+    try {
+      const response = await fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.status === 429 && retries > 0) {
+        console.warn(`Rate limit hit for Ezydog webhook, retrying after ${delay}ms... (${retries} retries left)`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return sendToEzydogWebhook(payload, retries - 1, delay * 2);
+      }
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`Ezydog webhook error response: ${errorBody}`);
+        throw new Error(`Ezydog webhook error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error sending to Ezydog webhook:', error);
+      throw error;
+    }
+  }
+
+  function calculateProfileCompletion(pet) {
+    const totalFields = 6;
+    let completedFields = 0;
+
+    if (pet.name && pet.name.trim() !== "") completedFields++;
+    if (pet.image && pet.image.trim() !== "") completedFields++;
+    if (pet.dob && pet.dob.trim() !== "" && pet.dob !== "N/A") completedFields++;
+    if (pet.breed && pet.breed.trim() !== "") completedFields++;
+    if (pet.gender && pet.gender.trim() !== "") completedFields++;
+    if (pet.weight && pet.weight !== "0" && pet.weight !== "") completedFields++;
+
+    return Math.round((completedFields / totalFields) * 100);
+  }
+
+  async function trackPetEvent(eventType, petData, customerEmail) {
+    if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+      console.warn('Invalid email for tracking:', customerEmail);
+      return;
+    }
+
+    const validEventTypes = ['pet added', 'pet updated', 'pet deleted'];
+    if (!validEventTypes.includes(eventType)) {
+      console.warn('Invalid event type:', eventType);
+      return;
+    }
+
+    try {
+      let phoneNumber = "{{ customer.phone }}" || "";
+      if (phoneNumber) {
+        phoneNumber = phoneNumber.trim();
+        if (!phoneNumber.startsWith('+')) {
+          phoneNumber = `+61${phoneNumber.replace(/^0/, '')}`;
+        }
+      }
+
+      const profileCompletion = petData.profile_completion ?? calculateProfileCompletion(petData);
+
+      let dateOfBirth = null;
+      if (petData.dob && petData.dob !== "N/A" && petData.dob.trim() !== "") {
+          const dobDate = new Date(petData.dob);
+          if (!isNaN(dobDate)) {
+            dateOfBirth = dobDate;
+          }
+      }
+
+      const payload = {
+        data: {
+          type: eventType,
+          attributes: {
+            "data-source-records": {
+              data: [
+                {
+                  type: eventType,
+                  attributes: {
+                    record: {
+                      pet_id: petData.pet_id || generateRandomId(),
+                      name: petData.name || 'Unknown',
+                      breed: petData.breed || 'Unknown',
+                      gender: petData.gender === 'Select Gender' ? 'Unknown' : petData.gender || 'Unknown',
+                      dob: petData.dob || 'Unknown',
+                      image: petData.image || '',
+                      weight: parseFloat(petData.weight) || 0,
+                      profile_completion: profileCompletion,
+                      customer_email: customerEmail,
+                      profile_id: "null"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      };
+
+      const klaviyoPayload = {
+        metricName: eventType === 'pet added' ? 'Pet Added' :
+                    eventType === 'pet updated' ? 'Pet Updated' : 'Pet Deleted',
+        profile: {
+          email: customerEmail,
+          phone_number: phoneNumber || null,
+          first_name: "{{ customer.first_name }}" || "Customer",
+          last_name: "{{ customer.last_name }}" || "Unknown"
+        },
+        properties: {
+          name: petData.name || 'Unknown',
+          breed: petData.breed || 'Unknown',
+          gender: petData.gender === 'Select Gender' ? 'Unknown' : petData.gender || 'Unknown',
+          profile_completion: profileCompletion,
+          dob: petData.dob || 'Unknown',
+          dateOfBirth: dateOfBirth instanceof Date ? dateOfBirth.toISOString().split('T')[0] : null,
+          image: petData.image || '',
+          weight: petData.weight || '',
+          pet_id: petData.pet_id || generateRandomId()
+        },
+        currency: '{{ shop.currency }}' || 'AUD'
+      };
+
+      if (!klaviyoPayload.profile.phone_number) {
+        delete klaviyoPayload.profile.phone_number;
+      }
+
+      await Promise.all([
+        sendToKlaviyoProxy('pet-event', klaviyoPayload),
+        sendToEzydogWebhook(payload)
+      ]);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error tracking pet event:', error);
+      throw error;
+    }
+  }
+
+  async function syncPetsToKlaviyo(petData, customerEmail, eventType) {
+    if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+      console.warn('Invalid email for sync:', customerEmail);
+      return;
+    }
+
+    const validEventTypes = ['pet added', 'pet updated', 'pet deleted'];
+    if (!validEventTypes.includes(eventType)) {
+      console.warn('Invalid event type:', eventType);
+      return;
+    }
+
+    try {
+      const pet = Array.isArray(petData) ? petData[0] : petData;
+
+      let dateOfBirth = null;
+      if (pet.dob && pet.dob !== "N/A" && pet.dob.trim() !== "") {
+        const dobDate = new Date(pet.dob);
+        if (!isNaN(dobDate)) {
+          dateOfBirth = dobDate;
+        }
+      }
+
+      const petWithId = {
+        ...pet,
+        pet_id: pet.pet_id || generateRandomId(),
+        dateOfBirth
+      };
+
+      const klaviyoPayload = {
+        customerEmail,
+        pets: [{
+          id: petWithId.pet_id,
+          name: petWithId.name || 'Unknown',
+          image: petWithId.image || '',
+          dob: petWithId.dob || '',
+          dateOfBirth: petWithId.dateOfBirth instanceof Date ? petWithId.dateOfBirth.toISOString().split('T')[0] : null,
+          breed: petWithId.breed || 'Unknown',
+          gender: petWithId.gender || 'Unknown',
+          weight: petWithId.weight || 0,
+          profile_completion: calculateProfileCompletion(petWithId)
+        }]
+      };
+
+      await Promise.all([
+        sendToKlaviyoProxy('sync-pets', klaviyoPayload),
+      ]);
+
+      return { success: true };
+    } catch (error) {
+      console.error(`Error syncing pets (${eventType}):`, error);
+      throw error;
+    }
+  }
+
+  document.getElementById("add-pet-button").addEventListener("click", () => {
+    if (pets.length >= 5) {
+      const petFormModal = document.getElementById("pet-form-modal");
+      const petPopupContainers = document.getElementsByClassName("pet-popup-container-new");
+
+      if (petFormModal) {
+          petFormModal.style.display = "none";
+      }
+
+      for (let i = 0; i < petPopupContainers.length; i++) {
+          petPopupContainers[i].classList.add("hide");
+      }
+
+      const overlay = document.createElement("div");
+      overlay.id = "pet-limit-overlay";
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      `;
+
+      const popup = document.createElement("div");
+      popup.id = "pet-limit-popup";
+      popup.style.cssText = `
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 400px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      `;
+
+      popup.innerHTML = `
+        <p style="font-size: 16px; margin-bottom: 20px;">
+          You have reached the maximum limit of 5 pets. Please contact our 
+          <a href="https://ezydog.com.au/pages/consultation" style="color: #FF0000; text-decoration: underline;">customer service team</a> 
+          to add more pet details.
+        </p>
+        <button id="close-pet-limit-popup" style="
+          background-color: #FF0000;
+          color: white;
+          padding: 8px 16px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+        ">Close</button>
+      `;
+
+      overlay.appendChild(popup);
+      document.body.appendChild(overlay);
+
+      document.getElementById("close-pet-limit-popup").addEventListener("click", () => {
+        document.getElementById("pet-limit-overlay").remove();
+        for (let i = 0; i < petPopupContainers.length; i++) {
+          petPopupContainers[i].classList.add("hide");
+        }
+      });
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+          for (let i = 0; i < petPopupContainers.length; i++) {
+            petPopupContainers[i].classList.add("hide");
+          }
+        }
+      });
+
+      return;
+    }
+
+    document.getElementById("pet-form-modal").style.display = "block";
+    document.getElementById("modal-title").textContent = "Add Pet";
+    document.getElementById("pet-form").reset();
+
+    const petImageInput = document.getElementById("pet-image");
+    const petImagePreview = document.getElementById("pet-image-preview");
+    const noImageText = document.getElementById("no-image-text");
+    if (petImageInput && petImagePreview && noImageText) {
+      petImageInput.value = "";
+      petImagePreview.src = 'https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932';
+      petImagePreview.style.display = 'none';
+      noImageText.style.display = 'block';
+    }
+
+    document.getElementById('dob-day').selectedIndex = 0;
+    document.getElementById('dob-month').selectedIndex = 0;
+    document.getElementById('dob-year').selectedIndex = 0;
+
+    const pureBreedDropdown = document.getElementById("pure-breed-dropdown");
+    const crossBreedDropdown = document.getElementById("cross-breed-dropdown");
+    const pureBreedContainer = pureBreedDropdown.parentElement;
+    const crossBreedContainer = crossBreedDropdown.parentElement;
+
+    pureBreedDropdown.selectedIndex = 0;
+    crossBreedDropdown.selectedIndex = 0;
+    pureBreedContainer.style.display = 'block';
+    crossBreedContainer.style.display = 'block';
+
+    editIndex = null;
+    const deletePetContainer = document.getElementById("delete-pet-container");
+    if (deletePetContainer) {
+      deletePetContainer.style.display = "none";
+    }
+
+    const petPopupContainers = document.getElementsByClassName("pet-popup-container-new");
+    for (let i = 0; i < petPopupContainers.length; i++) {
+      petPopupContainers[i].classList.remove("hide");
+    }
+  });
+
+  document.getElementById("pet-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const $button = document.getElementById("save-pet-button");
+    $button.disabled = true;
+    $button.innerHTML = '<svg class="spinner" viewBox="0 0 24 24" width="16" height="16" style="display:inline-block; vertical-align:middle;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="31.4159" stroke-dashoffset="0"><animate attributeName="stroke-dashoffset" from="0" to="31.4159" dur="1s" repeatCount="indefinite"/></circle></svg> Saving...';
+
+    const name = document.getElementById("pet-name").value || "";
+    const pureBreed = document.getElementById('pure-breed-dropdown').value || "";
+    const crossBreed = document.getElementById('cross-breed-dropdown').value || "";
+    const breed = pureBreed && pureBreed !== "Select Pure Breed" ? pureBreed : 
+                  crossBreed && crossBreed !== "Select Cross Breed" ? crossBreed : "";
+    const day = document.getElementById('dob-day').value || "";
+    const month = document.getElementById('dob-month').value || "";
+    const year = document.getElementById('dob-year').value || "";
+    const dob = day && month && year ? `${year}-${month}-${day}` : "";
+
+    let dateOfBirth = null;
+    if (dob && dob !== "N/A" && dob.trim() !== "") {
+      const dobDate = new Date(dob);
+      if (!isNaN(dobDate)) {
+        dateOfBirth = dobDate;
+      }
+    }
+
+    const gender = document.getElementById('gender').value === "Select Gender" ? "" : document.getElementById('gender').value;
+
+    let imageUrl = "";
+    const petImageInput = document.getElementById("pet-image");
+    if (petImageInput && petImageInput.files && petImageInput.files.length > 0) {
+      const petImage = petImageInput.files[0];
+      const maxSize = 7 * 1024 * 1024;
+
+      if (petImage.size > maxSize) {
+        const sizeWarningText = document.getElementById('size-warning-text');
+        if (sizeWarningText) {
+          sizeWarningText.style.display = 'block';
+        }
+        petImageInput.value = '';
+        $button.disabled = false;
+        $button.innerHTML = "Save Pet";
+        return;
+      }
+
+      try {
+        imageUrl = await uploadImage(petImage);
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        $button.disabled = false;
+        $button.innerHTML = "Save Pet";
+        return;
+      }
+    } else if (editIndex !== null && pets[editIndex]?.image) {
+      imageUrl = pets[editIndex].image;
+    } else {
+      imageUrl = "";
+    }
+
+    const petData = { 
+      pet_id: editIndex === null ? generateRandomId() : pets[editIndex].pet_id,
+      name, 
+      breed, 
+      dob, 
+      dateOfBirth,
+      gender,
+      image: imageUrl,
+      weight: parseInt(document.getElementById('weight').value) || 0
+    };
+
+    if (editIndex === null) {
+      pets.push(petData);
+    } else {
+      pets[editIndex] = petData;
+    }
+
+    try {
+      await savePet(pets);
+
+      if ('{{ customer.email }}' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test('{{ customer.email }}')) {
+        // await syncPetsToKlaviyo(petData, '{{ customer.email }}', editIndex === null ? 'pet added' : 'pet updated');
+        await Promise.all([
+          syncPetsToKlaviyo(petData, '{{ customer.email }}', editIndex === null ? 'pet added' : 'pet updated'),
+          trackPetEvent(editIndex === null ? 'pet added' : 'pet updated', petData, '{{ customer.email }}')
+        ]);
+        await submitEmailPreferences();
+      } else {
+        console.warn("Skipping pet sync: Invalid or missing customer email");
+      }
+
+    } catch (error) {
+      console.error("Failed to save pets or email preferences:", error);
+    }
+
+    document.getElementById("pet-form-modal").style.display = "none";
+    const hidePopup = document.getElementsByClassName('pet-popup-container-new');
+    for (let i = 0; i < hidePopup.length; i++) {
+      hidePopup[i].classList.add("hide");
+    }
+    renderPets(pets);
+
+    $button.disabled = false;
+    $button.innerHTML = "Save Pet";
+  });
+
+  async function uploadImage(imageFile) {
+    if (!imageFile) {
+        return "";
+    }
+
+    const graphqlEndpoint = "https://ezydog-member-profile-d6aad2c1d7ff.herokuapp.com/shopify/graphql";
+
+    const stagedQuery = `
+      mutation stagedUploadsCreate($input: [StagedUploadInput!]!) {
+        stagedUploadsCreate(input: $input) {
+          stagedTargets {
+            url
+            resourceUrl
+            parameters { name value }
+          }
+          userErrors { field message }
+        }
+      }
+    `;
+
+    const stagedVariables = {
+      input: [{
+        resource: "IMAGE",
+        filename: imageFile.name,
+        mimeType: imageFile.type || "image/jpeg",
+        httpMethod: "POST",
+      }],
+    };
+
+    const stagedResponse = await fetch(graphqlEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": "1d956aa7d4081665e3c07131563c159f",
+      },
+      body: JSON.stringify({ query: stagedQuery, variables: stagedVariables }),
+    });
+
+    const stagedData = await stagedResponse.json();
+
+    if (!stagedData.data?.stagedUploadsCreate?.stagedTargets?.length) {
+      return "";
+    }
+
+    const { url, resourceUrl, parameters } = stagedData.data.stagedUploadsCreate.stagedTargets[0];
+
+    const formData = new FormData();
+    parameters.forEach(param => {
+      formData.append(param.name, param.value);
+    });
+    formData.append("file", imageFile);
+
+    const uploadResponse = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      return "";
+    }
+
+    const fileCreateMutation = `
+      mutation fileCreate($files: [FileCreateInput!]!) {
+        fileCreate(files: $files) {
+          files {
+            id
+            alt
+            createdAt
+            fileStatus
+            ... on MediaImage {
+              image { url }
+            }
+          }
+          userErrors { field message }
+        }
+      }
+    `;
+
+    const fileCreateVariables = {
+      files: [{
+        alt: imageFile.name,
+        contentType: "IMAGE",
+        originalSource: resourceUrl,
+      }],
+    };
+
+    const registerResponse = await fetch(graphqlEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": "1d956aa7d4081665e3c07131563c159f",
+      },
+      body: JSON.stringify({ query: fileCreateMutation, variables: fileCreateVariables }),
+    });
+
+    const fileCreateData = await registerResponse.json();
+
+    if (!fileCreateData.data?.fileCreate?.files?.length || fileCreateData.data.fileCreate.userErrors.length) {
+      return "";
+    }
+
+    let uploadedFile = fileCreateData.data.fileCreate.files[0];
+    let finalUrl = uploadedFile.image?.url || "";
+
+    if (!finalUrl && uploadedFile.fileStatus === "UPLOADED") {
+        const fileQuery = `
+          query ($id: ID!) {
+            node(id: $id) {
+              ... on MediaImage {
+                id
+                fileStatus
+                image { url }
+              }
+            }
+          }
+        `;
+
+        for (let i = 0; i < 5; i++) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const pollResponse = await fetch(graphqlEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": "1d956aa7d4081665e3c07131563c159f",
+            },
+            body: JSON.stringify({
+              query: fileQuery,
+              variables: { id: uploadedFile.id },
+            }),
+          });
+
+          const pollData = await pollResponse.json();
+
+          if (pollData.data?.node?.image?.url) {
+            finalUrl = pollData.data.node.image.url;
+            break;
+          }
+          if (pollData.data?.node?.fileStatus === "FAILED") {
+            return "";
+          }
+        }
+    }
+
+    if (!finalUrl) {
+      console.error("Failed to get image URL after polling");
+    }
+
+    return finalUrl;
+  }
+
+  function setupBreedDropdowns() {
+    const pureBreedDropdown = document.getElementById('pure-breed-dropdown');
+    const crossBreedDropdown = document.getElementById('cross-breed-dropdown');
+    const pureBreedContainer = pureBreedDropdown.parentElement;
+    const crossBreedContainer = crossBreedDropdown.parentElement;
+
+    function updateDropdownState(sourceDropdown) {
+      const isPureBreedSource = sourceDropdown === pureBreedDropdown;
+      const pureBreedSelected = pureBreedDropdown.value && pureBreedDropdown.value !== 'Select Pure Breed';
+      const crossBreedSelected = crossBreedDropdown.value && crossBreedDropdown.value !== 'Select Cross Breed';
+
+      if (isPureBreedSource && pureBreedSelected) {
+        crossBreedDropdown.selectedIndex = 0;
+        crossBreedContainer.style.display = 'none';
+        pureBreedContainer.style.display = 'block';
+      } else if (!isPureBreedSource && crossBreedSelected) {
+        pureBreedDropdown.selectedIndex = 0;
+        pureBreedContainer.style.display = 'none';
+        crossBreedContainer.style.display = 'block';
+      } else {
+        pureBreedContainer.style.display = 'block';
+        crossBreedContainer.style.display = 'block';
+      }
+    }
+
+    pureBreedDropdown.addEventListener('change', () => updateDropdownState(pureBreedDropdown));
+    crossBreedDropdown.addEventListener('change', () => updateDropdownState(crossBreedDropdown));
+
+    updateDropdownState(null);
+  }
+
+  function editPet(index) {
+    const pet = pets[index];
+    if (!pet) {
+        console.error("Pet data not found for index:", index);
+        return;
+    }
+
+    if (!pet.pet_id) {
+        pet.pet_id = generateRandomId();
+    }
+
+    document.getElementById("pet-name").value = pet.name || "";
+
+    const pureBreedDropdown = document.getElementById("pure-breed-dropdown");
+    const crossBreedDropdown = document.getElementById("cross-breed-dropdown");
+    const pureBreedContainer = pureBreedDropdown.parentElement;
+    const crossBreedContainer = crossBreedDropdown.parentElement;
+
+    const petImageInput = document.getElementById("pet-image");
+    const petImagePreview = document.getElementById("pet-image-preview");
+    const noImageText = document.getElementById("no-image-text");
+    if (petImageInput && petImagePreview && noImageText) {
+      petImageInput.value = "";
+      if (pet.image && pet.image.trim() !== "") {
+        petImagePreview.src = pet.image;
+        petImagePreview.style.display = 'block';
+        noImageText.style.display = 'none';
+      } else {
+        petImagePreview.src = 'https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932';
+        petImagePreview.style.display = 'none';
+        noImageText.style.display = 'block';
+      }
+    }
+
+    pureBreedDropdown.selectedIndex = 0;
+    crossBreedDropdown.selectedIndex = 0;
+
+    if (pet.breed) {
+      const pureOption = Array.from(pureBreedDropdown.options).find(
+        (option) => option.value === pet.breed
+      );
+      const crossOption = Array.from(crossBreedDropdown.options).find(
+        (option) => option.value === pet.breed
+      );
+
+      if (pureOption) {
+        pureBreedDropdown.value = pet.breed;
+        pureBreedContainer.style.display = 'block';
+        crossBreedContainer.style.display = 'none';
+      } else if (crossOption) {
+        crossBreedDropdown.value = pet.breed;
+        crossBreedContainer.style.display = 'block';
+        pureBreedContainer.style.display = 'none';
+      } else {
+        pureBreedContainer.style.display = 'block';
+        crossBreedContainer.style.display = 'block';
+      }
+    } else {
+      pureBreedContainer.style.display = 'block';
+      crossBreedContainer.style.display = 'block';
+    }
+
+    document.getElementById("weight").value = pet.weight || "";
+
+    if (pet.dateOfBirth instanceof Date && !isNaN(pet.dateOfBirth)) {
+      const year = pet.dateOfBirth.getFullYear();
+      const month = String(pet.dateOfBirth.getMonth() + 1).padStart(2, '0');
+      const day = String(pet.dateOfBirth.getDate()).padStart(2, '0');
+      document.getElementById("dob-year").value = year;
+      document.getElementById("dob-month").value = month;
+      document.getElementById("dob-day").value = day;
+    } else if (pet.dob && pet.dob !== "N/A" && pet.dob.trim() !== "") {
+      const [year, month, day] = pet.dob.split("-");
+      document.getElementById("dob-year").value = year || "";
+      document.getElementById("dob-month").value = month || "";
+      document.getElementById("dob-day").value = day || "";
+    } else {
+      document.getElementById("dob-year").selectedIndex = 0;
+      document.getElementById("dob-month").selectedIndex = 0;
+      document.getElementById("dob-day").selectedIndex = 0;
+    }
+
+    const genderDropdown = document.getElementById("gender");
+    if (pet.gender) {
+      genderDropdown.value = pet.gender;
+    } else {
+      genderDropdown.selectedIndex = 0;
+    }
+
+    document.getElementById("pet-form-modal").style.display = "block";
+    document.getElementById("modal-title").textContent = "Edit Pet";
+    document.getElementById("delete-pet-button").style.display = "block";
+
+    editIndex = index;
+
+    const deleteButton = document.getElementById("delete-pet-button");
+    deleteButton.onclick = async () => {
+      deleteButton.disabled = true;
+      deleteButton.innerHTML = '<svg class="spinner" viewBox="0 0 24 24" width="16" height="16" style="display:inline-block; vertical-align:middle;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="31.4159" stroke-dashoffset="0"><animate attributeName="stroke-dashoffset" from="0" to="31.4159" dur="1s" repeatCount="indefinite"/></circle></svg> Deleting...';
+
+      const petToDelete = pets[index];
+
+      try {
+        pets.splice(index, 1);
+
+        await savePet(pets);
+
+        if ('{{ customer.email }}' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test('{{ customer.email }}')) {
+          await syncPetsToKlaviyo(petToDelete, '{{ customer.email }}', 'pet deleted');
+        }
+
+        document.getElementById("pet-form-modal").style.display = "none";
+        const hidePopup = document.getElementsByClassName("pet-popup-container-new");
+        for (let i = 0; i < hidePopup.length; i++) {
+          hidePopup[i].classList.add("hide");
+        }
+        renderPets(pets);
+
+      } catch (error) {
+        console.error("Error deleting pet:", error);
+      } finally {
+        deleteButton.disabled = false;
+        deleteButton.innerHTML = "Delete Pet";
+      }
+    };
+  };
+
+  function populateDOBDropdowns() {
+    const daySelect = document.getElementById('dob-day');
+    const monthSelect = document.getElementById('dob-month');
+    const yearSelect = document.getElementById('dob-year');
+
+    for (let day = 1; day <= 31; day++) {
+      const option = document.createElement('option');
+      const paddedDay = day.toString().padStart(2, '0');
+      option.value = paddedDay;
+      option.textContent = paddedDay;
+      daySelect.appendChild(option);
+    }
+
+    const months = [
+      { value: '01', name: 'Jan' }, { value: '02', name: 'Feb' },
+      { value: '03', name: 'Mar' }, { value: '04', name: 'Apr' },
+      { value: '05', name: 'May' }, { value: '06', name: 'Jun' },
+      { value: '07', name: 'Jul' }, { value: '08', name: 'Aug' },
+      { value: '09', name: 'Sep' }, { value: '10', name: 'Oct' },
+      { value: '11', name: 'Nov' }, { value: '12', name: 'Dec' }
+    ];
+    months.forEach(month => {
+      const option = document.createElement('option');
+      option.value = month.value;
+      option.textContent = month.name;
+      monthSelect.appendChild(option);
+    });
+
+    const currentYear = new Date().getFullYear();
+    for (let year = 2000; year <= currentYear; year++) {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      yearSelect.appendChild(option);
+    }
+  }
+
+  async function initialize() {
+    pets = await fetchPets();
+    populateDOBDropdowns();
+    setupBreedDropdowns();
+    renderPets(pets);
+  }
+
+  async function migratePetIds() {
+    try {
+      const pets = await fetchPets();
+
+      const updatedPets = pets.map(pet => {
+        const petId = pet.id || pet.pet_id || generateRandomId();
+        const { id, ...rest } = pet;
+        return { ...rest, pet_id: petId };
+      });
+      await savePet(updatedPets);
+
+      renderPets(updatedPets);
+      pets.splice(0, pets.length, ...updatedPets);
+    } catch (error) {
+      console.error("Error migrating pet IDs:", error);
+    }
+  }
+
+  async function migratePetData() {
+    try {
+      const pets = await fetchPets();
+      const updatedPets = pets.map(pet => {
+        let dateOfBirth = null;
+        if (pet.dob && pet.dob !== "N/A" && pet.dob.trim() !== "") {
+          const dobDate = new Date(pet.dob);
+          if (!isNaN(dobDate)) {
+            dateOfBirth = dobDate;
+          }
+        }
+        return { ...pet, dateOfBirth };
+      });
+      await savePet(updatedPets);
+      pets.splice(0, pets.length, ...updatedPets);
+      renderPets(updatedPets);
+    } catch (error) {
+      console.error("Error migrating pet data:", error);
+    }
+  }
+
+  async function start() {
+    await migratePetData();
+    await migratePetIds();
+    await initialize();
+  }
+
+  start();
+
+  const styles = `
+    .individual-pet-detail select {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  `;
+
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+
+  async function getAllBreeds() {
+    try {
+      const response = await fetch('https://dog.ceo/api/breeds/list/all');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      populateBreedsDropdown(data.message, 'breed', 'sub-breed-container', 'sub-breed');
+    } catch (error) {
+      console.error('Error fetching dog breeds:', error);
+    }
+  }
+
+  function populateBreedsDropdown(breeds, breedSelectId, subBreedContainerId, subBreedSelectId) {
+    const breedSelect = document.getElementById(breedSelectId);
+    const subBreedContainer = document.getElementById(subBreedContainerId);
+
+    Object.keys(breeds).forEach(breed => {
+      const option = document.createElement('option');
+      option.value = breed;
+      option.textContent = capitalize(breed);
+      breedSelect.appendChild(option);
+    });
+
+    breedSelect.addEventListener('change', function () {
+      const selectedBreed = this.value;
+      const subBreeds = breeds[selectedBreed];
+      if (subBreeds.length > 0) {
+        populateSubBreedsDropdown(subBreeds, subBreedContainerId, subBreedSelectId);
+      } else {
+        subBreedContainer.style.display = 'none';
+      }
+    });
+  }
+
+  function populateSubBreedsDropdown(subBreeds, subBreedContainerId, subBreedSelectId) {
+    const subBreedContainer = document.getElementById(subBreedContainerId);
+    const subBreedSelect = document.getElementById(subBreedSelectId);
+
+    subBreedSelect.innerHTML = '';
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select a sub-breed';
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    subBreedSelect.appendChild(defaultOption);
+
+    subBreeds.forEach(subBreed => {
+      const option = document.createElement('option');
+      option.value = subBreed;
+      option.textContent = capitalize(subBreed);
+      subBreedSelect.appendChild(option);
+    });
+
+    subBreedContainer.style.display = 'block';
+  }
+
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  async function submitEmailPreferences() {
+    const saveButton = document.getElementById('save-pet-button');
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<svg class="spinner" viewBox="0 0 24 24" width="16" height="16" style="display:inline-block; vertical-align:middle;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="31.4159" stroke-dashoffset="0"><animate attributeName="stroke-dashoffset" from="0" to="31.4159" dur="1s" repeatCount="indefinite"/></circle></svg> Saving...';
+
+    const customerId = "{{ customer.id }}";
+    const storeDomain = "{{ shop.permanent_domain }}";
+    const acceptsMarketing = document.querySelector('#accepts_marketing').checked;
+
+    const response = await fetch('https://ezydog-member-profile-d6aad2c1d7ff.herokuapp.com/shopify/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': '1d956aa7d4081665e3c07131563c159f',
+        'X-Store-Domain': storeDomain
+      },
+      body: JSON.stringify({
+        query: `
+          mutation customerEmailMarketingConsentUpdate($input: CustomerEmailMarketingConsentUpdateInput!) {
+            customerEmailMarketingConsentUpdate(input: $input) {
+              customer {
+                id
+                emailMarketingConsent {
+                  marketingState
+                  marketingOptInLevel
+                }
+              }
+              userErrors { field message }
+            }
+          }
+        `,
+        variables: {
+          input: {
+            customerId: `gid://shopify/Customer/${customerId}`,
+            emailMarketingConsent: {
+              marketingState: acceptsMarketing ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+              marketingOptInLevel: acceptsMarketing ? 'SINGLE_OPT_IN' : null
+            }
+          }
+        }
+      })
+    });
+
+    const data = await response.json();
+    if (data.errors || data.data.customerEmailMarketingConsentUpdate.userErrors?.length) {
+      throw new Error(
+        (data.errors || data.data.customerEmailMarketingConsentUpdate.userErrors)
+          .map(e => e.message).join(', ')
+      );
+    }
+  }
+</script>
+
+<script>
+  $(document).ready(function(){
+    $(document).on('click', '#add-pet-button', function(){
+      $('.pet-popup-container-new').removeClass('hide');
+      $('#delete-pet-button').hide();
+    });
+
+    $(document).on('click', '.edit-details', function(){
+      $('.pet-popup-container-new').removeClass('hide');
+      $('#delete-pet-button').show();
+    });
+
+    $(document).on('click', '.close, #cancel-pet-button', function(){
+      $('.pet-popup-container-new').addClass('hide');
+    });
+
+    document.getElementById("cancel-pet-button").addEventListener("click", () => {
+      document.getElementById("pet-form-modal").style.display = "none";
+      const hidePopup = document.getElementsByClassName("pet-popup-container-new");
+      for (let i = 0; i < hidePopup.length; i++) {
+        hidePopup[i].classList.add("hide");
+      }
+
+      // Reset image preview
+      const petImageInput = document.getElementById("pet-image");
+      const petImagePreview = document.getElementById("pet-image-preview");
+      const noImageText = document.getElementById("no-image-text");
+      if (petImageInput && petImagePreview && noImageText) {
+        petImageInput.value = "";
+        petImagePreview.src = 'https://cdn.shopify.com/s/files/1/0556/0051/3212/files/MemberProfile_Dog_ProfileImage.jpg?v=1743098932';
+        petImagePreview.style.display = 'none';
+        noImageText.style.display = 'block';
+      }
+    });
+  });
+</script>
+
+
+<style>
+  #MainContent {
+    background: #ffffff;
+    margin-top: 10px;
+  }
+  .individual-pet-detail a, .sizing a {
+    color: #e52020 !important;
+  }
+  .hide {
+    display: none;
+  }
+  button {
+    border: none;
+  }
+  .page-container .grid__item.medium-up--two-thirds {
+    background: #f7f7f7; 
+  }
+  #pet-management {
+    background: f7f7f7;
+    margin-bottom: 10px;
+    padding: 2em;
+    border-radius: 8px;
+  }
+  a.edit-details {
+    display: grid;
+    justify-content: flex-end;
+  }
+  .pet-popup-container, .pet-popup-container-new {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .pet-popup-new {
+      width: 70%;
+      background: #fff;
+      position: fixed;
+      left: 15%;
+      top: 8%;
+      z-index: 999999;
+      padding: 0;
+      border-radius: 10px;
+      max-height: 87vh;
+      overflow-y: scroll;
+    }
+    .pet-popup-overlay, .pet-popup-overlay-new {
+      background: #00000085;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+    }
+    div#pet-form-modal {
+      padding: 2em;
+      margin-bottom: 3em;
+    }
+    #pet-form-modal input {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 1em;
+    }  
+  .close {
+    float: right;
+    font-size: 2.5em;
+    margin-top: -.5em;
+    color: #5f6060;
+  }
+  #save-pet-button, #cancel-pet-button, #delete-pet-button {
+    float: right;
+    margin-bottom: 1em;
+    padding: 5px;
+  }
+  select {
+    width: 100%;
+    border-radius: 10px;
+    margin: 0 0 1em 0;
+  }
+  .dob-dropdowns {
+    display: flex;
+    gap: 7px;
+  }
+  .dob-dropdowns select {
+    flex: 1;
+    padding: 8px;
+  }
+  button#cancel-pet-button, #delete-pet-button {
+    color: #fff;
+    background: #646466;
+    border: 1px solid #646466;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+    margin-right: 1em;
+  }
+  #delete-pet-button {
+    background: #000;
+  }
+  button#save-pet-button {
+    color: #ffffff;
+    background: rgb(234 45 36);
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+  form#pet-form {
+    margin: 2em 0;
+  }
+  @media only screen and (min-width: 750px) {
+    .medium-up--two-thirds {
+      width: 100%;
+    }
+    .medium-up--one-third {
+      width: 33.33%;
+    }
+  }
+  .pet-information, .pet-information-edit {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-top: 20px;
+      background-color: #f9f9f9;
+    }
+    .pet-item {
+      margin-bottom: 10px;
+    }
+    .add-pet-button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+    }
+    #dropdown-container,
+    #sub-breed-container,
+    #dropdown-container-edit,
+    #sub-breed-container-edit {
+      margin-top: 15px;
+    }
+    select {
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 10px;
+    }
+    button#submit-pet, button#submit-pet-edit {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+    .close, .close-edit {
+      float: right;
+      font-size: 3em;
+      margin-top: -21px;
+    }
+    
+    .pet-details, .pet-details-edit {
+      gap: 5em;
+      margin: 10px auto;
+      margin-top: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+  }
+    p {
+      margin: 0 0 2px;
+    }
+    .edit-details {
+      display: grid;
+      justify-items: flex-end;
+    }
+    h1.pet-heading {
+      font-size: 26px;
+      text-transform: capitalize;
+      font-family: 'Barlow';
+      letter-spacing: 0;
+    }
+    div#pets-list div {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 0; /*1.5em;*/
+      border-radius: 10px;
+    }
+    .individual-pet-detail p, .sizing p {
+      margin-bottom: 13px;
+      font-size: 12px;
+    }
+    #pets-list div {
+      margin-bottom: 10px;
+    }
+    
+    div#pets-list div {
+        padding: 15px;
+    }
+    .page-container .grid__item.medium-up--two-thirds {
+        background: #f7f7f7;
+        border-radius: 10px;
+    }
+    #pets-list div {
+      margin-bottom: 10px;
+      padding: 15px;
+    }
+    .individual-pet-detail p {
+      text-transform: capitalize;
+    }
+    @media screen and (max-width: 767px){
+      .pet-details {
+        display: inline-block;
+      }
+      #pet-management {
+        padding: 0 10px;
+      }
+      div#pets-list div {
+        padding: 5px 8px;
+        margin-bottom: 1.5em;
+      }
+      a.edit-details {
+        margin-top: 12px;
+      }
+      .top-details {
+        display: flex;
+        margin-bottom: 0px !important;
+        padding-bottom: 0px !important;
+      }
+      .top-details h2 {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+      .progress-bar-container {
+        width: 100%;
+        max-width: 450px;
+        font-size: 13px;
+        margin-bottom: 0 !important;
+      }    
+      .pet-details p:first-child {
+        text-align: center;
+        margin-left: 0.65em;
+      }
+      .progress-bar-container {
+        padding: 0 !important;
+      }
+    }
+  
+    .top-content {
+        margin-bottom: 0px !important;
+        padding-bottom: 0px !important;
+      }
+    .dob-dropdowns {
+      display: flex;
+    }
+    @media only screen and (min-width: 750px) {
+      .main-content {
+        margin-top: 0px;
+      }
+      .pet-name-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      
+      #pet-name {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      
+      .progress-bar-container {
+        display: flex;
+        align-items: center;
+        justify-self: end;
+        gap: 1em;
+      }
+      
+      #form-progress {
+        width: 252px;
+        height: 10px;
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        background: #e0e0e0;
+        border-radius: 5px;
+      }
+      
+      #form-progress::-webkit-progress-bar {
+        background: #e0e0e0;
+        border-radius: 5px;
+      }
+      
+      #form-progress::-webkit-progress-value {
+        background: #4caf50;
+        border-radius: 5px;
+      }
+      
+      #progress-percentage {
+        font-size: 12px;
+        color: #333;
+      }
+      
+      .top-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .progress-bar-container span {
+        font-size: 14px;
+      }
+      
+      .discount-details-text {
+        display: block;
+      }
+    }
+    .pet-details .individual-pet-detail {
+      display: block !important;
+    }
+    #breed1,
+    #breed2,
+    #breed3 {
+      visibility: hidden;
+    }
+    input#imageUpload {
+      width: 60%;
+    }
+    
+    input, textarea {
+      padding: 10px 15px;
+    }
+    
+    .pet-info-add-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+      background: #f0f0f0;
+      margin-top: 1em;
+    }
+    
+    .pet-info-add-bottom img {
+      margin-right: 10px;
+    }
+    
+    .pet-info-add-bottom button {
+      margin-left: auto;
+    }
+    #add-pet-button {
+      text-transform: uppercase;
+      color: red;
+      font-weight: 600;
+    }
+    .content-block{
+      border: 1px solid #f9f7f7;
+      background-color: #f0f0f0;
+      margin-top: 6px;
+      margin-bottom: 0px;
+    }
+    .content-title {
+      position: relative;
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+    .banner-image {
+      height: 100px;
+    }
+    .page-content-width p.banner-image-container {
+      margin-right: 7em;
+    }
+    img.banner-image {
+      top: 5em;
+      right: 120px;
+    }
+    .page-content-width {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    @media only screen and (min-width: 750px) {
+      .page-content-width {
+        padding: 0 20px;
+      }
+    }
+    @media screen and (max-width: 767px) {
+      .birthday-banner-content {
+          display: block;
+      }
+      .banner-text {
+          padding-bottom: 10px;
+      }
+    }
+    @media only screen and (max-width: 767px){
+      .pet-popup-new {
+          width: 95%;
+          left: 0;
+          top: 0;
+          margin: 10px;
+          max-height: 98vh; /*100vh;*/
+          overflow-y: auto;
+      }
+      #breed1, #breed2, #breed3 {
+          display: none;
+      }
+      .individual-pet-detail {
+          padding-bottom: 1.5em;
+      }
+      .banner-image .collection-banner-image {
+        height: 100px !important;
+      }
+      .page-content-width p.banner-image-container {
+        margin-right: 8em;
+      }
+      .content-title {
+        margin-left: 10px;
+      }
+      img.banner-image {
+        top: 4em !important;*
+        right: .75em;
+      }
+    }
+    h4 {
+      font-size: 1.125em;
+    }
+    input, textarea, select {
+      background-color: #f4f4f4;
+      color: #333;
+      border: 0;
+      max-width: 100%;
+    }
+    h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6 {
+      letter-spacing: inherit;
+      text-transform: inherit;
+      font-family: Barlow, sans-serif;
+      font-weight: 700;
+      font-style: normal;
+    }
+    label {
+      font-size: .75em;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 13px;
+    } 
+    .details-tooltip .details-text p, .sizing-tooltip .details-text p {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    #imageUpload {
+      display: none;
+    }
+    .footer_wrapper .footer_info li a, .footer_wrapper .footer__block--links li a {
+      color: #ffffff !important;
+    }
+    .email-preferences-container {
+      margin-bottom: 5px;
+    }
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+      .grid.grid--table {
+        display: flex;
+        gap: 3em;
+      }
+      img.banner-image {
+        top: 5.75em;
+        margin-left: calc(80% - 39px);
+      }
+      div#pets-list div {
+        margin-bottom: 10px;
+      }
+    }
+    @media only screen and (min-width: 1024px) and (max-width: 1366px) {
+      img.banner-image {
+          top: 5em;
+          margin-left: 53em; 
+      }
+      .pet-popup-new {
+          width: 89%;
+          left: calc(45% - 395px);
+          top: calc(33% - 291px);
+      }
+      .details-tooltip, .sizing-tooltip {
+         left: 0px;
+         top: 2em;
+         width: 350px;
+      }
+    }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      .pet-popup-new {
+        width: 95%;
+        left: calc(54% - 394px);
+        top: calc(33% - 291px);
+      }
+      .pet-details, .pet-details-edit {
+        gap: 1.5em;
+      }
+      .details-tooltip, .sizing-tooltip {
+        left: 0px;
+        top: 2em;
+        width: 280px;
+      }
+      .details-tooltip .details-icons, .sizing-tooltip .details-icons {
+        margin-bottom: 0.5em !important;
+      }
+    }
+    @media screen and (min-width: 767px) {
+      .individual-pet-detail p, .sizing p {
+        font-size: 14px;
+      }
+      label.upload-label {
+        background: gray;
+        padding: 1px 22px;
+        text-align: justify;
+        color: #fff;
+        border-radius: 10px;
+      }
+      
+      .custom-file-upload {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25em;
+        gap: 1em;
+      }
+      
+      span.file-name {
+        font-size: 14px;
+      }
+    }
+    @media screen and (max-width: 767px){
+      .details-tooltip, .sizing-tooltip {
+         left: 0px;
+         top: 2em;
+         width: 270px;
+      }
+      .details-text p:first-child {
+        margin-left: 0;
+      }
+      .close-tooltip {
+        font-size: 25px;
+        top: 0px;
+      }
+      label.upload-label {
+        background: gray;
+        padding: 10px 8px;
+        text-align: justify;
+        color: #fff;
+        border-radius: 10px;
+      }
+      .custom-file-upload {
+        margin-bottom: 10px;
+      }
+    }
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  .page-content-width {
+    position: relative;
+  }
+  
+  .content-block div {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: center;
+  }
+  .content-block {
+    margin-bottom: 30px;
+  }
+  @media screen and (min-width: 768px){
+    .content-block {
+      padding: 0.25em 4em;
+    }
+    .progress-bar-container {
+      padding: 0 !important;
+      margin-right: -14px;
+    }
+  }
+
+  .preference-option label,
+  .description {
+      font-size: 13px;
+      color: #666666;
+  }
+  input#accepts_marketing {
+      width: 20px;
+  }
+  .preference-option {
+    border: 1px solid #f4f4f4;
+    background: #f4f4f4;
+    padding: 8px 8px 2px;
+    border-radius: 10px;
+  }
+
+  @media screen and (min-width: 960px){
+    div#pets-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1em;
+    }
+  }
+  @media only screen and (min-width: 750px) and (max-width: 1024px){
+    div#pets-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .top-content, .pet-details {
+      display: contents;
+    }
+    .email-preferences-container {
+        margin-bottom: 30px;
+    }
+  }
+  .image-upload-container {
+    margin-bottom: 1em;
+  }
+
+  .image-preview-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #pet-image-preview {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    object-fit: cover;
+  }
+
+  #no-image-text {
+    font-size: 14px;
+    color: #666;
+  }
+
+  @media screen and (max-width: 767px) {
+    #pet-image-preview {
+      max-width: 150px;
+      max-height: 150px;
+    }
+  }  
+</style>

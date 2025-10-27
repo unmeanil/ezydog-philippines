@@ -1,0 +1,155 @@
+<div class="page-width section-spacing">
+  <div class="grid">
+
+    <div class="grid__item medium-up--one-half medium-up--push-one-quarter">
+      <div class="container container--xxs">
+        <!-- content-block text-center -->
+        <h1>{{ 'customer.register.title' | t }}</h1>
+
+        <div class="form-vertical text-center">
+          {%- form 'create_customer', class: 'form' -%}
+            <input type="hidden" name="return_to" value="{{ routes.account_url }}/addresses">
+          
+            <div class="fieldset">
+              {%- if form.errors -%}
+                {%- render 'banner', status: 'error', content: form.errors.messages['form'] -%}
+              {%- endif -%}
+          
+              <div class="grid grid-cols-2 gap-4">
+                {%- assign first_name_label = 'customer.register.first_name' | t -%}
+                {%- render 'input', type: 'text', name: 'customer[first_name]', label: first_name_label, autocomplete: 'given-name', required: true, value: form.first_name -%}
+          
+                {%- assign last_name_label = 'customer.register.last_name' | t -%}
+                {%- render 'input', type: 'text', name: 'customer[last_name]', label: last_name_label, autocomplete: 'family-name', required: true, value: form.last_name -%}
+              </div>
+          
+              {%- assign email_label = 'customer.register.email' | t -%}
+              {%- render 'input', type: 'email', name: 'customer[email]', label: email_label, autocomplete: 'email', required: true, value: form.email -%}
+          
+              <!-- {%- assign password_label = 'customer.register.password' | t -%}
+              {%- render 'input', type: 'password', name: 'customer[password]', label: password_label, autocomplete: 'new-password', required: true -%} -->
+              <div class="password-wrapper" style="position: relative; margin-bottom: 15px;">
+                  {%- assign password_label = 'customer.register.password' | t -%}
+                  {%- render 'input', type: 'password', name: 'customer[password]', label: password_label, autocomplete: 'new-password', required: true -%}
+                  
+                  <div style="position: absolute; right: 0; top: 55%; transform: translateY(-55%); display: block; align-items: center; gap: 10px;">
+                    <a href="#recover" allow-hash-change class="text-xs link-faded" style="white-space: nowrap; margin-right: 10px;">{{ 'customer.login.forgot_password' | t }}</a>
+                    <button type="button" class="password-toggle" aria-label="Show password" style="background: none; border: none; cursor: pointer; color: #666; padding: 0; display: flex; justify-self: end;margin-right: 1em;">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="eye-open">
+                        <path d="M10 4.375C3.75 4.375 1.25 10 1.25 10C1.25 10 3.75 15.625 10 15.625C16.25 15.625 18.75 10 18.75 10C18.75 10 16.25 4.375 10 4.375Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 13.125C11.7259 13.125 13.125 11.7259 13.125 10C13.125 8.27411 11.7259 6.875 10 6.875C8.27411 6.875 6.875 8.27411 6.875 10C6.875 11.7259 8.27411 13.125 10 13.125Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="eye-closed" style="display: none;">
+                        <path d="M2.5 5.625L17.5 14.375" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M11.8813 11.8837C11.2501 12.5149 10.3835 12.8774 9.47502 12.8774C8.56653 12.8774 7.69993 12.5149 7.06877 11.8837C6.43761 11.2526 6.07507 10.386 6.07507 9.47748C6.07507 8.56899 6.43761 7.70239 7.06877 7.07123" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14.375 9.375C14.3735 8.52745 14.1188 7.7015 13.6438 6.99998" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M11.25 4.38248C10.5202 4.23435 9.77193 4.23435 9.042 4.38248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5.625 6.25L7.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M15.625 12.5L13.75 11.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>    
+            </div>
+
+            <div id="accepts_marketing_checkbox">
+              <input type="checkbox" name="customer[accepts_marketing]" id="hiddenMarketingCheck" value="true" checked>
+              <label for="marketing">Sign me up for marketing emails and updates</label>
+            </div>
+
+            {%- assign submit_label = 'customer.register.submit' | t -%}
+            {%- render 'button', content: submit_label, type: 'submit' -%}
+          {%- endform -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .shopify-section--main-customers-register input#input-template--24707126296872__main--customerfirst_name {
+    margin-bottom: 15px;
+  }
+  div#accepts_marketing_checkbox {
+    text-align: left;
+    color: #808080;
+    vertical-align: middle;
+  }
+</style>
+                          
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    initPasswordToggle();
+    window.addEventListener('load', initPasswordToggle);
+    
+    setTimeout(initPasswordToggle, 500);
+  });
+  
+  function initPasswordToggle() {
+    const passwordToggle = document.querySelector('.password-toggle');
+    const passwordInput = document.querySelector('input[name="customer[password]"]');
+    
+    // Only initialize if not already done
+    if (passwordToggle && passwordInput && !passwordToggle.dataset.initialized) {
+      passwordToggle.dataset.initialized = 'true';
+      passwordInput.type = 'password';
+      
+      passwordToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        
+        // Toggle eye icons
+        const eyeOpen = passwordToggle.querySelector('.eye-open');
+        const eyeClosed = passwordToggle.querySelector('.eye-closed');
+        
+        if (eyeOpen && eyeClosed) {
+          eyeOpen.style.display = isPassword ? 'none' : 'block';
+          eyeClosed.style.display = isPassword ? 'block' : 'none';
+        }
+      });
+      
+      // Handle autofilled passwords
+      if (passwordInput.value) {
+        passwordInput.type = 'password';
+      }
+    }
+  }
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main_customers_register.name",
+  "class": "shopify-section--main-customers-register",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "fields",
+      "name": "t:sections.main_customers_register.blocks.fields.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_marketing_consent",
+          "label": "t:sections.main_customers_register.blocks.fields.show_marketing_consent",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.main_customers_register.blocks.liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "liquid",
+          "label": "t:global.code.liquid"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

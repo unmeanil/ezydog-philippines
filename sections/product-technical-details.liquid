@@ -1,0 +1,189 @@
+<!-- product-technical-details -->
+
+{% assign technical_detail =  product.metafields.custom.technical_details.value %}
+{% if technical_detail %}
+  
+  {% assign left_column_heading = technical_detail.left_column_heading %} 
+  {% assign left_column_body = technical_detail.left_column_body %} 
+  {% assign left_column_link = technical_detail.left_column_link %} 
+  {% assign left_column_link_text = technical_detail.left_column_link_text %} 
+  {% assign left_column_image = technical_detail.left_column_image %} 
+  
+  {% assign right_column_heading = technical_detail.right_column_heading %} 
+  {% assign right_column_body = technical_detail.right_column_body %} 
+  {% assign right_column_link = technical_detail.right_column_link %} 
+  {% assign right_column_link_text = technical_detail.right_column_link_text %} 
+  {% assign right_column_image = technical_detail.right_column_image %} 
+  
+  <section id="section-{{ section.id }}" class="{% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %} section-x-spacing">
+    <div class="section-x-spacing heading-wrapper-{{ section.id }}">
+      <p class="Barlow-Medium dfs-30 mfs-30 " style="color: {{ section.settings.heading_color }};">{{  technical_detail.heading }}</p>
+      <p  class="dfs-14 mfs-14" style="color: {{ section.settings.body_color }};">{{  technical_detail.description }}</p>
+    </div>
+  
+    <div class="grid-{{ section.id }}">
+      
+      {% render "product-technical-detail-column",
+        column: 'left',
+        heading: left_column_heading,
+        body: left_column_body,
+        link: left_column_link,
+        link_text: left_column_link_text,
+        image: left_column_image,
+        heading_color: section.settings.left_heading_color,
+        body_color: section.settings.left_body_color
+      %}
+      
+      {% render "product-technical-detail-column",
+        column: 'right',
+        heading: right_column_heading,
+        body: right_column_body,
+        link: right_column_link,
+        link_text: right_column_link_text,
+        image: right_column_image,
+        heading_color: section.settings.right_heading_color,
+        body_color: section.settings.right_body_color
+      %}
+    </div>
+</section>
+
+  
+  <style>
+  
+    #section-{{ section.id }} { background: {{ section.settings.background }}; }
+    .heading-wrapper-{{ section.id }}{ max-width: 80%; margin: unset; }
+    .text-content-{{ section.id }}{ margin-left: 30px; }
+  
+    .content-{{ section.id }}{ margin-right: 10%; margin-top: 32px; }
+  
+    .grid-{{ section.id }}{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+  
+    .body-{{ section.id }}{
+      margin: auto;
+    }
+    
+    .grid-item-{{ section.id }}{
+      border-radius: 10px;
+      /* display: grid; align-content: center; justify-content: center; position: relative; */
+       position: relative;
+      padding: 2em;
+    }
+    
+    .button-wrapper-{{section.id}}{
+      align-self: flex-end;
+    }
+  
+    @media screen and (max-width: 640px){
+  
+      .heading-wrapper-{{ section.id }}{ max-width: unset; }
+      #section-{{ section.id }} { padding-left: 0; padding-right: 0; }
+      .heading-{{section.id}}{ margin-top: 16px; }
+      .grid-{{ section.id }} {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding-top: 24px;
+      }
+      .content-{{ section.id }}{ margin-top: 16px; }
+      .grid-item-{{ section.id }} { min-height: 260px; border-radius: 0px }
+    }
+  
+    @media screen and (min-width: 641px){
+      .grid-{{ section.id }}{ padding-top: 43px; }
+      .grid-item-{{ section.id }}{
+        min-height: 300px;
+        height: 30vw;
+        max-height: 600px;
+      }
+    }
+  
+  
+    {% if block.settings.style == '1' %}
+      @media screen and (max-width: 640px){
+        .grid-{{section.id}}{ gap: 55px; }
+      }
+      @media screen and (min-width: 641px){
+        .grid-{{section.id}}{ gap: 55px; }
+      }
+    {% endif %}
+  
+  </style>
+
+{% endif %}
+ 
+ {% schema %}
+ {
+  "name": "Product technical details",
+  "settings": [  
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#333"
+    },
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Body color",
+      "default": "#333"
+    },     
+    {
+      "type": "header",
+      "content": "Left column"
+    },
+    {
+      "type": "color",
+      "id": "left_heading_color",
+      "label": "Heading color",
+      "default": "#333"
+    },
+    {
+      "type": "color",
+      "id": "left_body_color",
+      "label": "Body color",
+      "default": "#333"
+    },       
+    {
+      "type": "header",
+      "content": "Right column"
+    },
+    {
+      "type": "color",
+      "id": "right_heading_color",
+      "label": "Heading color",
+      "default": "#333"
+    },
+    {
+      "type": "color",
+      "id": "right_body_color",
+      "label": "Body color",
+      "default": "#333"
+    }    
+  ],
+  "presets": [
+    {
+      "name": "Product technical details"
+    }
+  ]
+}
+ {% endschema %}

@@ -1,0 +1,909 @@
+  <style>
+    @media only screen and (min-width: 767px){
+      div#pet-management {
+          background: #fff;
+      }
+      .new-div {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .customer-shipping-address .shipping-addresses {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6em;
+      }
+    }
+    @media only screen and (max-width: 767px){
+      .new-div, #pet-management {
+        padding-left: 2em;
+      }
+      .page-content-width p.banner-image-container {
+        margin-right: 8em;
+      }
+      img.banner-image {
+        top: 4em !important;
+      }
+    }
+    @media only screen and (min-width: 768px) {
+      .medium-up--two-thirds {
+        width: 100%;
+      }
+      .page-content-width p.banner-image-container {
+          margin-right: 7em;
+      }
+        
+    }
+    .banner-image {
+      height: 100px;
+    }
+    .icon-left {
+        display: -webkit-box;
+    }
+    
+    button.text-link.link-accent-color.address-edit-toggle {
+        margin: 0;
+        padding: 0;
+    }  
+    .pet-info {
+        display: inline-flex;
+        gap: 2em;
+        background: #cbcaca;
+    }
+    
+    span#add-pet-button {
+        text-align: center;
+        align-content: center;
+        margin-right: 2em;
+        text-transform: uppercase;
+        color: #f01515;
+        font-weight: 600;
+    }
+  
+    /* New CSS */
+    .personal-details, .cust-addresss {
+      background: #efefef;
+      margin-bottom: 20px;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    
+    .template-customers-addresses {
+      background: #ffffff;
+    }
+    
+    .main-content {
+      background: #ffffff;
+    }
+    
+    .customer-address {
+      display: flex;
+    }
+    
+    /* design for orders page */
+    .grid__item.medium-up--two-thirds .content-block{
+        border: 1px solid #f9f7f7;
+        border-radius: 10px;
+        background: #f9f7f7;
+    }
+    td, th {
+        border: none;
+    }
+    th{
+        border-bottom: 1px solid #66666612;
+        color: #929393;
+    }
+    
+    table {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    td:last-child {
+        color: red;
+    }
+    .content-block {
+      background-color: #f0f0f0;
+      margin-top: 6px;
+      margin-bottom: 0px;
+      /* padding: 4em; */
+    }
+    img.banner-image {
+      /* position: absolute;
+      top: 5em;
+      margin-left: calc(90% - 340px); /* calc(100% - 290px); */
+      right: 120px;    
+    }
+    .page-content-width {
+      padding: 0 20px;
+      max-width: 1180px;
+      margin: 0 auto;
+      margin-bottom: 1.5em;
+      margin-top: 30px;
+    }
+    .site-header__upper.page-content-width {
+      margin-bottom: 0;
+    }
+    .hide {
+      display: none;
+    }
+    @media only screen and (min-width: 1024px) and (max-width: 1366px) {
+      img.banner-image {
+          top: 5em;
+          margin-left: 53em; 
+      }
+    }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      img.banner-image {
+          top: 5.75em;
+          margin-left: 38em;
+      }  
+      .grid.grid--table {
+        display: flex;
+        gap: 2em;
+      }
+    }
+    .content-block div {
+      display: flex;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: center;
+    }
+    .content-block {
+      margin-bottom: 30px;
+    }
+    @media screen and (min-width: 768px){
+      .content-block {
+        padding: 0.25em 4em;
+      }
+    }
+  </style>
+  
+  {% comment %} <div class="content-block">
+    <div>
+      <h2 class="content-title">My Orders</h2>
+      <p class="banner-image-container" style="text-align: end;">
+        <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/NEW_DOG.png?v=1749458854" class="banner-image" style="vertical-align: middle;">
+      </p>
+    </div>
+  </div> {% endcomment %}
+  
+  <style>
+    .details {
+      display: none;
+      width: 25%;
+      font-size: 12px;
+      text-align: justify;
+      margin-left: 25px;
+      border: 1px solid #d7d6d6;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 10px;
+      position: absolute;
+      top: calc(100% - 17px);
+      left: calc(35% - 385px);
+      z-index: 999999;
+    }
+    .container {
+      position: relative;
+    }
+    .details .text-content {
+      padding: 1em;
+    }
+    .details, .text-content {
+      font-family: 'Barlow,sans-serif';
+      color: #231f20;
+    }
+     .details a {
+      color: #f01515;
+    }
+    .details.visible {
+      display: block;
+    }
+    .details-icon {
+      cursor: pointer;
+    }
+    .content-title {
+      position: relative;
+      margin-left: 10px;
+      font-size: 24px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    @media screen and (max-width: 767px){
+      .details {
+        display: none;
+        width: 70%;
+        font-size: 12px;
+        text-align: justify;
+        margin-left: 25px;
+        border: 1px solid #d7d6d6;
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 10px;
+        position: absolute;
+        top: 4em;
+        left: calc(50% - 150px);
+        z-index: 999999;
+      }
+      table.responsive-table {
+          margin: 0 10px !important;
+      }
+    }
+    .order-table {
+      background: #f9f7f7;
+      padding: 2em;
+      border-radius: 8px;
+    }
+    .top-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    table.responsive-table {
+      padding: 1.5em;
+    }
+    
+    #filter-view-section {
+      display: flex;
+    }
+    .btn:active {
+      background: none !important;
+      color: #666666;
+    }
+  </style>
+  
+  <div class="page-content-width">
+    <div class="grid">
+      
+  <div class="order-table">
+    <div class="top-container">
+      <span>Orders 
+        <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/info-no_bg.png?v=1742201672" height="17px" width="17px" class="details-icon" style="vertical-align: middle;">
+      </span>
+      <div class="details">
+        <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/info-no_bg.png?v=1742201672" height="17px" width="17px" class="details-icon" style="vertical-align: middle;">
+        <div class="text-content">
+          <p style="font-size: 15px;font-weight: 600;">Orders</p>  
+          <p>Easily view your previous orders, or lodge a return.</p>
+          <p>Need extra guidance, you can get in touch with our friendly customer service team via our online chat, or by booking a consult <a href="https://ezydog.com.au/pages/consultation">here</a>.</p>
+        </div>
+      </div>
+      
+      <div id="filter-view-section">
+        <button id="filter-button">
+         <img src="https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/vector-icons/filter-3-line-n93qvvgrlahrv0pigdk4gn.png/filter-3-line-8r0py2r9wgmeodgngwvm0n.png?_a=DAJFJtWIZAAC" height="20" width="20"> 
+        </button>
+         <div id="view-icons">
+          <button id="grid-view" class="active">
+            <img src="https://cdn2.iconfinder.com/data/icons/most-useful-icons-4/50/GRID-1024.png" height="20" width="20">
+          </button>
+          <button id="list-view">
+            <svg id="list-view-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6h18V4H3v2Zm0 6h18v-2H3v2Zm0 6h18v-2H3v2Z" fill="#333"/> <!-- Default fill black/dark grey -->
+            </svg>
+          </button>
+        </div>
+      </div>      
+    </div>
+    
+  {% comment %} This wrapper will contain both the table and the grid {% endcomment %}
+  <div class="orders-content-wrapper">
+  
+    {% if customer.orders.size != 0 %}
+      {% comment %} --- LIST VIEW (Your existing table) --- {% endcomment %}
+      <table class="responsive-table">
+        <thead>
+          <tr>
+            <th>Images</th>
+            <th>{{ 'customer.order.order' | t }}</th>
+            <th>{{ 'customer.order.fulfillment_status' | t }}</th>
+            <th>{{ 'customer.order.total' | t }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in customer.orders %}
+            <tr>
+              <td data-label="Images">
+                <span class="order-images" style="display: flex; flex-wrap: wrap; gap: 5px;">
+                  {% for line_item in order.line_items limit: 4 %}        
+                    {% if line_item.image %}
+                      <img src="{{ line_item.image | image_url: width: 50, height: 50, crop: 'center' }}" alt="{{ line_item.title | escape }}" />
+                    {% else %}
+                       <img src="{{ 'placeholder.png' | asset_url }}" alt="Placeholder Image" style="width:50px; height:50px; border:1px solid #eee;"/>
+                    {% endif %}
+                  {% endfor %}
+                </span>
+              </td>
+              <td data-label="{{ 'customer.orders.order_number' | t }}">
+                <a href="{{ order.customer_url }}">{{ order.name }}</a>
+              </td>
+              <td data-label="Status">
+                {% if order.cancelled %}
+                  Canceled
+                {% else %}
+                  {{ order.fulfillment_status_label }}
+                {% endif %}
+              </td>
+              <td data-label="{{ 'customer.orders.total' | t }}">
+                {{ order.total_price | money_with_currency }}
+              </td>
+              <td data-label="Notes">
+                {{ order.notes | default: '-'}}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  
+      {% comment %} --- GRID VIEW (New structure) --- {% endcomment %}
+      <div id="orders-grid-container" class="hidden">
+        {% for order in customer.orders %}
+          <div class="order-card">
+            <div class="order-card-header">
+              <span class="status-icon">
+                {% if order.cancelled %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+                  </svg>
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                  </svg>
+                {% endif %}
+              </span>
+              <span class="status-text">
+                {% if order.cancelled %}
+                  Canceled
+                {% else %}
+                  {{ order.fulfillment_status_label | default: 'Processing' }}
+                {% endif %}
+              </span>
+              <span class="order-date">
+                {% if order.cancelled %}
+                  {{ order.cancelled_at | date: "%b %-d" }}
+                {% else %}
+                  {{ order.created_at | date: "%b %-d" }}
+                {% endif %}
+              </span>
+            </div>
+      
+            <div class="order-card-images">
+              {% assign total_line_items = order.line_items.size %}
+              {% assign shown_items = 0 %}
+              {% assign slots_to_fill = 4 %}
+              {% for line_item in order.line_items %}
+                {% if shown_items == 3 and total_line_items > slots_to_fill %}
+                  <div class="order-card-image-item order-card-more-items">
+                    +{{ total_line_items | minus: 3 }}
+                  </div>
+                  {% break %}
+                {% elsif shown_items < 3 %}
+                  <div class="order-card-image-item">
+                    {% if line_item.image %}
+                      <img src="{{ line_item.image | image_url: width: 150, height: 150, crop: 'center' }}" alt="{{ line_item.title | escape }}">
+                    {% elsif line_item.variant.image %}
+                      <img src="{{ line_item.variant.image | image_url: width: 150, height: 150, crop: 'center' }}" alt="{{ line_item.title | escape }}">
+                    {% else %}
+                      <img src="{{ 'placeholder.png' | asset_url }}" alt="Placeholder Image" style="width:50px; height:50px; border:1px solid #eee;">
+                    {% endif %}
+                  </div>
+                  {% assign shown_items = shown_items | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+            </div>
+      
+            <div class="order-card-footer">
+              <p class="item-count">
+                {% if order.cancelled %}0 items{% else %}{{ order.item_count }} {{ order.item_count | pluralize: 'item', 'items' }}{% endif %}
+              </p>
+              <p class="order-number">Order <a href="{{ order.customer_url }}">{{ order.name }}</a></p>
+              <p class="order-total">{{ order.total_price | money_with_currency }}</p>
+      
+              <form method="post" action="/cart/add">
+                {% for line_item in order.line_items %}
+                  <input type="hidden" name="id[]" value="{{ line_item.variant_id }}">
+                  <input type="hidden" name="quantity[]" value="{{ line_item.quantity }}">
+                {% endfor %}
+                <button type="submit" class="button buy-again-button">Buy again</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+  {% else %}
+      <p>You haven't placed any orders yet.</p>
+    {% endif %}
+  </div>
+                     
+  </div>
+       
+    </div>
+  </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleIcon = document.querySelector(".top-container .details-icon");
+    const detailsDiv = document.querySelector(".details");
+    
+    if (toggleIcon && detailsDiv) {
+      toggleIcon.addEventListener("click", function(e) {
+        e.stopPropagation();
+        detailsDiv.classList.toggle("visible");
+      });
+      
+      document.addEventListener("click", function(event) {
+        if (!detailsDiv.contains(event.target) && event.target !== toggleIcon) {
+          detailsDiv.classList.remove("visible");
+        }
+      });
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const gridViewButton = document.getElementById("grid-view");
+    const listViewButton = document.getElementById("list-view");
+    
+    const ordersTable = document.querySelector(".responsive-table"); // Your existing table
+    const ordersGridContainer = document.getElementById("orders-grid-container"); // New grid container
+  
+    const filterButton = document.getElementById("filter-button");
+    const filterSidebar = document.getElementById("filter-sidebar");
+    const closeSidebar = document.getElementById("close-sidebar");
+    const applyFilters = document.getElementById("apply-filters");
+  
+    function setView(isGridView) {
+      if (isGridView) {
+        if (ordersTable) ordersTable.classList.add("hidden");
+        if (ordersGridContainer) ordersGridContainer.classList.remove("hidden");
+        if (gridViewButton) gridViewButton.classList.add("active");
+        if (listViewButton) listViewButton.classList.remove("active");
+      } else { // List view
+        if (ordersGridContainer) ordersGridContainer.classList.add("hidden");
+        if (ordersTable) ordersTable.classList.remove("hidden");
+        if (listViewButton) listViewButton.classList.add("active");
+        if (gridViewButton) gridViewButton.classList.remove("active");
+      }
+    }
+  
+    // Event listeners for view mode
+    if (gridViewButton) {
+      gridViewButton.addEventListener("click", () => {
+        setView(true); // Activate grid view
+      });
+    }
+    
+    if (listViewButton) {
+      listViewButton.addEventListener("click", () => {
+        setView(false); // Activate list view
+      });
+    }
+  
+    // Set initial view based on which button has the 'active' class in HTML
+    // (Ensure #list-view button has 'active' class in HTML for list view default)
+    if (gridViewButton && gridViewButton.classList.contains('active')) {
+      setView(true); // List view is default
+    } else if (listViewButton && listViewButton.classList.contains('active')) {
+      setView(false); 
+    } else if (ordersTable) { 
+      // Fallback if no button is explicitly active, default to list view
+      setView(false);
+    }
+  
+  
+    // --- Sidebar functionality (remains the same from your original code) ---
+    if (filterButton && filterSidebar) {
+      filterButton.addEventListener("click", () => {
+        filterSidebar.classList.remove("hidden");
+      });
+    }
+    
+    if (closeSidebar && filterSidebar) {
+      closeSidebar.addEventListener("click", () => {
+        filterSidebar.classList.add("hidden");
+      });
+    }
+    
+    if (applyFilters && filterSidebar) {
+      applyFilters.addEventListener("click", () => {
+        const sortInput = document.querySelector('input[name="sort"]:checked');
+        const selectedSort = sortInput ? sortInput.value : null;
+        
+        const selectedFilters = [...document.querySelectorAll('input[name="filter"]:checked')].map(input => input.value);
+      
+        console.log("Sort:", selectedSort);
+        console.log("Filters:", selectedFilters);
+      
+        filterSidebar.classList.add("hidden");
+      });
+    }
+  });
+</script>
+                  
+<style>
+  .top-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  /* Style the "Orders" title (first span in .top-container) */
+  .top-container > span:first-of-type {
+    font-size: 20px;
+    font-weight: bold;
+    color: #666;
+    display: ruby;
+  }
+  
+  .top-container > span:first-of-type .details-icon {
+    margin-left: 8px;
+    vertical-align: middle; 
+  }
+  th {
+    font-size: 16px;
+    font-weight: 700;
+    color: #666;
+  }
+  
+  /* --- Icons Section --- */
+  #filter-view-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  /* Common styles for icon buttons */
+  #filter-button,
+  #view-icons button {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+  }
+  
+  #filter-button:hover,
+  #view-icons button:not(.active):hover {
+    background-color: #e0e0e0;
+  }
+  
+  #filter-button img,
+  #view-icons img,
+  #view-icons svg {
+    display: block;
+   }
+  
+  /* Specific styling for the view icons group container */
+  #view-icons {
+    display: flex;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+  }
+  
+  /* Individual view buttons within the group */
+  #view-icons button {
+    background-color: transparent;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+  
+  /* Active state for view buttons (e.g., grid view) */
+  #view-icons button.active {
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  #view-icons button #list-view-svg path {
+      fill: #333;
+  }
+  #view-icons button.active #list-view-svg path {
+      fill: #D9534F;
+  }
+  
+  .details .details-icon {
+    float: left;
+    margin-right: 10px;
+    margin-top: 3px;
+  }
+  
+  .details .text-content {
+    overflow: hidden;
+  }
+  
+  .details .text-content p {
+    margin-top: 0;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-size: 12px;
+    font-family: Barlow,sans-serif;
+  }
+  .details .text-content p:last-child {
+    margin-bottom: 0;
+  }
+  
+  .details .text-content a {
+    color: #f01515; /*#007bff;*/
+    text-decoration: underline;
+  }
+  .details .text-content a:hover {
+    color: #d13939; /*#0056b3;*/
+  }
+  
+  /* --- Mobile Responsiveness --- */
+  @media (max-width: 768px) {
+    .top-container > span:first-of-type {
+      font-size: 24px;
+    }
+  
+    #filter-button,
+    #view-icons button {
+      padding: 7px;
+    }
+    
+    #view-icons {
+      padding: 3px;
+      gap: 3px;
+    }
+  
+    #view-icons button {
+      padding: 5px 7px;
+    }
+    main#MainContent {
+      margin-top: 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .top-container > span:first-of-type {
+      font-size: 20px;
+      max-width: calc(100% - 120px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    #filter-view-section {
+      gap: 8px;
+    }
+  }
+
+  /* General Helper */
+  .hidden {
+    display: none !important;
+  }
+  
+  /* Grid container for order cards */
+  #orders-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 20px;
+    padding-top: 20px;
+  }
+  
+  /* Individual order card */
+  .order-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+  }
+  
+  /* Card Header (Status and Date) */
+  .order-card-header {
+    background-color: #e9ecef;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+  }
+  .order-card-header .status-icon {
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .order-card-header .status-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: #495057; 
+  }
+  .order-card-header .status-text {
+    font-weight: 600;
+    margin-right: auto; 
+  }
+  .order-card-header .order-date {
+    font-size: 13px;
+    color: #6c757d;
+  }
+  
+  /* Product Images Section */
+  .order-card-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr); 
+    gap: 10px;
+    padding: 15px;
+    background-color: #ffffff;   
+  }
+  
+  .order-card-image-item {
+    background-color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    aspect-ratio: 1 / 1; 
+    border: 1px solid #f0f0f0; 
+  }
+  
+  .order-card-image-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; 
+    display: block;
+  }
+  
+  .order-card-image-item .image-placeholder-content {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa; 
+    border-radius: 6px; 
+  }
+  
+  .order-card-more-items {
+    background-color: #e9ecef; 
+    color: #343a40;
+    font-size: 20px; 
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Card Footer (Order Details and Button) */
+  .order-card-footer {
+    padding: 15px;
+    background-color: #f8f9fa; 
+    margin-top: auto; 
+  }
+  .order-card-footer p {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    color: #212529;
+  }
+  .order-card-footer .item-count {
+    font-size: 13px;
+    color: #6c757d;
+  }
+  .order-card-footer .order-number a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .order-card-footer .order-number a:hover {
+    text-decoration: underline;
+  }
+  .order-card-footer .order-total {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .buy-again-button {
+    background-color: #00000000 !important;
+    border: 1px solid rgb(216, 216, 216);
+    color: rgb(234, 45, 36) !important;
+    padding: 10px 15px;
+    width: 100%;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .buy-again-button:hover {
+    background-color: #e6e6e6;
+    border-color: #adb5bd;
+  }
+  
+  /* Styles for your existing responsive table (if needed, to ensure it hides properly) */
+  .responsive-table {
+    width: 100%;
+  }
+  .responsive-table.hidden {
+      display: none;
+  }
+  
+  /* Ensure grid view is default on mobile */
+  @media (max-width: 768px) {
+    .responsive-table {
+      display: none !important;
+    }
+    #orders-grid-container {
+      display: grid !important; 
+    }
+    #view-icons #grid-view {
+      background-color: #ffffff; 
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    #view-icons #list-view {
+      background-color: transparent; 
+    }
+    #view-icons #list-view-svg path {
+      fill: #333; 
+    }
+  }
+  
+  /* Adjust grid layout for smaller screens */
+  @media (max-width: 768px) {
+    #orders-grid-container {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+      gap: 15px; 
+    }
+    .order-card {
+      font-size: 14px; 
+    }
+    .order-card-images {
+      gap: 8px; 
+    }
+    .order-card-image-item img {
+      max-width: 100px; 
+      max-height: 100px;
+    }
+    .order-card-footer .order-total {
+      font-size: 14px; 
+    }
+  }  
+  @media only screen and (min-width: 750px) {
+    .main-content {
+      margin-top: 10px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.main_customers_account.name",
+  "class": "shopify-section--main-customers-account",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.main_customers_account.blocks.liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "liquid",
+          "label": "t:global.code.liquid"
+        }
+      ]
+    },
+    {
+      "type": "orders",
+      "name": "t:sections.main_customers_account.blocks.order_list.name",
+      "limit": 1
+    }
+  ]
+}
+{% endschema %}

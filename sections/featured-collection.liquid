@@ -1,0 +1,76 @@
+<!-- sections/featured-collection -->
+  {% if section.settings.style == "1" %}
+    {% render "featured-collection-style-1" %}
+  {% else %}
+    {% render "featured-collection-style-2" %}
+  {% endif %}
+
+{% schema %}
+  {
+    "name": "Featured Collection",
+    "class": "shopify-section--featured-collections",
+    "tag": "section",
+    "disabled_on": {
+      "templates": ["password"],
+      "groups": ["header", "custom.overlay"]
+    },
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "apply_top_padding",
+        "label": "Apply top padding",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_padding",
+        "label": "Apply bottom padding",
+        "default": false
+      },
+      {
+        "type": "select",
+        "id": "style",
+        "label": "Style",
+        "options": [
+          {
+            "value": "1",
+            "label": "1"
+          },
+          {
+            "value": "2",
+            "label": "2"
+          }
+        ],
+        "default": "1"
+      },
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": "t:sections.featured_collections.blocks.collection.collection"
+      },
+      {
+        "type": "inline_richtext",
+        "id": "title",
+        "label": "t:global.text.heading",
+        "info": "For use with style 2"
+      },
+      {
+        "type": "url",
+        "id": "link_url",
+        "label": "t:global.text.link_url",
+        "info": "t:sections.featured_collections.blocks.collection.default_link_url"
+      },
+      {
+        "type": "text",
+        "id": "link_text",
+        "label": "t:global.text.link_text",
+        "default": "View all"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured Collection - Arrow"
+      }
+    ]
+  }
+{% endschema %}

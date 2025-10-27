@@ -1,0 +1,120 @@
+<div class="section-spacing section-spacing--tight">
+  <div class="container container--{{ section.settings.page_width }}">
+    <div class="section-stack">
+      {%- if section.settings.show_title -%}
+        <div class="section-header justify-self-center text-center hide">
+          <h1 class="h2">{{ page.title }}</h1>
+        </div>
+      {%- endif -%}
+
+      {%- if page.content != empty %}
+        <div class="prose">
+          {{- page.content -}}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<style>
+  .hide {
+    display: none;
+  }
+  #size-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  #size-wrapper .left,
+  #size-wrapper .right {
+    flex: 1 0 100%;
+  }
+  #size-wrapper .left {
+    padding: 30px;
+  }
+  #size-wrapper .right {
+    padding: 30px;
+  }
+  @media screen and (min-width: 1000px) {    
+    #size-wrapper .left,
+    #size-wrapper .right {
+      flex: 1 0 50%;
+      white-space: nowrap;
+      text-align: center;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    #size-wrapper .left {
+      padding: 0 30px 60px 0;
+    }
+    #size-wrapper .right {
+      padding: 0 0 60px 30px;
+    }
+  }
+</style>
+
+{% if page.handle == 'black-friday-sale-test' %}
+  <style>
+    section#shopify-section-template--23370998645032__slideshow_VxWhQX {
+      display: none;
+    }
+  </style>
+  
+  <script>
+    var blackFriday = new Date('November 29, 2024 00:00:00').getTime();
+  
+    function updateCountdown() {
+      var now = new Date().getTime();
+      var timeLeft = blackFriday - now;
+      var daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      document.getElementById('days').innerHTML = daysLeft;
+    }
+  
+    updateCountdown();
+    setInterval(updateCountdown, 24 * 60 * 60 * 1000);
+  </script>  
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.main_page.name",
+  "class": "shopify-section--main-page",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "t:sections.main_page.show_title",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "page_width",
+      "label": "t:sections.main_page.page_width",
+      "options": [
+        {
+          "value": "xs",
+          "label": "t:global.sizes.x_small"
+        },
+        {
+          "value": "sm",
+          "label": "t:global.sizes.small"
+        },
+        {
+          "value": "md",
+          "label": "t:global.sizes.medium"
+        },
+        {
+          "value": "lg",
+          "label": "t:global.sizes.large"
+        },
+        {
+          "value": "full",
+          "label": "t:global.sizes.full_width"
+        }
+      ],
+      "default": "xs"
+    }
+  ]
+}
+{% endschema %}

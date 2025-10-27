@@ -1,0 +1,318 @@
+{% unless customer %}
+  <script>
+    window.location.href = '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
+  </script>
+{% endunless %}
+
+{% comment %} <div class="content-block">
+    <div>
+        <h2 class="content-title">My Preferences</h2>
+        <img src="https://cdn.shopify.com/s/files/1/0556/0051/3212/files/NEW_DOG.png?v=1749458854" class="banner-image" style="vertical-align: middle;">
+    </div>
+</div> {% endcomment %}
+
+<div class="page-content">  
+  <div class="email-preferences-container">
+    <h1>Email Preferences</h1>
+    
+    {% if customer %}
+      {% if request.query_params.updated == 'true' %}
+        <div class="notice success">
+          <p>Your preferences have been updated successfully!</p>
+        </div>
+      {% elsif request.query_params.updated == 'false' %}
+        <div class="notice error">
+          <p id="error-message">There was an error updating your preferences. Please try again.</p>
+        </div>
+      {% endif %}
+      
+      <form id="email-pref-form" action="#" method="post">
+        <input type="hidden" name="customer_id" value="{{ customer.id }}">
+        <input type="hidden" name="store_domain" value="{% if shop.domain contains '.au' %}au{% else %}eu{% endif %}">
+        <input type="hidden" name="authenticity_token" value="{{ form_authenticity_token }}">
+        
+        <div class="preference-option">
+          <label>
+            <input type="checkbox" name="accepts_marketing" 
+                   id="accepts_marketing" 
+                   {% if customer.accepts_marketing or customer.email_marketing_consent.state == 'subscribed' %}checked{% endif %}
+                   value="true">
+            Subscribe to our email newsletter
+          </label>
+          <p class="description">
+            Uncheck this box if you no longer wish to receive email communications from us.
+          </p>
+        </div>
+        
+        <button type="submit" class="button primary" id="submit-btn">Save Preferences</button>
+      </form>
+    {% else %}
+      <div class="login-prompt">
+        <p>Please log in to manage your email preferences</p>
+        <a href="{{ routes.account_login_url }}" class="login-button">Log in</a>
+      </div>
+    {% endif %}
+  </div>  
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('email-pref-form');
+    const errorMessage = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    if (form) {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Disable button during submission
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+        
+        const customerId = form.customer_id.value;
+        const storeDomain = form.store_domain.value;
+        const acceptsMarketing = form.accepts_marketing.checked;
+        
+        try {
+          // Use the working GraphQL endpoint
+          const response = await fetch('https://ezydog-member-profile-d6aad2c1d7ff.herokuapp.com/shopify/graphql', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': '1d956aa7d4081665e3c07131563c159f',
+              'X-Store-Domain': storeDomain
+            },
+            body: JSON.stringify({
+              query: `
+                mutation customerEmailMarketingConsentUpdate($input: CustomerEmailMarketingConsentUpdateInput!) {
+                  customerEmailMarketingConsentUpdate(input: $input) {
+                    customer {
+                      id
+                      emailMarketingConsent {
+                        marketingState
+                        marketingOptInLevel
+                      }
+                    }
+                    userErrors {
+                      field
+                      message
+                    }
+                  }
+                }
+              `,
+              variables: {
+                input: {
+                  customerId: `gid://shopify/Customer/${customerId}`,
+                  emailMarketingConsent: {
+                    marketingState: acceptsMarketing ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+                    marketingOptInLevel: acceptsMarketing ? 'SINGLE_OPT_IN' : null
+                  }
+                }
+              }
+            })
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.errors || (data.data && data.data.customerEmailMarketingConsentUpdate.userErrors && data.data.customerEmailMarketingConsentUpdate.userErrors.length > 0)) {
+            const errors = data.errors || data.data.customerEmailMarketingConsentUpdate.userErrors;
+            throw new Error(errors.map(e => e.message).join(', '));
+          }
+          
+          // Success - redirect with success param
+          const url = new URL(window.location.href);
+          url.searchParams.set('updated', 'true');
+          window.location.href = url.toString();
+          
+        } catch (error) {
+          console.error('Error updating preferences:', error);
+          if (errorMessage) {
+            errorMessage.textContent = error.message || 'Failed to update preferences. Please try again.';
+            errorMessage.style.display = 'block';
+          }
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save Preferences';
+        }
+      });
+    }
+  });
+</script>
+
+</div>
+
+<style>
+  p, span, label, input, a, li {
+    font-family: Barlow, sans-serif;
+  }
+  .email-preferences-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+  }
+  .notice {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-left: 4px solid;
+    border-radius: 4px;
+  }
+  .notice.success {
+    background-color: #f0f9eb;
+    border-color: #67c23a;
+  }
+  .notice.error {
+    background-color: #fef0f0;
+    border-color: #f56c6c;
+  }
+  .preference-option {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  .preference-option label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  .preference-option input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+  .preference-option .description {
+    margin: 0.75rem 0 0 1.75rem;
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .button.primary {
+    background: #ea2d24;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+  .features--button-transition :is(.button,.shopify-challenge__button,.shopify-payment-button__button--unbranded):not([disabled]):hover {
+    background: #ea2d24 !important;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+  .button.primary:hover {
+    background: #ea2d24;
+  }
+  .login-prompt {
+    text-align: center;
+    padding: 2rem;
+  }
+  .login-prompt p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    color: #444;
+  }
+  .login-button {
+    background: #ea2d24;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+  .login-button:hover {
+    background: #ea2d24;
+  }
+  @media only screen and (min-width: 750px) {
+    .page-content {
+      margin: 0 10em;
+    }
+  }
+  #MainContent {
+    background: #ffffff;
+    margin-top: 12px;
+  }
+  #customer_subscription_form {
+    margin: 20px 0;
+  }
+  #customer_subscription_form label {
+    margin-left: 10px;
+  }
+  #customer_subscription_form button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: rgb(234 45 36);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  .content-block h2 {
+    font-size: 20px;
+  }
+  .content-block {
+    border: 1px solid #f9f7f7;
+    border-radius: 10px;
+    background: #f9f7f7;
+    margin-top: 6px;
+    /*padding: 4em;*/
+  }
+  .content-block div {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: center;
+  }
+  .content-title {
+    position: relative;
+    /*top: -3.5em;
+    font-size: 24px;*/
+    font-weight: 600;
+    text-transform: uppercase;
+    /*margin-left: 7em;*/
+  }
+  .banner-image {
+    height: 100px;
+  }
+  /*img.banner-image {
+    position: relative;
+    top: -10.5em;
+    margin-right: 14em;
+    float: inline-end;
+  }*/
+  @media only screen and (max-width: 767px) {
+    p.banner-image-container {
+      margin-right: 8em;
+    }
+    .page-content {
+      margin: 0 1em;
+      margin-top: -2em;
+    }
+    .content-title {
+      margin-left: 1em;
+    }
+    img.banner-image {
+      margin-right: 9px;
+    }
+    .email-preferences-container {
+      margin-top: 5em;
+    }
+  }
+</style>

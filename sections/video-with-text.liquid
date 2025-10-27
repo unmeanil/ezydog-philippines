@@ -1,0 +1,630 @@
+<!-- video-with-text -->
+{%- if section.settings.video != blank or section.blocks.size > 0 -%}
+  {%- comment -%}
+  ------------------------------------------------------------------------------------------------------------------------
+  CSS
+  ------------------------------------------------------------------------------------------------------------------------
+  {%- endcomment -%}
+
+  <style>
+    #shopify-section-{{ section.id }} {
+      --image-with-text-content-max-width: {% if section.settings.content_width == 'sm' %}430px{% elsif section.settings.content_width == 'md' %}780px{% else %}100%{% endif %};
+    }
+
+    .text-wrapper-{{ section.id }} h2 {
+      line-height: {{ section.settings.heading_line_height }};
+    }
+
+    .text-wrapper-{{ section.id }} p,
+    .text-wrapper-{{ section.id }} div {
+      line-height: {{ section.settings.paragraph_line_height }};
+    }
+
+    .video-{{section.id}} { 
+      border-radius: 10px; 
+      transition: border-radius .2s;   
+      width: 100%;
+      height: auto;
+      max-width: {{ section.settings.video.width | default: '1000' }}px;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 16 / 9;
+      pointer-events: auto;
+    }
+
+    .image-with-text.image-with-text-{{ section.id }} {
+      background: {{ section.settings.background | default: 'transparent' }};
+    }
+
+    .image-with-text.image-with-text-{{ section.id }} video {
+      border-radius: 0;
+    }
+  
+    a.button:hover {
+      color: #ffffff !important;
+      background: {{ section.settings.background | default: 'transparent' }};
+      text-decoration: none !important;
+    }
+  
+    .image-with-text.image-with-text-{{ section.id }} {
+      color: {{ section.settings.text_color | default: '#fff' }};
+    }
+
+    .prose.text-left.sm\:text-start.text-wrapper-{{ section.id }} {
+      background: {{ section.settings.background | default: 'transparent' }};
+    }
+  
+    {% if section.settings.image_position != 'end' %}
+      .video-{{section.id}} { border-radius: 10px; }
+    {% endif %}
+  
+    @media screen and (min-width: 1600px) {
+      .video-{{section.id}} { border-radius: 10px; }
+    }
+  
+    @media screen and (max-width: 767px) {
+      .button-grid-{{section.id}} { display: none; }
+      .image-with-text-{{ section.id }} { position: relative; }
+      .image-with-text-{{ section.id }} > video { margin-bottom: 3.5em; }
+  
+      .text-wrapper-{{ section.id }} {
+        margin-top: -180px !important;
+        z-index: 1;
+        margin-left: 30px;
+        margin-right: 30px;
+        bottom: 0;
+        background: #FFF;
+        margin: auto;
+        left: 30px;
+        right: 30px;
+        border-radius: 10px;
+        padding: 35px;
+        padding-inline-start: 35px !important;
+        padding-inline-end: 35px !important;
+        margin: auto;
+      }
+      .mobile-links-{{section.id}} { display: flex; gap: 24px; justify-content: start; }
+
+      .mobile-link-wrapper-{{ section.id }} {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+        margin-top: 0;
+      }
+    
+      .mobile-links-{{section.id}} > a {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        background: linear-gradient(to right, currentColor, currentColor) 0 min(100%,3.35em) / 100% 1px no-repeat;
+        margin-block-start: 0 !important; 
+      }
+    
+      .mobile-link-wrapper-{{ section.id }}:has(.link-1-{{section.id}}) { color: #EA2D24; }
+      .link-1-{{section.id}}, .link-2-{{section.id}} { background: none !important; border-bottom: 1px solid currentColor; }
+
+      .prose.text-left.sm\:text-start.text-wrapper-{{ section.id }} {
+        border-radius: 0;
+      }
+      .section-x1-spacing {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .prose.text-left.sm\:text-start.text-wrapper-{{ section.id }} {
+        max-width: 100%;
+      }
+      .text-wrapper-{{ section.id }} {
+        margin-top: 0px !important;
+      }
+      .image-with-text-{{ section.id }} p.BarlowSC.dfs-40.mfs-40 {
+        font-size: 40px;
+      }
+    }
+
+    @media screen and (max-width: 500px) {
+      .text-wrapper-{{ section.id }} { margin-top: -50px !important; }
+    }
+  
+    @media screen and (min-width: 641px) {
+      .mobile-links-{{section.id}} { display: none; }
+      .button-grid-{{section.id}} { display: flex; gap: 1em; justify-content: left; flex-wrap: wrap; gap: 32px; }
+      .button-grid-{{section.id}} > a { height: min-content; margin-block-start: 0 !important; white-space: pre; }
+    }
+    @media screen and (min-width: 768px) {
+      .image-with-text > .prose {
+        margin-block: 0;
+      }
+    }
+  </style>
+
+  {%- comment -%}
+  ------------------------------------------------------------------------------------------------------------------------
+  LIQUID
+  ------------------------------------------------------------------------------------------------------------------------
+  {%- endcomment -%}
+
+  <div id="section-{{ section.id }}" class="{% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %} {% unless section.settings.remove_vertical_spacing %}section-spacing{% endunless %} {% if section.settings.separate_section_with_border %}bordered-section{% endif %}
+     section-x1-spacing">
+    <video-with-text class="image-with-text image-with-text-{{ section.id }} {% if section.settings.image_position == 'end' %}image-with-text--reverse{% endif %}">
+      {%- if section.settings.video != blank -%}
+        {%- assign video = section.settings.video -%}
+        <video
+          id="video-{{ section.id }}"
+          class="video-{{section.id}}"
+          autoplay
+          muted
+          playsinline
+          loop
+          {% if section.settings.show_controls %}controls{% endif %}
+          {% if section.settings.video_poster != blank %}
+            poster="{{ section.settings.video_poster | image_url: width: section.settings.video_poster.width }}"
+          {% endif %}
+        >
+          {%- if section.settings.mobile_video != blank and section.settings.mobile_video.sources[1].url != blank -%}
+            <source
+              media="(max-width: 699px)"
+              src="{{ section.settings.mobile_video.sources[1].url }}"
+              type="video/mp4"
+            >
+          {%- endif -%}
+          <source
+            src="{{ video.sources[1].url }}"
+            type="video/mp4"
+          >
+          Your browser does not support the video tag.
+        </video>
+        <script>
+          const video = document.getElementById('video-{{ section.id }}');
+          console.log('Desktop Video URL: {{ video.sources[1].url }}');
+          {% if section.settings.mobile_video != blank %}
+            console.log('Mobile Video URL: {{ section.settings.mobile_video.sources[1].url }}');
+          {% endif %}
+          console.log('Autoplay Forced: true');
+          video.addEventListener('error', (e) => {
+            console.error('Video Error:', e.message);
+          });
+          video.addEventListener('loadeddata', () => {
+            console.log('Video loaded, ready to play');
+          });
+          video.addEventListener('play', () => {
+            console.log('Video started playing');
+          });
+          video.addEventListener('pause', () => {
+            console.log('Video paused');
+          });
+        </script>
+      {%- else -%}
+        {{- 'lifestyle-1' | placeholder_svg_tag: 'placeholder' -}}
+      {%- endif -%}
+
+      <div class="prose text-left sm:text-start text-wrapper-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'subheading' -%}
+              {%- if block.settings.text != blank -%}
+                <p class="h6 BarlowSC-Medium" {{ block.shopify_attributes }}>{{ block.settings.text }}</p>
+              {%- endif -%}
+
+            {%- when 'heading' -%}
+              {%- if block.settings.text != blank -%}
+                {%if page.handle == 'training-range' %}
+                  <h3 class="{{ block.settings.heading_tag }} BarlowSC dfs-40 mfs-40" style="font-size: {{ section.settings.heading_size }}px !important; margin: {{ section.settings.heading_spacing }}px;" {{ block.shopify_attributes }}>{{ block.settings.text }}</h3>
+                {% else %}
+                  <h2 class="{{ block.settings.heading_tag }} BarlowSC dfs-40 mfs-40" style="font-size: {{ section.settings.heading_size }}px !important; margin: {{ section.settings.heading_spacing }}px;" {{ block.shopify_attributes }}>{{ block.settings.text }}</h2>
+                {%- endif -%}
+              {%- endif -%}
+
+            {%- when 'richtext' -%}
+              {%- if block.settings.content != blank -%}
+                <div style="font-size: {{ section.settings.paragraph_size }}px; margin: {{ section.settings.paragraph_spacing }}px;" {{ block.shopify_attributes }}>
+                  {{- block.settings.content -}}
+                </div>
+              {%- endif -%}
+
+            {%- when 'page' -%}
+              {%- if block.settings.page.content != blank -%}
+                <div {{ block.shopify_attributes }}>
+                  {{- block.settings.page.content -}}
+                </div>
+              {%- endif -%}
+
+            {%- when 'liquid' -%}
+              {%- if block.settings.liquid != blank -%}
+                <div {{ block.shopify_attributes }}>
+                  {{- block.settings.liquid -}}
+                </div>
+              {%- endif -%}
+
+            {%- when 'link' -%}
+              <a {% if block.settings.url %}data-url="{{ block.settings.url }}"{% endif %} class="link" {{ block.shopify_attributes }}><span>{{ block.settings.text | escape }}</span></a>
+
+            {%- when 'buttons' -%}
+              <div class="button-group button-grid-{{section.id}} hidden-phone">
+                {%- if block.settings.button_1_text != blank -%}
+                  <a data-url="{{ block.settings.button_1_url }}" class="button" style="color: {{ block.settings.cta_text_color | default: '#ffffff' }}; background: {{ block.settings.cta_background | default: '#ee1c25' }}; 
+                    border: 2px solid {{ block.settings.cta_background }};
+                    border-radius: 8px; 
+                    padding: {{ section.settings.cta_padding }}px {{ section.settings.cta_padding_horizontal }}px;
+                    font-size: {{ section.settings.cta_size }}px;
+                    margin: {{ section.settings.cta_spacing }}px;
+                    font-family: 'Barlow Semi Condensed', sans-serif; font-weight: bold; text-decoration:underline;">
+                    <span style="font-size: {{ section.settings.cta_text_size }}px;">{{ block.settings.button_1_text }}</span>
+                  </a>
+                {%- endif -%}
+              </div>
+
+              <div class="mobile-links-{{section.id}} hidden-tablet-and-up">
+                {%- if block.settings.button_1_text != blank -%}
+                  <div class="mobile-link-wrapper-{{ section.id }}">
+                    <a class="link-1-{{section.id}} mfs-16 Barlow-Medium" href="{{block.settings.button_1_url}}" style="color: {{ block.settings.cta_text_color | default: '#ffffff' }}; background: {{ block.settings.cta_background | default: '#ee1c25' }} !important; 
+                    border: 2px solid {{ block.settings.cta_background }};
+                    border-radius: 8px;
+                    padding: {{ section.settings.cta_padding }}px {{ section.settings.cta_padding_horizontal }}px;
+                    font-size: {{ section.settings.cta_size }}px;
+                    margin: {{ section.settings.cta_spacing }}px;
+                    font-family: 'Barlow Semi Condensed', sans-serif; font-weight: bold; text-decoration:underline;">
+                      <span style="font-size: {{ section.settings.cta_text_size }}px;">{{ block.settings.button_1_text }}</span>
+                    </a>
+                  </div>
+                {%- endif -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </video-with-text>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Video with Text",
+  "class": "shopify-section--video-with-text",
+  "tag": "section",
+  "max_blocks": 6,
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },    
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background color"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color"
+    },
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "Separate section with border",
+      "default": true
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video",
+      "info": "Upload an MP4 video. Recommended aspect ratio: 16:9. Use H.264 video and AAC audio codecs."
+    },
+    {
+      "type": "video",
+      "id": "mobile_video",
+      "label": "Mobile video",
+      "info": "Optional video for mobile devices. Recommended aspect ratio: 4:3 or 1:1."
+    },
+    {
+      "type": "image_picker",
+      "id": "video_poster",
+      "label": "Video poster image",
+      "info": "Image displayed before video plays. Recommended: 1000x1000."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_controls",
+      "label": "Show video controls",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal_on_scroll",
+      "label": "Reveal on scroll",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Video position",
+      "options": [
+        {
+          "value": "start",
+          "label": "Left"
+        },
+        {
+          "value": "end",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "sm",
+          "label": "Small"
+        },
+        {
+          "value": "md",
+          "label": "Medium"
+        },
+        {
+          "value": "lg",
+          "label": "Large"
+        }
+      ],
+      "default": "sm"
+    },
+    {
+      "type": "checkbox",
+      "id": "remove_vertical_spacing",
+      "label": "Remove vertical spacing",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading Font Size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "label": "Heading Spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "paragraph_size",
+      "label": "Paragraph Font Size",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "paragraph_spacing",
+      "label": "Paragraph Spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "cta_size",
+      "label": "CTA Font Size",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "cta_spacing",
+      "label": "CTA Spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "cta_padding",
+      "label": "CTA Vertical Padding",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "cta_padding_horizontal",
+      "label": "CTA Horizontal Padding",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "cta_text_size",
+      "label": "CTA Text Size",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "label": "Heading Line Height",
+      "min": 1.0,
+      "max": 2.0,
+      "step": 0.1,
+      "unit": "lh",
+      "default": 1.5
+    },
+    {
+      "type": "range",
+      "id": "paragraph_line_height",
+      "label": "Paragraph Line Height",
+      "min": 1.0,
+      "max": 2.0,
+      "step": 0.1,
+      "unit": "lh",
+      "default": 1.5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "Heading"
+        }
+      ]
+    },
+    {
+      "type": "richtext",
+      "name": "Paragraph",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content",
+          "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "name": "Page",
+      "settings": [
+        {	
+          "type": "page",	
+          "id": "page",	
+          "label": "Page"	
+        }	
+      ]	
+    },	
+    {
+      "type": "liquid",
+      "name": "Liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "liquid",
+          "label": "Liquid code",
+          "default": "<p>Write custom Liquid code to include widget or dynamic code.</p>"	
+        }	
+      ]	
+    },	
+    {	
+      "type": "link",
+      "name": "Link",
+      "settings": [
+        {	
+          "type": "text",	
+          "id": "text",	
+          "label": "Text",
+          "default": "Text"	
+        },	
+        {	
+          "type": "url",	
+          "id": "url",	
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "CTAs",
+      "settings": [
+        {
+          "type": "header",
+          "content": "CTA 1"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "CTA 1 text",
+          "default": "CTA text"
+        },
+        {
+          "type": "url",
+          "id": "button_1_url",
+          "label": "CTA 1 URL"
+        },
+        {
+          "type": "color",
+          "id": "cta_background",
+          "label": "CTA background color"
+        },
+        {
+          "type": "color",
+          "id": "cta_text_color",
+          "label": "CTA text color"
+        }      
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video with Text",
+      "blocks": [
+        {
+          "type": "subheading",
+          "settings": {
+            "text": "Subheading"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "text": "Video with text"
+          }
+        },
+        {
+          "type": "richtext"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

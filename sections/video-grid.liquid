@@ -1,0 +1,171 @@
+<!-- video-grid -->
+<section id="{{ section.id }}" class="section-x-spacing {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+    {% if section.settings.main_title != blank %}
+      <p class="Barlow-Medium dfs-30 mfs-22 ">{{ section.settings.main_title }}</p>
+    {% endif %}
+  
+    {% if section.settings.content != blank %}
+      <p class="Barlow dfs-16 mfs-14  content-{{ section.id }}">{{ section.settings.content }}</p>
+    {% endif %}
+    
+    <div class="text-mt-lg video-grid-{{section.id}}">
+      {% for block in section.blocks %}
+      <div>
+        <a href="{{ block.settings.video_url }}" class="video-block img-text-mt-lg">
+          <!-- <div class="video-thumbnail-{{ section.id }} video-thumbnail-{{ block.id }}" style="
+              background-image: url({{ block.settings.thumbnail_image | img_url: '600x' }});
+              background-repeat: no-repeat;
+              background-size: cover;
+              background-position: center;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            position: relative; 
+              "> -->
+          <div>
+            <img style="border-radius: 10px; margin-bottom: 16px; position: relative; " src="{{ block.settings.thumbnail_image | img_url: '600x' }}" loading="lazy" alt="description">
+            <svg class="play-icon-{{ section.id }}" fill="#FFF" width="48" height="48" viewBox="0 0 48 48">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M48 24c0 13.255-10.745 24-24 24S0 37.255 0 24 10.745 0 24 0s24 10.745 24 24Zm-18 0-9-6.6v13.2l9-6.6Z" fill="{{ block.settings.icon_color }}"/>
+            </svg>
+          </div>
+          </a>
+
+        {% if block.settings.category != blank %}
+            <a class="link-{{section.id}} mfs-16" href="{{block.settings.category_url}}">
+              <h3 class="Barlow-Medium dfs-14 mfs-14">{{ block.settings.category }}</h3>
+              {%- render 'icon' with 'chevron-right', width: 12, direction_aware: true -%}
+            </a>
+          {% endif %}
+          {% if block.settings.video_description != blank %}
+            <p class="Barlow dfs-14 mfs-14">{{ block.settings.video_description }}</p>
+          {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+</section>
+
+<style>
+    .link-{{section.id}} {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-block-start: 0 !important; 
+    }
+  
+    .play-icon-{{ section.id }}{
+      display: none;
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+  
+  .video-grid-{{section.id}} {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px; 
+  }
+
+  .content-{{ section.id }}{ max-width: 80%; }
+
+  .video-block {
+    text-decoration: none;
+  }
+
+  .video-thumbnail-{{ section.id }} {
+    background-color: #E0E0E0;
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Makes the thumbnail square */
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .content-{{ section.id }}{ max-width: 100%; }
+    .video-grid-{{section.id}} {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 8px;
+      row-gap: 40px;
+    }
+  }
+</style>
+
+
+
+{% schema %}
+{
+    "name": "Video Grid",
+    "settings": [
+      {
+       "type": "checkbox",
+       "id": "apply_top_padding",
+       "label": "Apply top padding",
+       "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_padding",
+        "label": "Apply bottom padding",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "main_title",
+        "label": "Main Title",
+        "default": "Not sure what you are looking for? Browse our most popular videos."
+      },
+      {
+        "type": "text",
+        "id": "content",
+        "label": "Content"
+      }
+    ],
+    "blocks": [
+        {
+            "type": "video",
+            "name": "Video Block",
+            "settings": [
+                {
+                  "type": "header",
+                  "content": "Thumbnail"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "thumbnail_image",
+                    "label": "t:global.image.image",
+                    "info": "560x560px recommended"
+                },
+                {
+                  "type": "url",
+                  "id": "video_url",
+                  "label": "Video URL"
+                },
+                {
+                  "type": "header",
+                  "content": "Content"
+                },              
+                {
+                    "type": "text",
+                    "id": "category",
+                    "label": "Category",
+                    "default": "Title"
+                },
+                {
+                  "type": "url",
+                  "id": "category_url",
+                  "label": "Category URL"
+                },
+                {
+                    "type": "textarea",
+                    "id": "video_description",
+                    "label": "Video Description",
+                    "default": "Description"
+                }
+            ]
+        }
+    ],
+    "presets": [
+    {
+      "name": "Video Grid"
+    }
+  ]
+}
+{% endschema %}

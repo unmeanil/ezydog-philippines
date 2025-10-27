@@ -1,0 +1,470 @@
+<!-- blog-posts-2 -->
+
+{% if section.settings.desktop_style == "1" %}
+<section id="section-{{ section.id }}" class="section-x-spacing blog-post-slide-{{ section.id }} {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+  <div class="grid-container-{{section.id}}">
+    <div class="grid-item-{{section.id}} left section-image-bg-{{section.id}}">
+      <div class="text-center">
+        <p class="title-{{section.id}} Barlow-Medium h-1" style="color: #FFF;" >{{ section.settings.blog.title }}</p>
+        <a class="button" href="{{ section.settings.link_url }}">READ MORE</a>
+      </div>
+    </div>
+    <div class="content-container-{{section.id}}">
+  
+      {%- for article in section.settings.blog.articles limit: 6 -%}
+        <div style=''>
+          <div class="blog-post-image blog-post-image-{{ section.id }} text-mb-lg" style="background: url({{ article.image | img_url: '1200x' }});
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 40%;
+            width: 100%;
+            border-radius: 10px;
+            background-size: contain;">
+            <a href="{{ article.url }}" style="height: 100%; width: 100%; display: block;"></a>
+            </div>
+          <!-- <img src="{{ article.image | img_url: '1200x' }}" /> -->
+          <a class="Barlow-Medium dfs-16 text-mb-sm" href="{{ article.url }}">{{ article.title }}</a>
+          <!-- <p class="blog-post-excerpt-{{ section.id }} text-mb-sm">{{ article.excerpt_or_content | strip_html | truncate: 80 }}</p> -->
+          <div>
+            <a href="{{ article.url | default: '#' }}" class="blog-post-card__read-more link">{{ 'blog.general.read_more' | t }}</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+$(document).ready(function() {
+
+    const slider = $(".content-container-{{section.id}}");
+    let isLocked = false;
+    const deltaYThreshold = 50;
+
+    slider.slick({
+      dots: true,
+      arrows: false,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      vertical: true,
+      infinite: false,
+      verticalSwiping: true,
+    });
+
+  var lastScrollTime = 0;
+  var accumulatedDeltaY = 0;
+  var isSliding = false;
+
+
+  var lethargy = new Lethargy();
+  
+  slider.on("wheel", function(e) {
+    let lethargyCheck = lethargy.check(e)
+    var deltaY = event.deltaY;
+    e.preventDefault()
+    
+    var isOnFirstSlide = slider.slick("slickCurrentSlide") === 0;
+    var isOnLastSlide = slider.slick("slickCurrentSlide") === slider.slick("getSlick").slideCount - 1
+
+    
+    if (isOnLastSlide && lethargyCheck == -1 ){
+     window.scrollBy({
+      top: 300,
+      left: 0,
+      behavior: 'smooth'
+    });
+    }
+
+    if (isOnFirstSlide && lethargyCheck == 1){
+        window.scrollBy({
+      top: -300,
+      left: 0,
+      behavior: 'smooth'
+    });
+    }
+        
+    if(lethargyCheck == -1 || lethargyCheck == 1){
+      
+      if(lethargyCheck == -1 && deltaY > 0){
+        slider.slick("slickNext") 
+      }
+
+      if(lethargyCheck == 1 && deltaY < 0){
+        slider.slick("slickPrev") 
+      }
+    }
+  });
+
+});
+  
+</script>
+
+<style>
+  .content-container-{{section.id}}{
+    display: flex;
+    align-items: center;
+  }
+
+ 
+  
+  .blog-post-image-{{ section.id }}{height: 50vw; }
+  .content-container-{{section.id}} > .slick-dots{
+    position: absolute;
+    width: 10%;
+    padding: 0;
+    list-style: none;
+    top: 0;
+    right: 0%;
+    bottom: 0;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end !important;
+    gap: 10px;
+    z-index: 1;
+  }
+
+  .content-container-{{section.id}}{
+    padding-right: 10%;
+    padding-left: 10%;
+  }
+  
+  .content-container-{{section.id}} > .slick-list {height: 100% !important; width: 100% !important; }
+  .content-container-{{section.id}}  .slick-track {height: 100% !important; }
+  .content-container-{{section.id}} .slick-slide{ 
+    /* width: 90% !important; */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .content-container-{{section.id}} > .slick-dots li button{ width: 100% height: 100%; }
+  .content-container-{{section.id}} > .slick-dots li button:before {
+    border: unset;
+    border-radius: unset;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    background: none;
+    content: "";
+  }
+
+  .content-container-{{section.id}} > .slick-dots li {
+    width: 3px;
+    height: 45px;
+    background-color: #DBDBDB;
+    cursor: pointer;
+    transition: background-color .2s;
+    z-index: -1;
+  }
+
+  .content-container-{{section.id}} > .slick-dots li.slick-active {
+    background-color: #1C1B1B;
+  }
+  
+
+  #section-{{ section.id }}{ height: unset; }
+  
+  .title-{{section.id}}{ color: {{section.settings.title_color}};     margin-bottom: 2vw; }
+
+  .section-image-bg-{{section.id}}{
+    background-image: url('{{ section.settings.blog_image | img_url: '1400x' }}');
+    background-repeat: no-repeat;
+    /* height: 50vw;
+    max-height: 800px; */
+    border-radius: 10px;
+  }
+
+
+   {%- for article in section.settings.blog.articles limit: section.settings.posts_count -%}
+    .content-{{ article.id }}{
+      /* background-image: url('{{ article.image | img_url: '1400x' }}'); */
+      background-repeat: no-repeat;
+      background-size: cover;
+      height: 80%;
+      background-position: center;
+      width: 100%;
+      border-radius: 0 10px 10px 0;
+    }
+  {% endfor %}
+
+  .grid-container-{{section.id}} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+        /* gap: 5%; */
+  }
+
+  .left {
+    /* min-height: 600px; */
+    background-size: cover;
+    background-position: top center;
+    display: flex;
+    height: 50vw;
+    /* max-height: 800px; */
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+  }
+
+  .right {
+    width: 80%;
+    align-items: center;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .content-container-{{section.id}} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+  }
+
+  .content-{{ section.id }}  {
+    display: none;
+  }
+
+  .content-{{ section.id }}.active {
+    display: block;
+  }
+
+</style>
+{% endif %}
+
+
+{%- comment -%}
+------------------------------------------------------------------------------------------------------------------------
+LIQUID
+------------------------------------------------------------------------------------------------------------------------
+{%- endcomment -%}
+{% assign stack_on_mobile = section.settings.stack_on_mobile %}
+{% capture blog_posts %}
+  <blog-posts class="blog-post-list blog-post-list-{{section.id}} justify-center {% unless stack_on_mobile%}blog-post-list--carousel scroll-area snap-x bleed md:unbleed{% endunless %}" {% if settings.stagger_blog_posts_apparition %}reveal-on-scroll="true"{% endif %}>
+    {%- capture sizes -%}(max-width: 699px) 95vw, (max-width: 1149px) calc(100vw / 2), calc((80rem - (5rem * ({{ section.settings.blog.articles_count | default: 3 | at_most: 3 }} - 1) / 3){%- endcapture -%}
+
+    {%- for article in section.settings.blog.articles limit: section.settings.posts_count -%}
+      {%- render 'blog-post-card', use_background_image: false , article: article, blog: section.settings.blog, show_category: section.settings.show_category, show_excerpt: section.settings.show_excerpt, show_read_more: section.settings.show_read_more, sizes: sizes -%}
+    {%- else -%}
+      {%- for i in (1..3) -%}
+        {%- render 'blog-post-card', show_category: section.settings.show_category, show_excerpt: section.settings.show_excerpt, show_read_more: section.settings.show_read_more  -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  </blog-posts>
+{% endcapture %}
+
+<div class="section-x-spacing blog-posts-carousel-{{ section.id }} {% if section.settings.separate_section_with_border %}bordered-section{% endif %}  {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+  <div class="img-text-mt-lg img-text-mb-lg">
+    <div class="section-stack section-stack-{{ section.id }}">
+      {%- render 'section-header', subheading: section.settings.subheading, heading: section.settings.title, content: section.settings.content, text_alignment: 'left' -%}
+
+    <div class="mobile-blog-stacked-{{section.id}}">
+      {%- for article in section.settings.blog.articles limit: section.settings.posts_count -%}
+        {%- render 'blog-post-card', use_background_image: false , article: article, blog: section.settings.blog, show_category: section.settings.show_category, show_excerpt: section.settings.show_excerpt, show_read_more: section.settings.show_read_more, sizes: sizes -%}
+      {% endfor %}
+    </div>
+
+      <div class="blog-wrapper-{{section.id}}">
+        {{ blog_posts }}
+        <div class="button-{{section.id}} button-desktop-{{section.id}}">
+          {%- assign button_link = section.settings.button_link | default: section.settings.blog.url -%}
+          {%- render 'button', style: "button", class_attribute: "button", href: button_link, content: section.settings.button_text -%}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+
+  
+ .blog-wrapper-{{section.id}} img { border-radius: 10px; }
+  .blog-post-list { --blog-post-list-column-gap: 10px !important; }
+  .blog-wrapper-{{section.id}}{ grid-template-columns: 1fr; }
+  .button-grid-{{section.id}}{ display: grid; justify-content: center;}
+
+  .button-{{ section.id }}{  margin-top: 50px; }
+  .mobile-blog-stacked-{{section.id}}{ display: none; }
+  @media screen and (max-width: 750px){
+    .button-{{ section.id }}{  margin-top: 0px; }
+    .section-stack-{{ section.id }}{ gap: 34px; }
+    .button-{{ section.id }}{  text-align: center;  }
+  }
+  {% if stack_on_mobile%}
+    @media screen and (max-width: 750px){
+      .mobile-blog-stacked-{{section.id}}{ display: block; }
+      .blog-post-list-{{section.id}}{ display: none; }
+      .mobile-blog-stacked-{{section.id}} > div > .stacked-blog-{{ section.id }} > h2 { color: #FFF; }
+      .mobile-blog-stacked-{{section.id}} > div { margin-bottom: 32px; }
+      .mobile-blog-stacked-{{section.id}} > div:last-of-type { margin-bottom: 0; }
+      .stacked-blog-{{ section.id }}{ position: absolute; bottom: 26px; left: 16px; }
+    }
+  {% endif %}
+
+  @media screen and (min-width: 1000px){
+    .blog-wrapper-{{ section.id }}{
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 10px;
+    }
+
+    .button-grid-{{section.id}}{ display: grid; justify-content: left;}
+
+    .button-{{ section.id }}{
+      align-self: end;
+      margin-bottom: 50px;
+      justify-content: center;
+      display: grid;
+    }
+  }
+  @media screen and (max-width: 750px){
+    .blog-post-slide-{{ section.id }}{ display: none;  }
+  }
+
+  
+{% if section.settings.desktop_style == '1' %} 
+ @media screen and (min-width: 749px){
+    .blog-posts-carousel-{{ section.id }} { display: none; }
+  }
+    {% comment %} @media screen and (max-width: 750px){
+    .blog-post-list-{{section.id}}{ display: none; }
+  } {% endcomment %}
+  {% endif %}
+  
+</style>
+
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "class": "shopify-section--blog-posts",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "apply_top_padding",
+      "label": "Apply top padding",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_bottom_padding",
+      "label": "Apply bottom padding",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "blog_image",
+      "label": "Blog image"
+    },
+    {
+      "type": "select",
+      "id": "desktop_style",
+      "label": "Desktop style",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "t:global.section.separate_section_with_border",
+      "default": true
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "t:sections.blog_posts.blocks.blog.blog"
+    },
+    {
+      "type": "range",
+      "id": "posts_count",
+      "min": 2,
+      "max": 9,
+      "label": "t:sections.blog_posts.blocks.blog.posts_count",
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "stack_on_mobile",
+      "label": "t:sections.blog_posts.stack_on_mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_category",
+      "label": "t:global.blog.show_category",
+      "info": "t:global.blog.show_category_info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "t:global.blog.show_excerpt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_read_more",
+      "label": "t:global.blog.show_read_more",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:global.section.header_category"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "t:global.text.subheading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:global.text.heading",
+      "default": "Blog posts"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "t:global.text.content"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:global.text.button_link",
+      "info": "t:sections.blog_posts.button_link_info"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "t:global.text.button_text",
+      "default": "View all"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Blog posts",
+      "settings": {
+        "blog": "news"
+      }
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,136 @@
+<!-- image-card-grid.liquid -->
+{% if product.metafields.custom.materials or section.blocks.size > 0 %}
+  <section id="section-{{ section.id }}" class=" {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+    <div class="section-x-spacing">
+      {% if section.settings.main_title != blank %}
+        <p class="dfs-30 mfs-30 Barlow-Medium img-text-mb-lg">{{ section.settings.main_title }}</p>
+      {% endif %}
+  
+        <div class="card-grid-{{section.id}}">
+          {% if product.metafields.custom.materials != blank %}
+            {% for metaobject in product.metafields.custom.materials.value %}
+              {% render "image-card-grid-card", title:  metaobject.title.value, description: metaobject.description.value, image: metaobject.image.value %}
+            {% endfor %}
+          {% else %}
+            {% for block in section.blocks %}
+            {% render "image-card-grid-card", title: block.settings.card_title, description:block.settings.card_description, image: block.settings.thumbnail_image %}
+          {% endfor %}
+          {% endif %}
+        </div>
+    </div>
+  </section>
+{% endif %}
+
+<style>
+  #section-{{section.id}}{ background: {{section.settings.background}}; }
+    .card-heading-{{ section.id }}{ padding-bottom: 16px; margin-top: 32px;  }
+    .content-{{ section.id }}{
+      background-color: #FFF;
+      padding: 2em 2em 4em 2em;
+    }
+  
+  @media screen and (max-width: 640px){
+    .content-{{ section.id }}{
+      padding: 2em 1em 1em 1em;
+    }
+  }
+  
+  .card-grid-{{section.id}} {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .card-grid-{{section.id}} > div{
+    background-color: #FFF;
+  }
+  
+  .card-block {
+    text-decoration: none;
+  }
+
+  .card-thumbnail-{{ section.id }} {
+    position: relative;
+    width: 100%;
+    border-radius: 10px 10px 0 0;
+    padding-top: 50%; 
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .description-{{ section.id }}{ padding-bottom: 28px; }
+
+    .card-grid-{{section.id}} {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>
+
+
+
+{% schema %}
+{
+    "name": "Card Grid",
+    "settings": [
+      {
+       "type": "checkbox",
+       "id": "apply_top_padding",
+       "label": "Apply top padding",
+       "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_padding",
+        "label": "Apply bottom padding",
+        "default": false
+      },
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background",
+        "default": "#FAF9F7"
+      },
+      {
+        "type": "text",
+        "id": "main_title",
+        "label": "Main Title"
+      },
+      {
+        "type": "text",
+        "id": "content",
+        "label": "Content"
+      }
+    ],
+    "blocks": [
+        {
+            "type": "card",
+            "name": "Card Block",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "card_title",
+                    "label": "Card Title",
+                    "default": "Title"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "thumbnail_image",
+                    "label": "t:global.image.image"
+                },
+                {
+                    "type": "textarea",
+                    "id": "card_description",
+                    "label": "Card Description",
+                    "default": "Description"
+                }              
+            ]
+        }
+    ],
+    "presets": [
+    {
+      "name": "Card Grid"
+    }
+  ]
+}
+{% endschema %}

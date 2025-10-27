@@ -1,0 +1,1663 @@
+<style>
+  :root {
+    --header-is-sticky: {% if section.settings.enable_sticky %}1{% else %}0{% endif %};
+  }
+
+  #shopify-section-{{ section.id }} {
+    --header-grid: "primary-nav logo secondary-nav" / minmax(0, 1fr) auto minmax(0, 1fr);
+    --header-padding-block: 1rem;
+    --header-transparent-header-text-color: {{ section.settings.transparent_header_text_color.rgb }};
+    --header-separation-border-color: {% if section.settings.show_separation_border %}var(--border-color){% else %}0 0 0 / 0{% endif %};
+
+    position: relative;
+    z-index: 5;
+  }
+
+  @media screen and (min-width: 700px) {
+    #shopify-section-{{ section.id }} {
+      --header-padding-block: {% if section.settings.reduce_padding %}1.2rem{% else %}1.6rem{% endif %};
+    }
+  }
+
+  @media screen and (min-width: 1000px) {
+    #shopify-section-{{ section.id }} {
+      {%- case section.settings.layout -%}
+        {%- when 'logo_left_navigation_inline' -%}
+          --header-grid: "logo primary-nav secondary-nav" / auto minmax(0, 1fr) auto;
+
+        {%- when 'logo_left_navigation_center' -%}
+          --header-grid: "logo primary-nav secondary-nav" / minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+
+        {%- when 'logo_center_navigation_below' -%}
+          --header-grid: ". logo secondary-nav" "primary-nav primary-nav primary-nav" / minmax(0, 1fr) auto minmax(0, 1fr);
+      {%- endcase -%}
+    }
+  }
+
+  {%- if section.settings.enable_sticky -%}
+    #shopify-section-{{ section.id }} {
+      position: sticky;
+      top: 0;
+    }
+
+    .shopify-section--announcement-bar ~ #shopify-section-{{ section.id }} {
+      top: calc(var(--announcement-bar-is-sticky, 0) * var(--announcement-bar-height, 0px));
+    }
+  {%- endif -%}
+
+  {%- if section.settings.logo != blank -%}
+    #shopify-section-{{ section.id }} {
+      --header-logo-width: {{ section.settings.logo_mobile_max_width }}px;
+      --header-logo-height: {{ section.settings.logo_mobile_max_width | divided_by: section.settings.logo.aspect_ratio | round }}px;
+    }
+
+    @media screen and (min-width: 700px) {
+      #shopify-section-{{ section.id }} {
+        --header-logo-width: {{ section.settings.logo_max_width }}px;
+        --header-logo-height: {{ section.settings.logo_max_width | divided_by: section.settings.logo.aspect_ratio | round }}px;
+      }
+    }
+  {%- endif -%}
+
+
+</style>
+
+<height-observer variable="header">
+  <x-header class="header">
+
+
+    {%- comment -%}
+    --------------------------------------------------------------------------------------------------------------------
+    LOGO AREA
+    --------------------------------------------------------------------------------------------------------------------
+    {%- endcomment -%}
+
+    {%- capture logo_content -%}
+      {%- if section.settings.logo -%}
+        {%- capture sizes -%}{{ section.settings.logo_max_width }}px{%- endcapture -%}
+        {%- capture widths -%}{{ section.settings.logo_max_width | times: 2 | at_most: section.settings.logo.width }}, {{ section.settings.logo_max_width | times: 3 | at_most: section.settings.logo.width }}{%- endcapture -%}
+
+        <span class="sr-only">{{ shop.name }}</span>
+        {{- section.settings.logo | image_url: width: section.settings.logo.width | image_tag: sizes: sizes, widths: widths, class: 'header__logo-image' -}}
+
+        {%- if section.settings.transparent_logo -%}
+          {{- section.settings.transparent_logo | image_url: width: section.settings.transparent_logo.width | image_tag: sizes: sizes, widths: widths, class: 'header__logo-image header__logo-image--transparent' -}}
+        {%- endif -%}
+      {%- else -%}
+        <span class="header__logo-text h5">{{ shop.name }}</span>
+      {%- endif -%}
+    {%- endcapture -%}
+
+    {%- if request.page_type == 'index' -%}
+      <span class="header__logo">
+        <a href="{{ routes.root_url }}">{{ logo_content }}</a>
+      </span>
+    {% else %}
+      <a href="{{ routes.root_url }}" class="header__logo">{{ logo_content }}</a>
+    {% endif %}
+
+     {%- comment -%}
+    --------------------------------------------------------------------------------------------------------------------
+    PRIMARY NAVIGATION AREA CUSTOM
+    --------------------------------------------------------------------------------------------------------------------
+     {%- endcomment -%}
+    {%- if section.blocks.size > 0 -%}
+      <nav class="header__primary-nav header__primary-nav--center" aria-label="Primary navigation">
+        <button type="button" aria-controls="sidebar-menu" class="md:hidden">
+          <span class="sr-only">{{ 'header.general.open_menu' | t }}</span>
+          {%- render 'icon' with 'hamburger', class: 'header__nav-icon' -%}
+        </button>
+        <ul class="contents unstyled-list md-max:hidden">
+            {% for block in section.blocks %}
+                {%- case block.type -%}
+                   {%- when 'megamenu_one' -%}
+                     {%- if block.settings.title != blank -%}
+                    <li class="header__primary-nav-item" data-title="{{ block.settings.title }}">          
+                        <details is="mega-menu-disclosure" class="header__menu-disclosure" follow-summary-link="true" trigger="{{ section.settings.menu_open_trigger }}" aria-expanded="false">
+                          <summary data-follow-link="#" class="header-link ">{{ block.settings.title }}</summary>
+                       
+                          {%  if block.settings.mm_linklist != blank %}
+                             <div class="mega-menu mega-menu-{{ link.title | handle }} mega-menu--reverse">
+                              <ul class="mega-menu__linklist unstyled-list test" role="list" style="opacity: 1;">
+                              
+                                {% for link in linklists[block.settings.mm_linklist].links %}
+                                     <li class="v-stack justify-items-start gap-1" style="opacity: 1; transform: translateY(0px);">
+                                         {%  if block.settings.image_enbale != blank %}
+                                   {% if link.title == 'Shop All' %}    {% assign collection = collections["All"] %} {% else %}    {% assign collection = collections[link.object.handle] %} {% endif %}
+                                           <a href="{{ link.url }}"  class="header-link-item header-link-item-all {{ block.settings.image_aligment }}">
+                                            {% comment %} <img class="shop-the-range-navimage" src="{{ collection.image | img_url: 'medium' }}" alt="{{ collection.title }}" width/> {% endcomment %}
+                                             {% if link.title == 'Bedding' %}
+                                              <!-- Use fixed product image for Bedding -->
+                                              <img class="shop-the-range-navimage" src="https://cdn.shopify.com/s/files/1/0796/3780/7400/collections/OrthoCalmElite_FrontAngle.jpg?v=1711407298" alt="{{ collection.title }}" width />
+                                            {% else %}
+                                              <!-- Default collection image -->
+                                              <img class="shop-the-range-navimage" src="{{ collection.image | img_url: 'medium' }}" alt="{{ collection.title }}" width />
+                                            {% endif %}
+                                               <span class="shop-the-range-navtitle Barlow">{{ link.title }}</span>
+                                           </a>
+                                          {% else %}
+                                         <a href="{{ link.url }}"  class="header-link-item header-link-item-all">{{ link.title }}</a>
+                                          {% endif %}
+                                     </li>
+                                {% endfor %}
+                               </ul>
+                             </div>
+                          {% endif %}
+                        </details>
+                    </li>
+                    {% endif %}
+                    {%- when 'single_link' -%}
+                     {%- if block.settings.title != blank -%}
+                     <li class="header__primary-nav-item" data-title="{{ block.settings.title}}">                  
+                        <a href="{{ block.settings.url}}" class="block h6  " {% if block.settings.newtab %} target="_blank"{% endif %}>   
+                           <span style="display: flex; align-items: center; gap: 10px;">{{ block.settings.title}}</span>
+                        </a>
+                       
+                     </li>
+                    {% endif %}
+
+                    {%- when 'megamenu4' -%}
+                  <li class="header__primary-nav-item" data-title="{{ block.settings.title }}">
+                    <details is="mega-menu-disclosure" class="header__menu-disclosure" follow-summary-link="" trigger="{{ section.settings.menu_open_trigger }}" aria-expanded="false">
+                    <summary data-follow-link="#" class="header-link ">{{ block.settings.title }}</summary>
+                         {%  if block.settings.mm_linklist != blank %}
+                             <div class="mega-menu mega-menu-collections "> 
+                                      <ul class="mega-menu__linklist unstyled-list">
+                                     {% for link in linklists[block.settings.mm_linklist].links %}
+                                        <li class="v-stack justify-items-start  gap-5 ">
+                                           <a href="{{ link.url }}" class="dfs-18 mfs-18 BarlowSC-Medium">{{ link.title }}</a>
+              
+              
+              {% assign inner_link_count = link.links.size %}
+                   {%- if inner_link_count > 0 -%}
+                <ul class="v-stack gap-2.5 unstyled-list">
+                    {%- for sub_link in link.links -%}
+                        <li> 
+                          <a href="{{ sub_link.url }}" class="link-faded dfs-18 mfs-18 Barlow">{{ sub_link.title }}</a>    
+                        </li>
+                  {% endfor %}
+                 
+                </ul>
+                  {% endif %}
+                    </li>
+              {% endfor %}
+        </ul>
+                        {% if block.settings.image_1 or block.settings.image_1 %}
+                               <div class="mega-menu__promo">
+                                {% if block.settings.image_1  %}
+                                
+                                  
+                                 <a data-url="{% if block.settings.image_1_link %} {{ block.settings.image_1_link }} {% else %}#{% endif %}" class="v-stack justify-items-left gap-4 sm:gap-5 group">
+                                   <div class="overflow-hidden">
+                                     <img src="//ezydog.com.au/cdn/shop/{{ block.settings.image_1 }}" alt="{{ block.settings.image_1_heading }}" srcset="//ezydog.com.au/cdn/shop/{{ block.settings.image_1 }}" width="1320" height="1120" loading="lazy" sizes="315px" class="zoom-image group-hover:zoom">
+                                   </div>
+                                 {% if block.settings.image_1_heading !=blank %}  <div class="v-stack text-left gap-2.5"><p class="dfs-18 Barlow">{{ block.settings.image_1_heading }}</p> {% if block.settings.image_1_text !=blank %}<p class="smallcaps text-xs text-subdued">{{ block.settings.image_1_text }}</p>{% endif %}</div>{% endif %}
+                                 </a>
+                              {% endif %}
+                                 {% if block.settings.image_2  %}
+                                
+                                  
+                                 <a data-url="{% if block.settings.image_2_link %} {{ block.settings.image_2_link }} {% else %}#{% endif %}" class="v-stack justify-items-left gap-4 sm:gap-5 group">
+                                   <div class="overflow-hidden">
+                                     <img src="//ezydog.com.au/cdn/shop/{{ block.settings.image_2 }}" alt="{{ block.settings.image_2_heading }}" srcset="//ezydog.com.au/cdn/shop/{{ block.settings.image_2 }}" width="1320" height="1120" loading="lazy" sizes="315px" class="zoom-image group-hover:zoom">
+                                   </div>
+                                 {% if block.settings.image_2_heading !=blank %}  <div class="v-stack text-left gap-2.5"><p class="dfs-18 Barlow">{{ block.settings.image_2_heading }}</p> {% if block.settings.image_2_text !=blank %}<p class="smallcaps text-xs text-subdued">{{ block.settings.image_2_text }}</p>{% endif %}</div>{% endif %}
+                                 </a>
+                              {% endif %}
+                                 <style>
+  .mega-menu__promo img{border-radius: 10px;}
+  .mega-menu{ border: none !important; }
+</style>
+  </div>
+                               {% endif %}
+                             </div>
+                  
+
+
+<style style="opacity: 0;">
+  .mega-menu__promo a{ transition: color: .2s; }
+  .mega-menu__promo a:hover p { color: #EA2D24;  }
+  .header-link-wrapper{
+    flex-grow: 1;
+    display: flex;
+  }
+
+  .mega-menu-blog{ justify-content: center; }
+  
+  li:has(.header-link-item){
+    display: flex;
+  }
+  
+  .header-link-item{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .nav-collection-all{ border: 1px solid #000; border-radius: 50%; height: 60px; width: 60px;  display: flex; justify-content: center;  align-items: center; }
+  .nav-collection-all > span{ font-size: 20px; color: #000; }
+  .shop-the-range-navimage{
+    max-width: 60px;
+    margin-bottom: 10px;
+    filter: grayscale(1); 
+    transition: filter .1s;
+  }
+
+  .shop-the-range-navtitle{
+    transition: color .1s;
+  }
+
+  @media screen and (min-width: 641px){
+    .shop-the-range-navtitle{ color: #6A6A6A; text-transform: capitalize; }
+  }
+
+  .header-link-item:hover .shop-the-range-navimage { filter: grayscale(0); }
+  .header-link-item:hover .shop-the-range-navtitle { color: #EA2D24; }
+
+  .nav-collection-all{ transition: all .1s}
+  .nav-collection-all-plus{ font-size: 20px; transition: all .1s}
+
+  .header-link-item-all:hover > .shop-the-range-navtitle { color: #EA2D24; }
+  .header-link-item-all:hover > .nav-collection-all{ background: #EA2D24; border-color: #EA2D24; }
+
+  a:hover .shop-the-range-navtitle {
+    color: #EA2D24 !important;
+  }
+  .header-link-item:hover .nav-collection-all-plus { color: #FFF !important; }
+
+  
+    @media screen and (min-width: 1000px) and (max-width: 1200px){
+      .mega-menu-collections .mega-menu__promo{
+        display: grid;
+        gap: 16px;
+      }
+      
+      .mega-menu-collections .mega-menu__promo a:last-of-type{ display: none; }
+    }
+    @media screen and (min-width: 1200px) and (max-width: 1500px){
+      .mega-menu-collections{
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        column-gap: 2em;
+      }
+      
+      .mega-menu-collections .mega-menu__promo{
+        /* display: grid;
+        gap: 16px; */
+      }
+    }
+  
+  
+  
+  .mega-menu-shop-the-range .mega-menu__linklist{ gap: 3em; }
+  @media screen and (min-width: 1000px) and (max-width: 1100px){
+    .mega-menu-shop-the-range img{ width: 50px; }
+    .mega-menu-shop-the-range .nav-collection-all{ height: 50px; width: 50px; }
+    .mega-menu-shop-the-range .shop-the-range-navtitle{ font-size: 12px; }
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 1em; justify-content: normal; } 
+  }
+
+  @media screen and (min-width: 1100px) and (max-width: 1260px){
+    .mega-menu-shop-the-range img{ width: 50px; }
+    .mega-menu-shop-the-range .nav-collection-all{ height: 50px; width: 50px; }
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 1.5em; justify-content: normal; } 
+  }
+
+  @media screen and (min-width: 1260px) and (max-width: 1500px){
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 2em; justify-content: normal; } 
+  }
+  
+  @media screen and (max-width: 767px){
+    span.wishlist {
+        font-size: 14px;
+        text-transform: uppercase;
+        color: #000;
+        font-weight: 600;
+        font-family: 'Barlow Semi Condensed';
+    }
+    .header-wishlist {
+        bottom: 16px;
+    }
+    .hide-on-mobile {
+      display: none !important;
+    }
+  }
+
+</style>
+  {% endif %}                  
+ </details>
+  </li>
+             {%- when 'dropdown' -%}
+                  <li class="header__primary-nav-item hdr_dropdown_block" data-title="{{ block.settings.title }}">
+                    <details is="dropdown-menu-disclosure" class="header__menu-disclosure" follow-summary-link="true" trigger="{{ section.settings.menu_open_trigger }}" aria-expanded="false">
+                    <summary data-follow-link="{{ block.settings.url }}" class="header-link ">{{ block.settings.title }}</summary>
+                       {%  if block.settings.mm_linklist != blank %}
+                      <ul class="header__dropdown-menu header__dropdown-menu--restrictable unstyled-list" role="list" style="opacity: 0;">
+                          {% for link in linklists[block.settings.mm_linklist].links %}
+                        <li class="hdr_dropdown_item" style="opacity: 1; transform: translateY(0px);">
+                          <a href="{{ link.url }}" class="link-faded-reverse">{{ link.title }}</a>
+                          {% assign inner_link_count = link.links.size %}
+                           {%- if inner_link_count > 0 -%}
+                          <ul class="v-stack gap-2.5 unstyled-list hdr_dropdown_submenu" role="list">
+                                {%- for sub_link in link.links -%}
+                                   {% assign inner_inner_link_count = sub_link.links.size %}
+                              <li class="hdr_dropdown_subitem">
+                                <a href="{{ sub_link.url }}" class="link-faded-reverse" >{{ sub_link.title }}</a>
+                                {%- if inner_inner_link_count > 0 -%}
+                              
+                                <ul class="v-stack gap-2.5 unstyled-list hdr_dropdown_submenu_l2" role="list">
+                                     {%- for sub_sub_link in sub_link.links -%}
+                                    <li class="hdr_dropdown_subitem_l2">
+                                      <a href="{{ sub_sub_link.url }}" class="link-faded-reverse" >{{ sub_sub_link.title }}</a>
+                                    </li>
+                                  {% endfor %}
+                                   
+                                </ul>
+                                {% endif %}
+                              </li>
+                              {% endfor %}
+                            
+                          </ul>
+                          {% endif %}
+                        </li>
+                        {% endfor %}
+                      
+                      </ul>
+                    {% endif %}
+                    </details>
+                  </li>
+                   
+                 {%- when 'megamenu3' -%}
+                   <li class="header__primary-nav-item" data-title="{{ block.settings.title }}">    
+                       <details is="dropdown-menu-disclosure" class="header__menu-disclosure" follow-summary-link="true" trigger="{{ section.settings.menu_open_trigger }}" aria-expanded="false">
+                    <summary data-follow-link="{{ block.settings.url }}" class="header-link ">{{ block.settings.title }}</summary>
+                         {%- case block.settings.mmcolumns -%}
+                           {% assign column_class ='' %}
+                             {%- when 2 -%}
+                               {% assign column_class ='two-column-menu' %}
+                            {%- when 3 -%}
+                                {% assign column_class ='three-column-menu' %}
+                            {%- when 4 -%}
+                                {% assign column_class ='four-column-menu' %}
+                            {%- when 5' -%}
+                                {% assign column_class ='five-column-menu' %}
+                        {% endcase %}
+                         {%  if block.settings.mm_linklist != blank %} 
+                       <ul class="header__dropdown-menu header__dropdown-menu--restrictable unstyled-list dropdown-menu-disclosure mega_menu_col {{ column_class }}" role="list" style="opacity: 1;">
+                                   {% for link in linklists[block.settings.mm_linklist].links %} 
+                                       {% assign inner_link_count = link.links.size %}
+                                     {%- if inner_link_count > 0 -%} {% assign class_submneu='open_submenu' %} {% else %}  {% assign class_submneu='' %} {% endif %}
+                               <li style="opacity: 1; transform: translateY(0px);" class="closed">                               
+                                       <a href="{%- if inner_link_count > 0 -%} # {% else %}{{ link.url }} {% endif %}" class="link-faded-reverse {{ class_submneu }}">{{ link.title }}<span class="dropdown_menu_icon"><i class="fa fa-chevron-down" aria-hidden="true"></i></span></a>
+                                   
+                           {%- if inner_link_count > 0 -%}
+                          <ul class="v-stack unstyled-list hdr_dropdown_submenu closed" role="list" style="display:none;">
+                                {%- for sub_link in link.links -%}
+                                   {% assign inner_inner_link_count = sub_link.links.size %}
+                                   {%- if inner_inner_link_count > 0 -%} {% assign class_submneu_sub='open_submenusub' %} {% else %}  {% assign class_submneu_sub='' %} {% endif %}
+                              <li class="hdr_dropdown_subitem">
+                                <a href="{%- if inner_inner_link_count > 0 -%} # {% else %}{{ link.url }} {% endif %}" class="link-faded-reverse {{ class_submneu_sub }}" >{{ sub_link.title }}</a>
+                                {%- if inner_inner_link_count > 0 -%}
+                              
+                                <ul class="v-stack gap-2.5 unstyled-list hdr_dropdown_submenu_l2 closed" role="list" style="display:none;">
+                                     {%- for sub_sub_link in sub_link.links -%}
+                                    <li class="hdr_dropdown_subitem_l2">
+                                      <a href="{{ sub_sub_link.url }}" class="link-faded-reverse" >{{ sub_sub_link.title }}</a>
+                                    </li>
+                                  {% endfor %}
+                                   
+                                </ul>
+                                {% endif %}
+                              </li>
+                              {% endfor %}
+                            
+                          </ul>
+                          {% endif %}
+                               </li>
+                                          
+                                    {% endfor %}
+                                    
+             
+                         </ul>
+                         {% endif %}
+                       </details>
+                     </li>
+                <style>
+                    .two-column-menu{display: grid;grid-template-columns: repeat(2, 1fr);max-width:none;}
+                    .three-column-menu{display: grid;grid-template-columns: repeat(3, 1fr);max-width:none;}
+                    .four-column-menu{display: grid;grid-template-columns: repeat(4, 1fr);max-width:none;}
+                    .five-column-menu{display: grid;grid-template-columns: repeat(5, 1fr);max-width:none;}
+                
+                </style>
+                <script>
+                  $(document).ready(function() {
+                  
+                  $(document).on('click', '.open_submenu', function(e) { 
+                          e.preventDefault(); // Prevent default action if it's an anchor tag
+                        
+                          // Find the submenu related to the clicked menu item
+                          var $submenu = $(this).parent().find('ul.hdr_dropdown_submenu');
+                          
+                          // If the submenu is already open, close it
+                          if ($submenu.hasClass('open')) {
+                            $(this).parent().removeClass('open').addClass('closed');
+                            $submenu.removeClass('open').addClass('closed').hide();
+                          } 
+                          // If the submenu is closed, open it and close others
+                          else {
+                            // Close all submenus and update their parent classes
+                            $('ul.hdr_dropdown_submenu.open').removeClass('open').addClass('closed').hide();
+                            $('.open_submenu').parent().removeClass('open').addClass('closed');
+                        
+                            // Open the clicked submenu
+                            $(this).parent().removeClass('closed').addClass('open');
+                            $submenu.removeClass('closed').addClass('open').show();
+                          }
+                        });
+
+
+
+                    $(document).on('click', '.open_submenusub', function(e) { 
+                        e.preventDefault(); // Prevent default action if it's an anchor tag
+                      
+                        // Find the submenu related to the clicked menu item
+                        var $submenu = $(this).parent().find('ul.hdr_dropdown_submenu_l2');
+                        
+                        // If the submenu is already open, close it
+                        if ($submenu.hasClass('open')) {
+                          $submenu.removeClass('open').addClass('closed').hide();
+                        } 
+                        // If the submenu is closed, open it and close others
+                        else {
+                          // Close all submenus and update their parent classes
+                          $('ul.hdr_dropdown_submenu_l2.open').removeClass('open').addClass('closed').hide();
+                      
+                          // Open the clicked submenu
+                          $submenu.removeClass('closed').addClass('open').show();
+                        }
+                      });
+
+
+                    
+                  });
+                </script>
+            {%- endcase -%}
+          {% endfor %}
+        </ul>
+        
+      </nav>
+    {% endif %}
+
+
+   
+
+    {%- comment -%}
+    --------------------------------------------------------------------------------------------------------------------
+    SECONDARY NAVIGATION AREA
+    --------------------------------------------------------------------------------------------------------------------
+    {%- endcomment -%}
+
+    <nav class="header__secondary-nav" aria-label="{{ 'header.general.secondary_navigation' | t | escape }}">
+      <div class="header-wishlist hide-on-mobile">
+        <a class="fa fa-heart-o" href="/a/wishlist">{% render 'icon' with 'heart' %}</a>
+      </div>
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}/addresses" class="text-with-icon smallcaps sm:hidden">
+          {%- render 'icon' with 'account', width: 20 -%}
+        </a>
+      {%- endif -%}
+      
+      {%- liquid
+        if section.settings.show_country_selector and localization.available_countries.size > 1
+          assign show_country_selector = true
+        endif
+
+        if section.settings.show_locale_selector and localization.available_languages.size > 1
+          assign show_locale_selector = true
+        endif
+      -%}
+
+      {%- if show_country_selector or show_locale_selector -%}
+        <div class="localization-selectors md-max:hidden">
+          {%- if show_country_selector -%}
+            {%- render 'localization-selector', type: 'country', placement: 'bottom-end', show_country_name: section.settings.show_country_name, show_country_flag: section.settings.show_country_flag, id_prefix: 'header-nav' -%}
+          {%- endif -%}
+
+          {%- if show_locale_selector -%}
+            {%- render 'localization-selector', type: 'locale', placement: 'bottom-end', id_prefix: 'header-nav' -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%}Offer a hook for apps to integrate into the header to add their own icon, for instance{%- endcomment -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == '@app' -%}
+          {%- render block -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}/addresses" class="sm-max:hidden">
+          <span class="sr-only">{{ 'header.general.open_account' | t }}</span>
+
+          {%- if section.settings.show_icons -%}
+            {%- render 'icon' with 'account', class: 'header__nav-icon' -%}
+          {%- else -%}
+            <span class="md:hidden">{%- render 'icon' with 'account', class: 'header__nav-icon' -%}</span>
+            <span class="h6 link-faded md-max:hidden">{{ 'header.general.account' | t }}</span>
+          {%- endif -%}
+        </a>
+      {%- endif -%}
+
+      {%- if section.settings.enable_search -%}
+        <a href="{{ routes.search_url }}" aria-controls="header-search-{{ section.id }}">
+          <span class="sr-only">{{ 'header.general.open_search' | t }}</span>
+
+          {%- if section.settings.show_icons -%}
+            {%- render 'icon' with 'search', class: 'header__nav-icon' -%}
+          {%- else -%}
+            <span class="md:hidden">{%- render 'icon' with 'search', class: 'header__nav-icon' -%}</span>
+            <span class="h6 link-faded md-max:hidden">{{ 'header.general.search' | t }}</span>
+          {%- endif -%}
+        </a>
+      {%- endif -%}
+
+      <a href="{{ routes.cart_url }}" class="relative" {% if settings.cart_type != 'page' and request.page_type != 'cart' %}aria-controls="cart-drawer"{% endif %}>
+        <span class="sr-only">{{ 'header.general.open_cart' | t }}</span>
+
+        {%- if section.settings.show_icons -%}
+          {%- render 'icon' with 'cart', class: 'header__nav-icon' -%}
+        {%- else -%}
+          <span class="md:hidden">{%- render 'icon' with 'cart', class: 'header__nav-icon' -%}</span>
+          <span class="h6 link-faded md-max:hidden">{{ 'header.general.cart' | t }} (<cart-count>{{ cart.item_count }}</cart-count>)</span>
+        {%- endif -%}
+
+        <cart-dot class="header__cart-dot {% unless cart.empty? %}is-visible{% endunless %} {% unless section.settings.show_icons %}md:hidden{% endunless %}"></cart-dot>
+      </a>
+    </nav>
+
+    {%- if section.settings.enable_search -%}
+      {%- render 'header-search' -%}
+    {%- endif -%}
+
+    {%- assign sidebar_menu = section.settings.sidebar_menu | default: section.settings.menu -%}
+
+    {%- if sidebar_menu.links.size > 0 -%}
+      {% if section.settings.use_accordion %}
+        {%- render 'header-sidebar-accordion', menu: sidebar_menu, show_dividers: section.settings.sidebar_show_dividers -%}
+      {% else %}
+        {%- render 'header-sidebar', menu: sidebar_menu, show_dividers: section.settings.sidebar_show_dividers -%}
+      {% endif %}
+    {%- endif -%}
+
+
+      {% if section.settings.use_accordion %}  
+        
+<template id="header-sidebar-template">
+  <div part="base">
+    <div part="overlay"></div>
+
+    <div part="content">
+      <header part="header">
+        <button type="button" is="dialog-close-button" part="close-button tap-area" aria-label="{{ 'general.accessibility.close' | t | escape }}">
+          {%- render 'icon' with 'close', width: 16 -%}
+        </button>
+      </header>
+
+      <div part="panel-list">
+        <slot name="main-panel"></slot>
+
+        {%  if section.blocks != blank %}
+          <slot name="collapsible-panel"></slot>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</template>
+
+    <header-sidebar id="sidebar-menu" class="header-sidebar drawer drawer--sm" template="header-sidebar-template" open-from="left">
+       <div class="header-sidebar__main-panel" slot="main-panel">
+          <div class="header-sidebar__scroller">
+           <ul class="header-sidebar__linklist divide-y unstyled-list">
+                  {% for block in section.blocks %}
+             <li style="opacity: 1; transform: translateY(0px);">
+                   {%  if block.settings.mm_linklist != blank %}
+              <details class="accordion   group " is="accordion-disclosure" aria-expanded="false">
+                  <summary class="sidebar-accordion-summary">
+                      <span class="accordion__toggle  h6 ">
+                            <span class="text-with-icon gap-4  accordion-heading BarlowSC-Medium dfs-14 mfs-14 sidebar-accordion-heading">
+                                {{ block.settings.title }}
+                            </span>
+                         <span class="animated-plus group-expanded:rotate" aria-hidden="true"></span>
+                      </span>
+                  </summary>
+            
+                {% assign links = linklists[block.settings.mm_linklist].links %}
+                {% for link in links %}
+                  {% if link.links.size > 0 %}
+                       {% assign nested_one='has-nested-sidebar-accordion' %} {% assign nestedlink_one='nested-sidebar-links' %}
+                        {% break %}
+                  {% else %}
+                    {% assign nested_one='' %} {% assign nestedlink_one='' %}
+                  {% endif %}
+                {% endfor %}
+               
+                <div class="accordion__content  Open-Sans sidebar-accordion-content {{ nested_one }}">
+              
+                     {% for link in linklists[block.settings.mm_linklist].links %}
+                             {% assign inner_link_count = link.links.size %}
+                    <div>
+                     
+                       {%- if inner_link_count > 0 -%} 
+                          <details class="accordion   group " is="accordion-disclosure" aria-expanded="false">
+                             <summary class=" nested-summary"><span class="accordion__toggle  h6 ">
+                               <span class="text-with-icon gap-4  accordion-heading BarlowSC-Medium dfs-14 mfs-14 sidebar-accordion-heading">  {{ link.title }}</span>
+                                   <span class="animated-plus group-expanded:rotate" aria-hidden="true"></span></span>
+                            </summary>
+                             {%- if link.links.size > 0 -%} 
+                                {% assign sublinks = link.links %}
+                                {% for subsublink in link.links %}
+                                
+                                  {% if subsublink.links.size > 0 %}
+                                      {% assign nested_two='has-nested-sidebar-accordion' %} {% assign nestedlink_two='nested-sidebar-links' %}
+                                       {% break %}
+                                  {% else %}
+                                       {% assign nested_two='' %} {% assign nestedlink_two='' %}
+                                  {% endif %}
+                             {% endfor %}
+                            <div class="accordion__content  Open-Sans sidebar-accordion-content {{ nested_two }}">
+                             
+                                  
+                                     {%- for sub_link in link.links -%}
+                                       <div class="{{ nestedlink_two }}">
+                                         {% assign inner_link_count_sub = sub_link.links.size %}
+                                           
+                                         {%- if inner_link_count_sub > 0 -%}
+                                              <details class="accordion   group " is="accordion-disclosure" aria-expanded="false">
+                                                   <summary class=" nested-summary">
+                                                      <span class="accordion__toggle  h6 ">
+                                                           <span class="text-with-icon gap-4  accordion-heading BarlowSC-Medium dfs-14 mfs-14 sidebar-accordion-heading">  {{ sub_link.title }}</span>
+                                                         <span class="animated-plus group-expanded:rotate" aria-hidden="true"></span>
+                                                      </span>
+                                                   </summary>
+                                                   <div class="accordion__content  Open-Sans sidebar-accordion-content">
+                                                       <div>
+                                                          
+                                                               {%- for sub_linksub in sub_link.links -%}
+                                                                  <a href="{{ sub_linksub.url }}" class="Barlow dfs-14 mfs-14 ">{{ sub_linksub.title }}</a>
+                                                              {% endfor %}
+                                                          
+                                                       </div>
+                                                   </div>
+                                              </details>
+                                          {% else %}
+                                            <a href="{{ sub_link.url }}" class="Barlow dfs-14 mfs-14">{{ sub_link.title }}</a>
+                                         {% endif %}
+                                    </div>
+                                      {% endfor %}
+                                 
+                                
+                            </div>
+                          {% endif %}
+                           </details>
+                      {% else %}
+                          <a data-url="{{ link.url }}" class="{{ link.title }} dfs-14 mfs-14 sidebar-accordion-sublink">{{ link.title }}</a>
+                      {% endif %}
+                    </div>
+                      {% endfor %}
+                </div>
+                      
+                
+                  </details>  
+                     {% else %}
+                 <div class="header-sidebar-link">
+              <a href="  {{ block.settings.url }}" class="accordion-heading BarlowSC-Medium dfs-14 mfs-14 sidebar-accordion-heading">
+                
+                  <span class="link__title">  {{ block.settings.title }}
+                  </span>
+                
+              </a>
+           </div>
+                     {% endif %}
+            </li>
+                     
+          {% endfor %}
+
+     
+        
+ </ul>
+          </div>
+          {%- liquid
+      if section.settings.show_country_selector and localization.available_countries.size > 1
+        assign show_country_selector = true
+      endif
+
+      if section.settings.show_locale_selector and localization.available_languages.size > 1
+        assign show_locale_selector = true
+      endif
+    -%}
+
+    {%- if shop.customer_accounts_enabled or show_country_selector or show_locale_selector -%}
+      <div class="header-sidebar__footer">
+        <div class="header-wishlist">
+          <a class="fa fa-heart-o" href="/a/wishlist">
+            {% render 'icon' with 'heart' %}
+            <span class="wishlist">Wishlist</span>
+          </a>
+        </div>
+      </div>
+
+
+        {%- if show_country_selector or show_locale_selector -%}
+          <div class="localization-selectors">
+            {%- if show_country_selector -%}
+              {%- render 'localization-selector', type: 'country', placement: 'top-start', show_country_name: section.settings.show_country_name, show_country_flag: section.settings.show_country_flag, id_prefix: 'header-sidebar' -%}
+            {%- endif -%}
+
+            {%- if show_country_selector and show_locale_selector -%}
+              <span class="localization-selectors__separator" aria-hidden="true"></span>
+            {%- endif -%}
+
+            {%- if show_locale_selector -%}
+              {%- render 'localization-selector', type: 'locale', placement: 'top-start', id_prefix: 'header-sidebar' -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+       </div>
+    </header-sidebar>
+        {% else %}
+        <!-- header-sidebar -->
+<template id="header-sidebar-template">
+  <div part="base">
+    <div part="overlay"></div>
+
+    <div part="content">
+      <header part="header">
+        <button type="button" is="dialog-close-button" part="close-button tap-area" aria-label="{{ 'general.accessibility.close' | t | escape }}">
+          {%- render 'icon' with 'close', width: 16 -%}
+        </button>
+      </header>
+
+      <div part="panel-list">
+        <slot name="main-panel"></slot>
+
+        {%  if section.blocks != blank %}
+          <slot name="collapsible-panel"></slot>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</template>
+          <header-sidebar id="sidebar-menu" class="header-sidebar drawer drawer--sm second_mobile_menu" template="header-sidebar-template" open-from="left">
+            <div class="header-sidebar__main-panel" slot="main-panel" style="opacity: 1; transform: translateX(0px);">
+                 <div class="header-sidebar__scroller">
+                    <ul class="header-sidebar__linklist divide-y unstyled-list" role="list">
+                         {% for block in section.blocks %}
+                      <li style="opacity: 1; transform: translateY(0px);">
+                        {%  if block.settings.mm_linklist != blank %}
+                      <button type="button" class="header-sidebar__linklist-button h6" aria-controls="header-panel-{{ forloop.index }}" aria-expanded="false"> {{ block.settings.title }}
+                        <svg aria-hidden="true" focusable="false" fill="none" width="12" class="icon icon-chevron-right  icon--direction-aware" viewBox="0 0 10 10">
+                               <path d="m3 9 4-4-4-4" stroke="currentColor" stroke-linecap="square"></path>
+                        </svg>
+                      </button>
+                      {% else %}
+                              <a href=" {{ block.settings.url }}" class="header-sidebar__linklist-button h6"> {{ block.settings.title }}</a>
+                      {% endif %}
+                 </li>
+                           {% endfor %}
+             </ul>
+                 </div>
+            </div>
+            <header-sidebar-collapsible-panel class="header-sidebar__collapsible-panel" slot="collapsible-panel">
+      <div class="header-sidebar__scroller">
+          {% for block in section.blocks %}
+             {%  if block.settings.mm_linklist != blank %}
+        <div id="header-panel-{{ forloop.index }}" class="header-sidebar__sub-panel">
+              <button type="button" class="header-sidebar__back-button link-faded is-divided text-with-icon h6 md:hidden" data-action="close-panel" style="transform: translateY(0px);"><svg aria-hidden="true" focusable="false" fill="none" width="12" class="icon icon-chevron-left  icon--direction-aware" viewBox="0 0 10 10">
+      <path d="M7 1 3 5l4 4" stroke="currentColor" stroke-linecap="square"></path>
+    </svg>{{ block.settings.title }}</button>
+  {%- case block.type -%}
+                   {%- when 'megamenu_one' -%}
+              <ul class="header-sidebar__linklist divide-y unstyled-list" role="list">
+                {% for link in linklists[block.settings.mm_linklist].links %}
+                <li style="opacity: 1; transform: translateY(0px);">
+                  <a href="{{ link.url }}" class="header-sidebar__linklist-button h6">{{ link.title }}</a></li>
+                {% endfor %}
+              </ul>
+    {%- when 'megamenu4' -%}
+      {%  if block.settings.mm_linklist != blank %}
+          <ul class="header-sidebar__linklist divide-y unstyled-list" role="list">
+            {% for link in linklists[block.settings.mm_linklist].links %}
+            <li>
+              <details is="accordion-disclosure" class="group" aria-expanded="false">
+                        <summary class="header-sidebar__linklist-button h6">{{ link.title }}<span class="animated-plus group-expanded:rotate" aria-hidden="true"></span>
+                        </summary>
+                            {% assign inner_link_count = link.links.size %}
+                      {%- if inner_link_count > 0 -%}
+                        <div class="header-sidebar__nested-linklist">
+                            {%- for sub_link in link.links -%}
+                            <a href="{{ sub_link.url }}" class="link-faded dfs-18 mfs-18 Barlow">{{ sub_link.title }}</a> 
+                          {%- endfor -%}
+                          </div>
+                      {%- endif -%}
+                </details>
+                </li>
+              {%  endfor %}
+             
+          </ul>
+         {% if block.settings.image_1 or block.settings.image_1 %}
+        <div class="header-sidebar__promo scroll-area bleed md:unbleed">
+        {% if block.settings.image_1  %}
+        <a data-url="{% if block.settings.image_1_link %} {{ block.settings.image_1_link }} {% else %}#{% endif %}" class="v-stack justify-items-left gap-4 sm:gap-5 group">
+          <div class="overflow-hidden">
+            <img src="//ezydog.com.au/cdn/shop/{{ block.settings.image_1 }}" alt="{{ block.settings.image_1_heading }}" width="1320" height="1120" loading="lazy" sizes="315px" class="zoom-image group-hover:zoom"></div>
+           {% if block.settings.image_1_heading !=blank %} <div class="v-stack text-left gap-0.5"><p class="dfs-18 Barlow">{{ block.settings.image_1_heading }}</p>{% if block.settings.image_1_text !=blank %}<p class="smallcaps text-xs text-subdued">{{ block.settings.image_1_text }}</p>{%- endif -%}</div>{% endif %}
+        </a>
+          {%- endif -%}
+          {% if block.settings.image_2  %}
+        <a data-url="{% if block.settings.image_2_link %} {{ block.settings.image_2_link }} {% else %}#{% endif %}" class="v-stack justify-items-left gap-4 sm:gap-5 group">
+          <div class="overflow-hidden">
+            <img src="//ezydog.com.au/cdn/shop/{{ block.settings.image_2 }}" alt="{{ block.settings.image_2_heading }}" width="1320" height="1120" loading="lazy" sizes="315px" class="zoom-image group-hover:zoom"></div>
+         {% if block.settings.image_2_heading !=blank %} <div class="v-stack text-left gap-0.5"><p class="dfs-18 Barlow">{{ block.settings.image_2_heading }}</p>{% if block.settings.image_2_text !=blank %}<p class="smallcaps text-xs text-subdued">{{ block.settings.image_2_text }}</p>{%- endif -%}</div></a>{%- endif -%}
+         {%- endif -%}
+        </div>
+          {% endif %}
+           {% endif %}
+   {%- when 'dropdown' -%}
+      {%  if block.settings.mm_linklist != blank %}
+         <ul class="header-sidebar__linklist divide-y unstyled-list" role="list">
+              {% for link in linklists[block.settings.mm_linklist].links %}
+                 {% assign inner_link_count = link.links.size %}
+                    <li><a href="{{ link.url }}" class="header-sidebar__linklist-button h6">{{ link.title }}</a>
+                     {%- if inner_link_count > 0 -%}
+                       <ul class="header-sidebar__linklist divide-y unstyled-list">
+                          {% for sublink in link.links %}
+                                {% assign innersub_link_count = sublink.links.size %}
+                             <li><a href="{{ sublink.url }}" class="header-sidebar__linklist-button h6">{{ sublink.title }}</a>
+                                 {%- if innersub_link_count > 0 -%}
+                                       <ul class="header-sidebar__linklist divide-y unstyled-list">
+                                           {% for subsublink in sublink.links %}
+                                            <li><a href="{{ subsublink.url }}" class="header-sidebar__linklist-button h6">{{ subsublink.title }}</a></li>
+                                           {% endfor %}
+                                       </ul>
+                                 {% endif %}
+                             </li>
+                          {% endfor %}
+                       </ul>
+                    {% endif %}
+                    </li>
+              {% endfor %}
+         </ul>
+  
+      {% endif %}
+           {%- when 'megamenu3' -%}
+      {%  if block.settings.mm_linklist != blank %}
+         <ul class="header-sidebar__linklist divide-y unstyled-list" role="list">
+              {% for link in linklists[block.settings.mm_linklist].links %}
+                 {% assign inner_link_count = link.links.size %}
+                    <li><a href="{{ link.url }}" class="header-sidebar__linklist-button h6">{{ link.title }}</a>
+                     {%- if inner_link_count > 0 -%}
+                       <ul class="header-sidebar__linklist divide-y unstyled-list">
+                          {% for sublink in link.links %}
+                                {% assign innersub_link_count = sublink.links.size %}
+                             <li><a href="{{ sublink.url }}" class="header-sidebar__linklist-button h6">{{ sublink.title }}</a>
+                                 {%- if innersub_link_count > 0 -%}
+                                       <ul class="header-sidebar__linklist divide-y unstyled-list">
+                                           {% for subsublink in sublink.links %}
+                                            <li><a href="{{ subsublink.url }}" class="header-sidebar__linklist-button h6">{{ subsublink.title }}</a></li>
+                                           {% endfor %}
+                                       </ul>
+                                 {% endif %}
+                             </li>
+                          {% endfor %}
+                       </ul>
+                    {% endif %}
+                    </li>
+              {% endfor %}
+         </ul>
+        {% endif %}
+             {% endcase %}           
+                <style>
+  .mega-menu__promo img{border-radius: 10px;}
+  .mega-menu{ border: none !important; }
+</style></div>
+               {% endif %}
+      {% endfor %}
+   
+      </div>
+    </header-sidebar-collapsible-panel>
+                          </header-sidebar>
+      {% endif %}
+  </x-header>
+</height-observer>
+
+<style>
+  .header-link, .header__primary-nav-item > a{ font-family: "BarlowSC-Medium", "Futura", Arial, sans-serif; }
+  
+.header-link:hover{
+  /* letter-spacing: 0.06em;
+    font-size: 14px; */
+    font-weight: bold;
+  }
+  .header__primary-nav-item > a:hover{
+    font-weight: bold;
+    /* font-size: 13.8px !important; */
+  }
+  
+  .header-wishlist{
+    position: relative;
+    height: 30px;
+    width: max-content;
+    flex: unset;
+    font-size: 20px;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+  }
+
+.header-wishlist  > a{ position: relative; }
+  
+  .topbadge{ 
+    padding: 2px 6px;
+    position: absolute;
+    left: 0;
+    background-color: none !important;
+    background: none !important;
+    color: #000 !important;
+    top: 4px;
+    left: 1px;
+    font-size: 9px;
+  }
+  
+  
+  .buy-button-wrapper  #wishlist_icon{ color: #FFF; }
+  .header-wishlist > #smartwishlist > div[role="button"] {
+    display: grid;
+    align-items: center;
+    color: #000;
+  }
+
+  
+  .mega-menu-image{ border-radius: 10px; }
+  .header__primary-nav-item > a, .header__menu-disclosure > summary{
+     color: #ffffff;
+      font-size: 14px !important;
+      text-transform: uppercase;
+      line-height: 18px;
+      letter-spacing: 1px;
+      word-wrap: break-word
+    }
+    .nav--spacer{ border: 1px #BBBBBB solid; height: 25px; }
+
+
+ .header__primary-nav,  .header { column-gap: 1rem !important; padding-left: 16px !important; padding-right: 16px !important; }
+  x-header > .header{ padding 0; }
+
+  @media screen and (max-width: 767px){
+     .header { 
+       column-gap: 0 !important; 
+       padding-left: 0px !important; 
+       padding-right: 15px !important; 
+     }
+  }
+</style>
+
+
+<script>
+  document.documentElement.style.setProperty('--header-height', `${Math.round(document.getElementById('shopify-section-{{ section.id }}').clientHeight)}px`);
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "class": "shopify-section--header",
+  "tag": "header",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_sticky",
+      "label": "t:sections.header.enable_sticky_header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_separation_border",
+      "label": "t:sections.header.show_separation_border",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "reduce_padding",
+      "label": "t:sections.header.reduce_padding",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.logo_category"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:global.image.image",
+      "info": "t:sections.header.logo_size_recommendation"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "min": 20,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "label": "t:global.image.width",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "logo_mobile_max_width",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "t:global.image.mobile_width",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.navigation_category"
+    },
+  
+    {
+      "type": "select",
+      "id": "menu_open_trigger",
+      "label": "t:sections.header.menu_open_trigger",
+      "info": "t:sections.header.menu_open_trigger_info",
+      "options": [
+        {
+          "value": "hover",
+          "label": "t:sections.header.menu_open_trigger_options.hover"
+        },
+        {
+          "value": "click",
+          "label": "t:sections.header.menu_open_trigger_options.click"
+        }
+      ],
+      "default": "hover"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_accordion",
+      "label": "Use accordion",
+      "default": true
+    },    
+    {
+      "type": "checkbox",
+      "id": "enable_search",
+      "label": "t:sections.header.enable_search",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.sidebar_navigation_category"
+    },
+    {
+      "type": "select",
+      "id": "sidebar_text_font",
+      "label": "t:sections.header.sidebar_text_font",
+      "options": [
+        {
+          "value": "heading",
+          "label": "t:sections.header.sidebar_text_font_options.heading"
+        },
+        {
+          "value": "body",
+          "label": "t:sections.header.sidebar_text_font_options.body"
+        }
+      ],
+      "default": "heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "sidebar_show_dividers",
+      "label": "t:sections.header.sidebar_show_dividers",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.desktop_category"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.header.layout",
+      "options": [
+        {
+          "value": "logo_left_navigation_inline",
+          "label": "t:sections.header.layout_options.logo_left_navigation_inline"
+        },
+        {
+          "value": "logo_left_navigation_center",
+          "label": "t:sections.header.layout_options.logo_left_navigation_center"
+        },
+        {
+          "value": "logo_center_navigation_inline",
+          "label": "t:sections.header.layout_options.logo_center_navigation_inline"
+        },
+        {
+          "value": "logo_center_navigation_below",
+          "label": "t:sections.header.layout_options.logo_center_navigation_below"
+        },
+        {
+          "value": "drawer",
+          "label": "t:sections.header.layout_options.drawer"
+        }
+      ],
+      "default": "logo_left_navigation_inline"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icons",
+      "label": "t:sections.header.show_icons",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:global.localization.country_region_selector_category",
+      "info": "t:global.localization.country_region_selector_category_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_selector",
+      "label": "t:global.localization.show_country_region_selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_name",
+      "label": "t:global.localization.show_country_name",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_flag",
+      "label": "t:global.localization.show_country_flag",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:global.localization.language_selector_category",
+      "info": "t:global.localization.language_selector_category_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_selector",
+      "label": "t:global.localization.show_locale_selector",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.transparent_header_category"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.header.transparent_header_info"
+    },
+    {
+      "type": "color",
+      "id": "transparent_header_text_color",
+      "label": "t:global.colors.text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "image_picker",
+      "id": "transparent_logo",
+      "label": "t:sections.header.transparent_header_logo_image",
+      "info": "t:sections.header.transparent_header_logo_size_recommendation"
+    }
+  ],
+    "blocks": [	
+      {
+        "type": "single_link",
+        "name": "Single Link",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Link Name"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "Menu Link"
+          },
+		  {
+            "type": "checkbox",
+            "id": "newtab",
+            "label": "Open Link in New Window?"
+          }  
+        ]
+      },
+	  {
+        "type": "megamenu_one",
+          "name": "MM Simple Collection",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Link Name"
+          },         
+          {
+            "type": "link_list",
+            "id": "mm_linklist",
+            "label": "Select Menu",
+            "default": "main-menu"
+          },
+           {
+             "type" :"checkbox",
+            "id" :"image_enbale",
+             "label" :"Enable Image"
+           },
+          {
+            "type" :"select",
+            "id" : "image_aligment",
+            "label" :"Image Alignment",
+            "default": "top_imagepostion",
+            "options": [
+              { "value": "top_imagepostion", "label": "Top" },
+              { "value": "left_imagepostion", "label": "Left" },
+              { "value": "right_imagepostion", "label": "Right" }
+            ]
+          }
+         
+        ]
+      },
+	  
+	   {
+        "type": "megamenu3",
+          "name": "MM Simple",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Link Name"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "Menu Link"
+          },
+ 			{
+            "type": "checkbox",
+            "id": "newtab",
+            "label": "Open Link in New Window?"
+          },  
+          {
+            "type": "link_list",
+            "id": "mm_linklist",
+            "label": "Select Menu",
+            "default": "main-menu"
+          },
+          {
+            "type": "range",
+            "id": "mmcolumns",
+            "min": 2,
+            "max": 4,
+            "step": 1,
+            "label": "Select Columns",
+            "default": 2
+          }
+                   
+        ]
+      },
+	  {
+        "type": "megamenu4",
+        "name": "MM Custom",
+        "settings": [
+		  {
+            "type": "text",
+            "id": "title",
+            "label": "Link Name"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "Menu Link"
+          },
+ 			{
+            "type": "checkbox",
+            "id": "newtab",
+            "label": "Open Link in New Window?"
+          },  
+          {
+            "type": "link_list",
+            "id": "mm_linklist",
+            "label": "Select Menu",
+            "default": "main-menu"
+		  },
+         
+          {
+          "type": "header",
+          "content": "t:sections.header.blocks.mega_menu.image_1"
+          },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "t:global.image.image",
+          "info": "t:sections.header.blocks.mega_menu.image_size_recommendation"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "image_1_heading",
+          "label": "t:global.text.heading"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "image_1_text",
+          "label": "t:global.text.text"
+        },
+        {
+          "type": "url",
+          "id": "image_1_link",
+          "label": "t:global.text.link"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.header.blocks.mega_menu.image_2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "t:global.image.image",
+          "info": "t:sections.header.blocks.mega_menu.image_size_recommendation"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "image_2_heading",
+          "label": "t:global.text.heading"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "image_2_text",
+          "label": "t:global.text.text"
+        },
+        {
+          "type": "url",
+          "id": "image_2_link",
+          "label": "t:global.text.link"
+        }
+        ]
+      },
+	
+      {
+        "type": "dropdown",
+        "name": "Dropdown Menu",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Link Name"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "Menu Link"
+          },
+          {
+            "type": "link_list",
+            "id": "mm_linklist",
+            "label": "Select Menu",
+            "default": "main-menu"
+          }
+        ]
+      }
+    ]
+}
+{% endschema %}
+    
+      <style>
+      
+    .left_imagepostion{flex-direction:row !important;}  
+    .right_imagepostion{flex-direction:row-reverse !important;} 
+        .
+  .mega-menu__promo a{ transition: color: .2s; }
+  .mega-menu__promo a:hover p { color: #EA2D24;  }
+  .header-link-wrapper{
+    flex-grow: 1;
+    display: flex;
+  }
+
+  .mega-menu-blog{ justify-content: center; }
+  
+  li:has(.header-link-item){
+    display: flex;
+  }
+  
+  .header-link-item{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .nav-collection-all{ border: 1px solid #000; border-radius: 50%; height: 60px; width: 60px;  display: flex; justify-content: center;  align-items: center; }
+  .nav-collection-all > span{ font-size: 20px; color: #000; }
+  .shop-the-range-navimage{
+    max-width: 60px;
+    margin-bottom: 10px;
+    filter: grayscale(1); 
+    transition: filter .1s;
+  }
+
+  .shop-the-range-navtitle{
+    transition: color .1s;
+  }
+
+  @media screen and (min-width: 641px){
+    .shop-the-range-navtitle{ color: #6A6A6A; text-transform: capitalize; }
+  }
+
+  .header-link-item:hover .shop-the-range-navimage { filter: grayscale(0); }
+  .header-link-item:hover .shop-the-range-navtitle { color: #EA2D24; }
+
+  .nav-collection-all{ transition: all .1s}
+  .nav-collection-all-plus{ font-size: 20px; transition: all .1s}
+
+  .header-link-item-all:hover > .shop-the-range-navtitle { color: #EA2D24; }
+  .header-link-item-all:hover > .nav-collection-all{ background: #EA2D24; border-color: #EA2D24; }
+
+  a:hover .shop-the-range-navtitle {
+    color: #EA2D24 !important;
+  }
+  .header-link-item:hover .nav-collection-all-plus { color: #FFF !important; }
+
+  {% if inner_link_count > 2 and block.settings['image_1'] != blank  %}
+    @media screen and (min-width: 1000px) and (max-width: 1200px){
+      .mega-menu-{{ link.title | handle }} .mega-menu__promo{
+        display: grid;
+        gap: 16px;
+      }
+      
+      .mega-menu-{{ link.title | handle }} .mega-menu__promo a:last-of-type{ display: none; }
+    }
+    @media screen and (min-width: 1200px) and (max-width: 1500px){
+      .mega-menu-{{ link.title | handle }}{
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        column-gap: 2em;
+      }
+      
+      .mega-menu-{{ link.title | handle }} .mega-menu__promo{
+        /* display: grid;
+        gap: 16px; */
+      }
+    }
+  {% endif %}
+  
+  
+  .mega-menu-shop-the-range .mega-menu__linklist{ gap: 3em; }
+  @media screen and (min-width: 1000px) and (max-width: 1100px){
+    .mega-menu-shop-the-range img{ width: 50px; }
+    .mega-menu-shop-the-range .nav-collection-all{ height: 50px; width: 50px; }
+    .mega-menu-shop-the-range .shop-the-range-navtitle{ font-size: 12px; }
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 1em; justify-content: normal; } 
+  }
+
+  @media screen and (min-width: 1100px) and (max-width: 1260px){
+    .mega-menu-shop-the-range img{ width: 50px; }
+    .mega-menu-shop-the-range .nav-collection-all{ height: 50px; width: 50px; }
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 1.5em; justify-content: normal; } 
+  }
+
+  @media screen and (min-width: 1260px) and (max-width: 1500px){
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 2em; justify-content: normal; } 
+  }
+
+  /* DROPDOWN */
+
+  .hdr_dropdown_block .hdr_dropdown_submenu{
+    gap: 0!important;
+  }
+  .hdr_dropdown_block .hdr_dropdown_subitem{
+    position: relative;
+  }
+  .hdr_dropdown_block .hdr_dropdown_submenu_l2, .hdr_dropdown_block .hdr_dropdown_submenu{
+    position: absolute; 
+    top: 0;
+    left: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 300ms ease-in-out;
+    background: #fff!important;
+    width: 100%!important;
+    box-shadow: 2px 2px 6px rgb(var(--text-color) / .05);
+  }
+  .hdr_dropdown_block .hdr_dropdown_subitem > a{
+    padding-top: 0!important;
+    padding-bottom: 0!important;
+    margin: 6px 0;
+  }
+  .hdr_dropdown_block .header__dropdown-menu{
+    max-width: 100%!important;
+    width: auto!important;
+  }
+  .hdr_dropdown_block .hdr_dropdown_subitem:hover .hdr_dropdown_submenu_l2, .hdr_dropdown_block .hdr_dropdown_item:hover .hdr_dropdown_submenu{
+    opacity: 1;
+    visibility: visible;
+  }
+  .hdr_dropdown_block .header__dropdown-menu.header__dropdown-menu--restrictable{
+    overflow: initial!important;
+  }
+  .hdr_dropdown_block .hdr_dropdown_subitem_l2{
+    position: relative;
+  }
+
+  .mega_menu_col > li.open > a .dropdown_menu_icon{
+    transform: rotate(180deg);
+  }
+  .mega_menu_col .dropdown_menu_icon{
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2px;
+    transition: all 300ms ease-in-out;
+    display: none;
+    font-size: 12px;
+  }
+
+  .mega_menu_col > li a.open_submenu .dropdown_menu_icon{
+    display: inline-flex;
+  }
+
+/* mobile menu */
+.header-sidebar__main-panel {
+    height: 100%;
+    background: rgb(var(--drawer-background));
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-columns: max-content;
+    display: grid;
+}
+.header-sidebar__scroller {
+    display: grid;
+}
+.header-sidebar__linklist:not(.header-sidebar__linklist-after-action) {
+    padding: 0 20px;
+}
+.header-sidebar__linklist > li {
+    padding: 30px 0;
+}
+.second_mobile_menu .header-sidebar__linklist > li {
+    padding: 0 0;
+}
+.header-sidebar__linklist .accordion {
+    border-block-width: 0;
+}
+.accordion__toggle:has(.sidebar-accordion-heading) {
+    padding-block: 0;
+} 
+.sidebar-accordion-heading {
+    text-transform: uppercase !important;
+}
+.sidebar-accordion-content {
+    padding-top: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-block-start: 0 !important;
+    margin-block-end: 0 !important;
+}
+.sidebar-accordion-sublink {
+    text-transform: capitalize;
+    padding-block-end: 0 !important;
+    padding-block-start: 0 !important;
+}
+.link__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    width: inherit;
+}
+.sidebar-accordion-content.has-nested-sidebar-accordion {
+    grid-template-columns: 1fr !important;
+    border: none !important;
+}
+.has-nested-sidebar-accordion {
+    padding-top: 30px;
+    gap: 20px;
+}
+.nested-sidebar-accordion-content {
+    border: none;
+    grid-template-columns: 1fr;
+}
+.nested-sidebar-links {
+    display: grid;
+    margin: 15px 0;
+    gap: 12px;
+    border: none;
+    grid-template-columns: 1fr;
+    border-left: 1px solid;
+    padding-left: 1em;
+}
+.nested-summary .accordion-heading {
+    text-transform: capitalize !important;
+}
+.header-sidebar__collapsible-panel {
+    height: 100%;
+    width: var(--drawer-max-width);
+    background: rgb(var(--drawer-background));
+  
+    position: absolute;
+    inset-block-start: 0;
+  }
+.header-sidebar__linklist.divide-y .header-sidebar__linklist-button {
+    padding-block-start: var(--header-linklist-padding-block);
+    padding-block-end: var(--header-linklist-padding-block);
+}
+</style>

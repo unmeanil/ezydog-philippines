@@ -1,0 +1,225 @@
+<!-- sections/grid-text -->
+<section id="section-{{ section.id }}" class="{% if section.settings.image_position != 'top' %} section-x-spacing{% endif %} {% if section.settings.apply_top_margin %} section-mt {% endif %} {% if section.settings.apply_bottom_margin %} section-mb {% endif %}">
+  <div class="content-wrapper-{{ section.id }} {% if section.settings.image_position == 'top' %} section-x-spacing-nopad {% endif %}">
+    <div class="image-{{section.id}}"></div>
+    <div class="grid-{{ section.id }} ">
+      {% for block in section.blocks %}
+        <div class="grid-item-{{ section.id }} {% if forloop.index == 2 %}border-item{% endif %}">
+          <div class="grid-item-content-{{ section.id }}">
+            <p class="Barlow-Medium dfs-22 mfs-22 title-{{ section.id }} dpb-16 mpb-24">{{block.settings.title}}</p>
+            <p class="body-{{ section.id }}">{{ block.settings.body }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+
+  #section-{{ section.id }} { background: {{ section.settings.background }}; }
+
+
+  {% if section.settings.image_position == 'top' %}
+    @media screen and (min-width: 800px) {
+    }
+
+    .image-{{section.id}}{ 
+      transition: border-radius .2s;   
+    }
+    @media screen and (min-width: 1600px){
+      .image-{{section.id}}{ border-radius: 10px; }
+    }
+  {% endif %}
+  .grid-{{ section.id }}{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 60px;
+  }
+
+  .border-item{ position: relative; }
+  .border-item::before,
+  .border-item::after {
+    content: "";
+    position: absolute;
+    background-color: #333333;
+  }
+
+  @media screen and (max-width: 799px) {
+    #section-{{ section.id }} { padding: 66px 48px !important; margin-left: 0; !important; margin-right: 0 !important; }
+    .border-item::before,
+    .border-item::after  {
+      left: 0;
+      right: 0;
+      height: 1px;
+      right: 50%;
+    }
+    .border-item::before { bottom: -30px; }
+    .border-item::after { top: -30px; }
+  }
+    
+  @media screen and (min-width: 640px) and (max-width: 800px) {
+    padding-top: 60px;
+   }
+
+  @media screen and (min-width: 800px) {
+    .grid-{{ section.id }}{
+      gap: 2em;
+      grid-template-columns: 1fr 1fr 1fr;
+      padding-top: 60px;
+      padding-bottom: 80px; 
+    }
+     .grid-item-{{ section.id }}{ padding: 0 3em; }
+    .title-{{ section.id }}{ padding-bottom: 16px; }
+
+    .grid-item-content-{{ section.id }}{ position: relative; }
+    .border-item::before,
+    .border-item::after {
+      top: 0%;
+      bottom: 0%;
+      width: 1px;
+    }
+    .border-item::before { right: -30px; }
+    .border-item::after { left: -30px; }
+  }
+
+  {% if section.settings.image_position == 'top' %}
+    @media screen and (min-width: 800px) and (max-width: 960px) {
+      .grid-{{ section.id }}{
+        gap: 2em;
+        grid-template-columns: 1fr;
+      }
+
+      .border-item::before,
+      .border-item::after  {
+        left: 3em;
+        right: 0;
+        height: 1px;
+        right: 50%;
+        width: unset;
+        top: unset; bottom: unset;
+      }
+      .border-item::before { bottom: -20px; }
+      .border-item::after { top: -10px; }
+
+    }
+  {% endif %}
+
+{% if section.settings.image != blank %}
+  {% if section.settings.image_position == "top" %}
+    .image-{{section.id}}{
+      height: 36vw;
+      background: url({{ section.settings.image | img_url: '1200x' }});
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      {% comment %} border-radius: 20px; {% endcomment %}
+    }
+  {% else %}
+    .image-{{section.id}}{
+      height: 50vw;
+      max-height: 800px;
+      background: url({{ section.settings.image | img_url: '1200x' }});
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-size: cover;
+      border-radius: 10px;
+    }
+{% endif %}
+
+    @media screen and (max-width: 799px) {
+      .image-{{section.id}}{ display: none; }
+    }
+  
+    @media screen and (min-width: 800px) {
+    {% if section.settings.image != blank %}
+      .content-wrapper-{{ section.id }}{
+        display: grid;
+        grid-template-columns: 1fr {% if section.settings.image_position != "top" %}1fr{% endif %};
+        gap: 10px;
+      }
+    {% endif %}
+  {% if section.settings.image_position != "top" %}
+      .border-item::before, .border-item::after { display: none; }
+      .grid-{{ section.id }}{ grid-template-columns: 1fr; gap: 10px; padding-top: unset; padding-bottom: unset; }
+      .grid-item-{{section.id}}{ background: {{ section.settings.background }}; border-radius: 10px; display: grid; align-items: center; }
+      .grid-item-content-{{section.id}}{  }
+      #section-{{ section.id }} { background: unset; }
+    {% endif %}
+    }
+  {% endif %}
+
+</style>
+
+{% schema %}
+  {
+    "name": "Grid text",
+    "settings": [
+      {
+       "type": "checkbox",
+       "id": "apply_top_margin",
+       "label": "Apply top margin",
+       "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_margin",
+        "label": "Apply bottom margin",
+        "default": false
+      },
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background"
+      },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Image"
+      },
+      {
+        "type": "select",
+        "id": "image_position",
+        "label": "Image position",
+        "options": [
+          {
+            "value": "top",
+            "label": "Top"
+          },
+          {
+            "value": "left",
+            "label": "Left"
+          }
+        ]
+      }
+    ],
+    "blocks": [
+      {
+        "type": "text",
+        "name": "Content",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "textarea",
+            "id": "body",
+            "label": "Body"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+       "name": "Grid text"
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

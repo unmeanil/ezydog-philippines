@@ -1,0 +1,241 @@
+<div class="section-spacing">
+  <div class="container container--xxs">
+    <account-login class="customer-account-box">
+      <div class="v-stack gap-6" id="login">
+        
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              {%- render block -%}
+
+            {%- when 'liquid' -%}
+              {%- if block.settings.liquid != blank -%}
+                <div {{ block.shopify_attributes }}>
+                  {{- block.settings.liquid -}}
+                </div>
+              {%- endif -%}
+
+            {%- when 'fields' -%}
+              <div {{ block.shopify_attributes }}>
+                {%- capture form_recover_capture -%}
+                  {%- form 'recover_customer_password' -%}
+                    {%- capture form_recover_status -%}
+                      {%- if form.posted_successfully? -%}
+                        {%- assign success_message = 'customer.recover_password.success_message' | t -%}
+                        {%- render 'banner', status: 'success', content: success_message -%}
+                      {%- endif -%}
+                    {%- endcapture -%}
+                  {%- endform -%}
+                {%- endcapture -%}
+
+                {%- form 'customer_login', class: 'form' -%}
+                  <input type="hidden" name="checkout_url" value="{{ block.settings.return_to | default: '/pages/my-ezydog' }}">
+
+                  <div class="fieldset">
+                    {%- if form.errors -%}
+                      {%- render 'banner', status: 'error', content: form.errors.messages['form'] -%}
+                    {%- endif -%}
+
+                    {%- if form_recover_status != blank -%}
+                      {{- form_recover_status -}}
+                    {%- endif -%}
+
+                    {%- assign email_label = 'customer.login.email' | t -%}
+                    {%- render 'input', type: 'email', name: 'customer[email]', label: email_label, autocomplete: 'email', required: true -%}
+
+                    <div class="password-wrapper" style="position: relative; margin-bottom: 15px;">
+                      {%- assign password_label = 'customer.login.password' | t -%}
+                      {%- render 'input', type: 'password', name: 'customer[password]', label: password_label, autocomplete: 'current-password', required: true, id: 'password-input' -%}
+                      
+                      <div style="position: absolute; right: 0; top: 55%; transform: translateY(-55%); display: block; align-items: center; gap: 10px;">
+                        <a href="#recover" allow-hash-change class="text-xs link-faded" style="white-space: nowrap; margin-right: 10px;">{{ 'customer.login.forgot_password' | t }}</a>
+                        <button type="button" class="password-toggle" aria-label="Show password" style="background: none; border: none; cursor: pointer; color: #666; padding: 0; display: flex; justify-self: end;margin-right: 1em;">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="eye-open">
+                            <path d="M10 4.375C3.75 4.375 1.25 10 1.25 10C1.25 10 3.75 15.625 10 15.625C16.25 15.625 18.75 10 18.75 10C18.75 10 16.25 4.375 10 4.375Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10 13.125C11.7259 13.125 13.125 11.7259 13.125 10C13.125 8.27411 11.7259 6.875 10 6.875C8.27411 6.875 6.875 8.27411 6.875 10C6.875 11.7259 8.27411 13.125 10 13.125Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="eye-closed" style="display: none;">
+                            <path d="M2.5 5.625L17.5 14.375" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.8813 11.8837C11.2501 12.5149 10.3835 12.8774 9.47502 12.8774C8.56653 12.8774 7.69993 12.5149 7.06877 11.8837C6.43761 11.2526 6.07507 10.386 6.07507 9.47748C6.07507 8.56899 6.43761 7.70239 7.06877 7.07123" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14.375 9.375C14.3735 8.52745 14.1188 7.7015 13.6438 6.99998" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.25 4.38248C10.5202 4.23435 9.77193 4.23435 9.042 4.38248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5.625 6.25L7.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M15.625 12.5L13.75 11.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {%- assign submit_label = 'customer.login.submit' | t -%}
+                  {%- render 'button', content: submit_label, type: 'submit' -%}
+
+                  <div>
+                    <span class="text-subdued">{{ 'customer.login.no_account' | t }}</span>
+                    <a href="{{ routes.account_register_url }}" class="button link-faded">{{ 'customer.login.sign_up' | t }}</a>
+                  </div>
+                {%- endform -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="v-stack gap-6" id="recover" hidden>
+        <div class="v-stack gap-4">
+          <h1 class="h3">{{ 'customer.recover_password.title' | t }}</h1>
+          <p>{{ 'customer.recover_password.instructions' | t }}</p>
+        </div>
+
+        {%- form 'recover_customer_password', class: 'form' -%}
+          <div class="fieldset">
+            {%- if form.errors -%}
+              {%- render 'banner', status: 'error', content: form.errors.messages['form'] -%}
+            {%- endif -%}
+
+            {%- assign email_label = 'customer.recover_password.email' | t -%}
+            {%- render 'input', type: 'email', name: 'email', label: email_label, autocomplete: 'email', required: true -%}
+          </div>
+
+          {%- unless form.posted_successfully? -%}
+            {%- assign submit_label = 'customer.recover_password.submit' | t -%}
+            {%- render 'button', content: submit_label, type: 'submit' -%}
+          {%- endunless -%}
+
+          <div>
+            <span class="text-subdued">{{ 'customer.recover_password.remember_password' | t }}</span>
+            <a href="#login" allow-hash-change class="link-faded">{{ 'customer.recover_password.back_to_login' | t }}</a>
+          </div>
+        {%- endform -%}
+      </div>
+    </account-login>
+  </div>
+</div>
+
+<style>
+  p {
+    font-size: 14px !important;
+  }
+  .customer-account-box p {
+    margin-bottom: 0;
+  }
+  .container.container--sm {
+    --container-max-width: 32em;
+  }
+  account-login.customer-account-box {
+    min-height: 1px;
+  }
+  .button.link-faded {
+    display: grid;
+    color: #ffffff;
+  }
+  .button.link-faded:hover {
+    color: #000000 !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    initPasswordToggle();
+    window.addEventListener('load', initPasswordToggle);
+    
+    setTimeout(initPasswordToggle, 500);
+  });
+  
+  function initPasswordToggle() {
+    const passwordToggle = document.querySelector('.password-toggle');
+    const passwordInput = document.querySelector('input[name="customer[password]"]');
+    
+    // Only initialize if not already done
+    if (passwordToggle && passwordInput && !passwordToggle.dataset.initialized) {
+      passwordToggle.dataset.initialized = 'true';
+      passwordInput.type = 'password';
+      
+      passwordToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        
+        // Toggle eye icons
+        const eyeOpen = passwordToggle.querySelector('.eye-open');
+        const eyeClosed = passwordToggle.querySelector('.eye-closed');
+        
+        if (eyeOpen && eyeClosed) {
+          eyeOpen.style.display = isPassword ? 'none' : 'block';
+          eyeClosed.style.display = isPassword ? 'block' : 'none';
+        }
+      });
+      
+      // Handle autofilled passwords
+      if (passwordInput.value) {
+        passwordInput.type = 'password';
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const recoverForm = document.getElementById('recover');
+    const loginForm = document.getElementById('login');
+    const richText = document.querySelector('.shopify-section--rich-text');
+
+    function toggleRichText() {
+      if (!recoverForm || !richText) return;
+
+      const isRecoverVisible = !recoverForm.hasAttribute('hidden');
+      richText.style.display = isRecoverVisible ? 'none' : '';
+    }
+
+    // Initial check on page load
+    toggleRichText();
+
+    // Watch hash change (#login or #recover)
+    window.addEventListener('hashchange', function() {
+      toggleRichText();
+    });
+
+    // Also check after form success (when Shopify shows recover form)
+    const observer = new MutationObserver(toggleRichText);
+    if (recoverForm) {
+      observer.observe(recoverForm, { attributes: true, attributeFilter: ['hidden'] });
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main_customers_login.name",
+  "class": "shopify-section--main-customers-login",
+  "tag": "section",
+  "settings": [
+  
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "fields",
+      "name": "t:sections.main_customers_login.blocks.fields.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "url",
+          "id": "return_to",
+          "label": "t:sections.main_customers_login.blocks.fields.redirect_upon_login",
+          "info": "t:sections.main_customers_login.blocks.fields.redirect_upon_login_info"
+        }
+      ]
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.main_customers_login.blocks.liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "liquid",
+          "label": "t:global.code.liquid"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

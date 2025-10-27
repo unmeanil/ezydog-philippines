@@ -1,0 +1,199 @@
+<!-- sections/hero-image-with-text -->
+{% if section.settings.mobile_image != blank %}
+  {% assign mobile_image = section.settings.mobile_image %}
+{% else %}
+  {% assign mobile_image = section.settings.desktop_image %}
+{% endif %}
+
+<section id="section-{{ section.id }}" class="section-x-spacing mob-no-x-spacing {% if section.settings.apply_top_padding %} section-pt {% endif %} {% if section.settings.apply_bottom_padding %} section-pb {% endif %}">
+  <div class="relative section-inner-{{ section.id }}">
+    <div class="background-{{ section.id }}">
+    </div>
+    <div class="text-content-{{ section.id }} {{ section.settings.text_box_alignment }}">
+      {% if section.settings.title != blank %}
+        <p class="dfs-32 mfs-30 title-{{ section.id }} Barlow-Medium">{{ section.settings.title | newline_to_br }}</p>
+      {% endif %}
+      {% if section.settings.body != blank %}
+          <p class="body-{{ section.id }} dfs-14 mfs-14">{{ section.settings.body }}</p>
+      {% endif %}
+      {% if section.settings.link_text != blank %}
+          <a data-url="{{ section.settings.link_url  }}" class="link-{{ section.id }} button">{{section.settings.link_text}}</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+
+  .title-{{ section.id }}{ padding-bottom: 16px; }
+  .body-{{ section.id }}{ padding-bottom: 24px }
+  .link-{{ section.id }}{ }
+
+  .ed-button{
+    text-transform: uppercase;
+    background: #EA2D24;
+    padding: 8px 30px;
+    border-radius: 10px;
+    color: #FFF;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .ed-button:hover {
+    background: #FFF;
+    color: #000;
+    border-color: #EA2D24;
+  }
+
+  .section-inner-{{ section.id }} {
+    position: relative;
+    height: 600px;
+    display: grid;
+    margin-bottom: 66px; 
+  }
+
+  .text-box-left { border-top-right-radius: 10px; }
+  .text-box-right { border-top-left-radius: 10px; justify-self: end; }
+  .text-box-center {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    justify-self: center;
+  }
+
+   .background-{{ section.id }}{
+    position: absolute;
+    background: url({{ mobile_image | img_url: '1800x' }});
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .text-content-{{ section.id }}{
+    align-self: end;
+    padding: 30px 44px 0 44px;
+    z-index: 1;
+    background: #FFF;
+    width: calc(100% - 40px);
+  }
+
+  .title-{{ section.id }}{ }
+
+  .body-{{ section.id }}{ }
+
+  @media screen and (min-width: 641px) {
+    .section-inner-{{ section.id }} {
+      position: relative;
+      min-height: 600px;
+      height: 55vw;
+      max-height: 900px;
+      margin-bottom: 77px; 
+    }
+
+    .background-{{ section.id }}{
+      background: url({{ section.settings.desktop_image | img_url: '1800x' }});
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      top: 0;
+      left: 0;
+      right: 0 ;
+      bottom: 0;
+      border-radius: 10px;
+    }
+
+    .text-content-{{ section.id }}{
+      width: 50%;
+    }
+
+
+  }
+
+</style>
+
+{% schema %}
+  {
+    "name": "Hero image with text",
+    "settings": [
+      {
+       "type": "checkbox",
+       "id": "apply_top_padding",
+       "label": "Apply top padding",
+       "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "apply_bottom_padding",
+        "label": "Apply bottom padding",
+        "default": false
+      },
+      {
+        "type": "image_picker",
+        "id": "desktop_image",
+        "label": "Background image"
+      },
+      {
+        "type": "image_picker",
+        "id": "mobile_image",
+        "label": "Background image (Mobile)"
+      },
+      {
+        "type": "select",
+        "id": "text_box_alignment",
+        "label": "Text box alignment",
+        "options": [
+          {
+            "value": "text-box-left",
+            "label": "Left"
+          },
+          {
+            "value": "text-box-center",
+            "label": "Center"
+          },
+          {
+            "value": "text-box-right",
+            "label": "Right"
+          }
+        ],
+        "default": "text-box-left"
+      },
+      {
+        "type": "textarea",
+        "id": "title",
+        "label": "Heading",
+        "default": "Title"
+      },
+      {
+        "type": "textarea",
+        "id": "body",
+        "label": "Body",
+        "default": "Body text"
+      },
+      {
+        "type": "text",
+        "id": "link_text",
+        "label": "Link text"
+      },
+      {
+        "type": "url",
+        "id": "link_url",
+        "label": "Link URL"
+      }
+    ],
+
+    "presets": [
+      {
+       "name": "Hero image with text"
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

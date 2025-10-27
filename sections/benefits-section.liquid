@@ -1,0 +1,208 @@
+{% for item in section.blocks %} 
+  {% if item.settings.content-text != blank %}
+    <style>
+      .benefit-section {
+        padding: 3em;
+        background: #FAF9FE;
+      }
+      .benefit-section .container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+      } 
+      .benefit-section h1 {
+        flex: 1;
+        text-align: left; 
+        margin-right: 20px;
+      }
+      .benefit-section .benefits-content-wrapper {
+        flex: 1;
+        text-align: left;
+      }  
+      .benefit-section .button {
+        display: inline-block;
+        color: white;
+        padding: 8px 30px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+      }  
+      .benefits-content-wrapper ul {
+        line-height: 3;
+      } 
+      .benefits-content-wrapper ul + p {
+        margin-top: 6px;
+      }
+      section.benefit-section {
+        border-block-width: 1px;
+      }
+      .benefit-section .button:hover {
+        border: 1px solid rgb(234 45 36);
+      }
+      div#shopify-section-benefits-section {
+        border-block-end-width: 0px;
+      }
+      .benefits-content-wrapper .justify-self-center {
+        justify-self: left;
+      }
+      .benefits-content-wrapper a {
+        text-decoration: underline;
+      }
+      .benefits-content-wrapper p, .benefits-content-wrapper .metafield-rich_text_field.is-collapsed li, .benefits-content-wrapper .metafield-rich_text_field.is-collapsed p {
+        padding: 9px 0;
+      }
+      @media (max-width: 768px) {
+        .benefit-section {
+          padding: 2.5em;
+          background: #FAF9FE;
+        }
+        .benefit-section .container {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        } 
+        .benefit-section h1 {
+          margin-right: 0;
+          margin-bottom: 20px;
+        }  
+        .benefit-section .benefits-content-wrapper {
+          text-align: left;
+        }
+        .benefits-content-wrapper .justify-self-center {
+          justify-self: center;
+          text-align: center;
+        }
+      }
+      @media screen and (min-width: 1024px){
+        .benefit-section .benefits-content-wrapper {
+            padding-left: 2em;
+        }
+      }
+    </style>
+
+    <section class="benefit-section">
+      <div class="container">
+        <h2 class="Barlow-Medium dfs-30">{{ section.settings.heading }}</h2>
+        <div class="benefits-content-wrapper" style="background: none;">
+            {{ item.settings.content-text }}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endfor %}
+
+<script>
+  $(function () {
+    function getCollapsedCount() {
+      return window.matchMedia('(max-width: 768px)').matches ? 2 : 3;
+    }
+  
+    const readMore = {
+      renderCollapsed() {
+        const $wrapper = $('.benefits-content-wrapper .metafield-rich_text_field').length
+          ? $('.benefits-content-wrapper .metafield-rich_text_field')
+          : $('.benefits-content-wrapper');
+  
+        // 1️⃣ Keep the original markup once
+        if (!$wrapper.data('fullMarkup')) {
+          $wrapper.data('fullMarkup', $wrapper.html());
+        }
+        const fullMarkup = $wrapper.data('fullMarkup');
+  
+        const $tmp = $('<div>').html(fullMarkup);
+        const $elements = $tmp.find('li').length ? $tmp.find('li') : $tmp.find('p');
+        const keep = getCollapsedCount();
+  
+        if ($elements.length <= keep) return;
+  
+        let collapsed = '';
+        $elements.slice(0, keep).each(function () {
+          collapsed += $(this).prop('outerHTML');
+        });
+        collapsed += `
+          <div class="justify-self-center" style="margin-top:27px;">
+            <a class="button" id="readMoreBtn" href="#">Show More</a>
+          </div>`;
+  
+        $wrapper
+          .html(collapsed)
+          .addClass('is-collapsed');
+      },
+  
+      renderExpanded() {
+        const $wrapper = $('.benefits-content-wrapper .metafield-rich_text_field').length
+          ? $('.benefits-content-wrapper .metafield-rich_text_field')
+          : $('.benefits-content-wrapper');
+        const fullMarkup = $wrapper.data('fullMarkup'); // ⬅️ always the clean copy
+  
+        $wrapper
+          .html(fullMarkup)
+          .append(`
+            <div class="justify-self-center" style="margin-top:27px;">
+              <a class="button" id="readLessBtn" href="#">Show Less</a>
+            </div>`)
+          .removeClass('is-collapsed');
+      },
+  
+      init() {
+        this.renderCollapsed();
+  
+        $('body')
+          .on('click', '#readMoreBtn', e => { e.preventDefault(); this.renderExpanded(); })
+          .on('click', '#readLessBtn', e => { e.preventDefault(); this.renderCollapsed(); });
+  
+        $(window).on('resize', () => {
+          if ($('.benefits-content-wrapper .metafield-rich_text_field').length
+            ? $('.benefits-content-wrapper .metafield-rich_text_field').hasClass('is-collapsed')
+            : $('.benefits-content-wrapper').hasClass('is-collapsed')) {
+            this.renderCollapsed();
+          }
+        });
+      }
+    };
+  
+    const $wrapper = $('.benefits-content-wrapper .metafield-rich_text_field').length
+      ? $('.benefits-content-wrapper .metafield-rich_text_field')
+      : $('.benefits-content-wrapper');
+    const $elements = $wrapper.find('li').length ? $wrapper.find('li') : $wrapper.find('p');
+  
+    if ($elements.length > getCollapsedCount()) {
+      readMore.init();
+    }
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Benefits Section",
+    "settings": [
+      {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Why Shop with EzyDog?"
+    }
+    ],
+    "blocks": [
+    {
+      "type": "richtext",
+      "name": "text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "content-text",
+          "label": "content-text",
+          "default": "<p>Icons + Short Descriptions (Benefits)</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Benefits section",
+      "category": "Custom"
+    }
+  ]
+  }
+{% endschema %}
