@@ -1,0 +1,152 @@
+{% assign total_price_no_dollar = cart.total_price | money | remove: '$' | times: 1.0 %}
+{% assign statusvrent = 'false' %}
+
+{% if settings.theme_enviroment == 'production' %}
+  {% assign localizationsmarket = localization.market.metafields.custom.discount_varient.value %}
+{% else %}
+  {% assign localizationsmarket = localization.market.metafields.custom.discount_varient_stg.value %}
+{% endif %}
+
+{% assign meta_obj = localizationsmarket %}
+
+{% if meta_obj.gwp_prices_range.value %}
+  {% assign proudcut_prices = meta_obj.gwp_prices_range.value | times: 1.0 %}
+{% endif %}
+
+{% if meta_obj.enable_gwp_for_cart.value == true %}
+  {% assign productss = meta_obj.free_product_gift.value %}
+  {% assign variant_ids = meta_obj.product_variant.value | map: 'id' | default: productss.variants.first.id %}
+  {% assign variant_ids_json = variant_ids | json %}
+  {% assign free_productname = productss.title %}
+  {% assign product_url = productss.url %}
+  {% assign first_variant = productss.variants.first %}
+  {% assign first_variant_price = first_variant.price | money %}
+  {% assign product_image = productss.featured_image | img_url: 'master' %}
+
+  {% if meta_obj.product_variant.value %}
+    {% assign spaced_target_ids = '' %}
+    {% for variant_obj in meta_obj.product_variant.value %}
+      {% if forloop.last %}
+        {% assign spaced_target_ids = spaced_target_ids | append: variant_obj.id %}
+      {% else %}
+        {% assign spaced_target_ids = spaced_target_ids | append: variant_obj.id | append: ' ' %}
+      {% endif %}
+    {% endfor %}
+
+    {% assign found_variants = false %}
+    {% assign option_two = '' %}
+    {% assign option_one = '' %}
+
+    {% for variant in productss.variants %}
+      {% assign variant_id_str = variant.id | string %}
+      {% if spaced_target_ids contains variant_id_str %}
+        {% assign found_variants = true %}
+        {% assign vareitns = variant | json %}
+        {% assign option_one = option_one | append: variant.option1 | append: '|' %}
+        {% assign option_two = option_two | append: variant.option2 | append: '|' %}
+      {% else %}
+        {% assign vareitns = productss.variants | json %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {% assign vareitns = productss.variants | json %}
+  {% endif %}
+{% endif %}
+
+
+{% assign chosen_collection = meta_obj.choose_collection.value %}
+
+<!-- Check if any cart item belongs to the chosen collection -->
+{% assign is_collection_item_in_cart = false %}
+{% if chosen_collection %}
+  {% for item in cart.items %}
+    {% for collection in item.product.collections %}
+      {% if collection.id == chosen_collection.id %}
+        {% assign is_collection_item_in_cart = true %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+    {% if is_collection_item_in_cart %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign is_eligible = false %}
+{% if meta_obj.enable_gwp_for_cart.value == true and productss %}
+  {% if chosen_collection %}
+    {% if is_collection_item_in_cart and total_price_no_dollar > proudcut_prices %}
+      {% assign is_eligible = true %}
+    {% endif %}
+  {% else %}
+    {% if total_price_no_dollar > proudcut_prices %}
+      {% assign is_eligible = true %} <!-- No collection, use price only -->
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+<!-- Check if GWP item is already in the cart -->
+{% assign gwp_in_cart = false %}
+{% if productss %}
+  {% for item in cart.items %}
+    {% if item.product.id == productss.id %}
+      {% assign gwp_in_cart = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if is_eligible and gwp_in_cart == false %}
+  {% assign vareitns = productss.variants | json %}
+  <div class="free-cart" data-variants='{{ vareitns | replace: "'", '' }}' data-vids='{{ variant_ids_json }}' style="height: 275px;">
+    <div class="line-item">
+      <img
+        src="{{ product_image }}"
+        alt="{{ free_productname }}"
+        width="2048"
+        height="2048"
+        loading="lazy"
+        sizes="(max-width: 699px) 70px, 120px"
+        class="line-item__media"
+      >
+      <div class="line-item-info">
+        <h3 class="popup-header">{{ meta_obj.gwp_popup_title.value }}</h3>
+        <a href="https://ezydog.com.au{{ product_url }}" class="">{{ free_productname }}</a>
+        <price-list class="price-list ">
+          <strike>{{ first_variant_price }}</strike> - Free
+        </price-list>
+        {% if productss.variants.size > 1 %}
+          {% for option in productss.options_with_values %}
+            {% assign extra_class = 'cart-optionsselect_' | append: option.name %}
+            {% assign extra_class = extra_class | append: ' casr-optionselect_' | append: forloop.index %}
+            {% if forloop.index == 1 %}
+              {% assign option_value = option_one | split: '|' | uniq %}
+            {% else %}
+              {% assign option_value = option_two | split: '|' | uniq %}
+            {% endif %}
+            {% if meta_obj.product_variant.value %}
+              {% render 'select',
+                show_label_as_value: true,
+                show_label_as_block: false,
+                data_option: option.name,
+                extra_class: extra_class,
+                option_values: option_value
+              %}
+            {% endif %}
+          {% endfor %}
+          {% if meta_obj.product_variant.value %}
+            <button class="btn addfree-btn" id="addFreeProductButton" data-isvarients="true">Add</button>
+          {% else %}
+            <button class="btn addfree-btn" id="addFreeProductButton" data-mainid="{{ first_variant.id }}" data-isvarients="false">Add</button>
+          {% endif %}
+        {% else %}
+          <button class="btn addfree-btn" id="addFreeProductButton" data-mainid="{{ first_variant.id }}" data-isvarients="false">Add</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% else %}
+  <style>
+    .sectionsgwp-notes_td { display: block !important; }
+  </style>
+{% endif %}

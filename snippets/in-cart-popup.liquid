@@ -1,0 +1,106 @@
+<style>
+    a.free-prod-button {
+        font-family: Barlow-Medium, Arial, sans-serif;
+        text-transform: uppercase;
+        padding: 6px 15px;
+        border: 1px solid rgb(var(--button-outline-color, var(--button-background, var(--button-background-primary))));
+        border-radius: 7px;
+        color: rgb(var(--button-text-color, var(--button-text-primary)));
+        background: rgb(var(--button-background, var(--button-background-primary)));
+        font-size: 10px;
+        opacity: 1;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+    a.free-prod-button[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #b0afaffa;
+        border: #b0afaffa;
+        pointer-events: none;
+    }
+    .progress-bar-container {
+        margin-bottom: 8px;
+    }
+    .popup-content {
+        width: 65%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    .popup-title-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    h4.free-item-pack {
+        font-size: 12px;
+        display: inline;
+        align-self: flex-start;
+    }
+    span.spend-more-text {
+        font-size: 10px;
+        font-weight: 600;
+        display: inline;
+        float: right;
+    }
+    .popup-header {
+        color: #ea2d24;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    .cart-popup {
+        border-radius: 8px;
+        margin-top: 20px;
+        align-items: center;
+        border: 1px solid #f2f2f2; 
+        padding: 10px; 
+        background-color: #f2f2f2;
+    }
+    .popup {
+        margin-bottom: 8px;
+    }
+</style>
+
+{% for popup in shop.metaobjects.cart_pop_up.values %}      
+    {% assign show_in_cart = popup.show_in_cart %}
+    {% assign link_data = popup.link_url | t %}
+    {% if show_in_cart == true %}
+        <div class="cart-popup">
+        <div>
+            {% if forloop.first %}
+            <h3 class="popup-header">Spend & Save</h3>
+            {% endif %}
+
+            <div class="popup" style="display: flex; gap: 1rem;" data-trigger-amount="{{ popup.trigger_amount }}">
+                <div class="popup-image">
+                <img src="{{ popup.image | img_url: '100x' }}" alt="{{ popup.title }}">
+                </div>
+                <div class="popup-content">
+                <div class="popup-title-container">
+                    {% assign title_parts = popup.title | split: ' ' %}
+                    <h4 class="free-item-pack">
+                    {% for part in title_parts %}
+                        {% if part == 'Free' %}
+                        <strong>{{ part | upcase }}</strong>
+                        {% else %}
+                        {{ part }}
+                        {% endif %}
+                    {% endfor %}
+                    </h4>
+                    <!-- <span class="spend-more-text">Spend ${{ popup.trigger_amount }} more</span> -->
+                    <span class="spend-more-text"></span>
+                </div>            
+                <div class="progress-bar-container" style="background-color: #ddd; height: 10px; width: 100%; border-radius: 5px; overflow: hidden;">
+                    <div class="progress-bar" style="height: 100%; background-color: #ea2d24; width: 0;"></div>
+                </div>
+                <a href="{{ link_data.value.url | split: '?' | first }}" class="free-prod-button">{{ popup.link_text }} ></a>
+                </div>
+            </div>
+            
+        </div>
+        </div>
+    {% endif %}
+{% endfor %}

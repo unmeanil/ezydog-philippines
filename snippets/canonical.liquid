@@ -1,0 +1,8 @@
+{% assign custom_canonical = canonical_url %}
+
+{% if collection.handle == 'non-pull' %} 
+  {% assign custom_canonical = 'https://ezydog.com.au/collections/non-pull-dog-harnesses' %}
+{% endif %}
+
+
+<link rel="canonical" href="{{ custom_canonical }}" />

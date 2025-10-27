@@ -1,0 +1,29 @@
+{%  liquid 
+  assign master_product = product 
+  assign patch_product = product.metafields.custom_label.value.product 
+
+  for tag in master_product.tags
+    if tag contains 'Range'
+      assign range = tag | split: ':' | last
+      case range 
+      when 'Express'
+      assign size_map = 'L:XL,2XL|M:M,L|XS:2XS,XS,S'
+      when 'Convert'
+      assign size_map = 'L:XL,2XL|M:M,L|S:S|XS:2XS,XS'
+      when 'Saddle Bag'
+      assign size_map = 'S:S,M,L'
+      when 'Backpack'
+      assign size_map = 'S:S,M,L'
+      when 'Ortho Smart Bed'
+      assign size_map = 'M:M,L,XL|S:S'
+      when 'Ortho Lounger'
+      assign size_map = 'M:S|S:L,XL'
+      when 'Ortho Calm Elite Bed'
+      assign size_map = 'M:S|S:L,XL'
+      else
+        assign size_map = 'XS:XS,2XS|S:S|M:M|L:L,XL,2XL'
+      endcase
+    endif
+  endfor
+%}
+{{ size_map }}

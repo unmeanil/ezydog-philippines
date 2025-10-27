@@ -1,0 +1,596 @@
+ {% if settings.theme_enviroment == 'production' %}
+     {% assign localizationsmarket = localization.market.metafields.custom.discount_varient.value %}
+{% else %}
+      {% assign localizationsmarket = localization.market.metafields.custom.discount_varient_stg.value %}
+{% endif %}
+{% assign meta_objprod = localizationsmarket %}
+{% assign variant_ids = meta_objprod.product_variant.value | map: 'id' %}
+
+  {% assign actualproductprice = product.price | money_without_currency %}
+
+  <!-- schema getting the product name -->
+  {% if meta_objprod.free_product_gift.value %}
+    {% assign product_free = meta_objprod.free_product_gift.value %}   
+    {% assign free_productname = product_free.title %}
+     {% assign product_image = product_free.featured_image | img_url: 'master' %}
+  {% endif %}
+
+
+
+  {% if meta_objprod.gwp_prices_range.value %}
+    {% assign proudcut_prices = meta_objprod.gwp_prices_range.value %}
+  {% endif %}
+
+  {% if meta_objprod.pop_up_content.value %}
+    {% assign popup_content = meta_objprod.pop_up_content.value %}
+    {% assign popup_content_replaced = popup_content
+      | replace: '[productname]', free_productname
+      | replace: '[GwpPriceRange]', proudcut_prices
+    %}
+  {% endif %}
+
+
+  {% assign text_contains = meta_objprod.product_info_content.value %}
+  {% assign text_contains_replaced = text_contains
+    | replace: '[productname]', free_productname
+    | replace: '[GwpPriceRange]', proudcut_prices
+  %}
+  {% if meta_objprod.popup_back_ground_image.value %}
+    {% assign image_path = meta_objprod.popup_back_ground_image.value %}
+    {% assign image_html = '<div class="image-gpe"><img src="https://ezydog.com.au/cdn/shop/'
+      | append: image_path
+      | append: '" loading="lazy"></div>'
+    %}
+  {% endif %}
+   {% assign statusvrent = 'false' %}
+{% for item in cart.items %}
+  {% if variant_ids contains item.variant_id %}
+ {% assign statusvrent = 'true' %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div class="bck-popup_img">
+        {{ image_html }}
+      </div>
+      <div class="content-popup">
+        <span class="popup-content-full">{{ popup_content_replaced }}</span>
+        <a id="btn-shopnow">Shop Now</a>
+      </div>
+    </div>
+  </div>
+  <script>
+      
+document.addEventListener('DOMContentLoaded', function() {
+  // update on the load matched the free gwp varients
+    
+  // Vanilla JavaScript: Add event listener to a button with id "addFreeProductButton"
+  var addButton = document.getElementById('addFreeProductButton');
+
+
+  // Helper function to find matching variant
+  function getMatchingVariantnwe(variants, selectedOptions) {
+    return variants.find(variant => {
+      return selectedOptions.every(option => {
+        return variant.options.includes(option);
+      });
+    });
+  }
+
+   
+
+   $('.cart-optionsselect_Size').change(function() { 
+      var attrsvareint = $('.free-cart').attr('data-variants');
+   
+    var clorval= $('.cart-optionsselect_Colour').val(); 
+    var sizesval= $('.cart-optionsselect_Size').val(); 
+    var selectedOptionsr = [clorval, sizesval];
+     
+         var matchingVariant = getMatchingVariantnwe(JSON.parse(attrsvareint), selectedOptionsr);
+       if (matchingVariant) {
+             var formattedPrice = matchingVariant.price / 100;
+        formattedPrice =  (formattedPrice.toLocaleString("en-US", {style:"currency", currency:"AUD"})).substring(1);
+          $('.price-list strike').text(formattedPrice);
+         // var variantIds = JSON.parse(variantIdsJson);
+         let discounted_id= JSON.parse( $('.free-cart').attr("data-vids"));
+          if (discounted_id && Array.isArray(discounted_id) && discounted_id.length > 0) {
+            if (!discounted_id.includes(matchingVariant.id)){
+                $("#addFreeProductButton").attr("disabled",true);
+            }else{
+                $("#addFreeProductButton").attr("disabled",false);
+            }
+          }
+       }
+       
+   });
+
+   $('.cart-optionsselect_Colour').change(function() { 
+      var attrsvareint = $('.free-cart').attr('data-variants');
+   
+    var clorval= $('.cart-optionsselect_Colour').val(); 
+    var sizesval= $('.cart-optionsselect_Size').val(); 
+    var selectedOptionsr = [clorval, sizesval];
+     
+         var matchingVariant = getMatchingVariantnwe(JSON.parse(attrsvareint), selectedOptionsr);   
+             if (matchingVariant) {
+                            var formattedPrice = matchingVariant.price / 100;
+        formattedPrice =  (formattedPrice.toLocaleString("en-US", {style:"currency", currency:"AUD"})).substring(1);
+          $('.price-list strike').text(formattedPrice);
+          // var variantIds = JSON.parse(variantIdsJson);
+         let discounted_id= JSON.parse( $('.free-cart').attr("data-vids"));
+          if (discounted_id && Array.isArray(discounted_id) && discounted_id.length > 0) {
+            if (!discounted_id.includes(matchingVariant.id)){
+                $("#addFreeProductButton").attr("disabled",true);
+            }else{
+                $("#addFreeProductButton").attr("disabled",false);
+            }
+          }
+       }
+     
+   });
+
+
+  // jQuery: Event delegation on body for click events
+  $('body').on('click', '#addFreeProductButton', function() {
+        $('.error_messages').remove();
+    var attrsvareint = $('.free-cart').attr('data-variants');
+      const sectionswgpnotes = document.querySelector('.sectionsgwp-notes_td');
+  
+   
+    // var clorval= $('.cart-optionsselect_Colour').val(); 
+    // var sizesval= $('.cart-optionsselect_Size').val(); 
+    //  var trickval= $('.cart-optionsselect_TRICK').val(); 
+
+    var cart_optionone= $('.casr-optionselect_1').val(); 
+    var cart_optiontwo= $('.casr-optionselect_2').val(); 
+     var cart_optiondataone= $('.casr-optionselect_1').attr('data-option'); 
+      var cart_optiondatatwo= $('.casr-optionselect_2').attr('data-option'); 
+    if(cart_optiondatatwo){ var cart_optiondatatwoboth= 'And '+cart_optiondatatwo; }
+
+  
+     if(cart_optiontwo){
+    var selectedOptionsr = [cart_optionone, cart_optiontwo];
+     
+    } else {
+       var selectedOptionsr = [cart_optionone];
+    }
+
+    var matchingVariant = getMatchingVariantnwe(JSON.parse(attrsvareint), selectedOptionsr);   
+    
+     var flagno_varients = $(this).attr('data-isvarients');
+      var itemsToAdd = [];
+   if(matchingVariant){  
+    // var varproduct_id=matchingVariant.id;
+      itemsToAdd.push({
+        id: matchingVariant.id, // Use the id from the matching variant
+        quantity: 1,
+        price: 0,
+        itemClass: "new-item-free"
+      });
+   } else {    
+     if(flagno_varients == 'false'){
+     var varproduct_id = $(this).attr('data-mainid');
+      itemsToAdd.push({
+        id: varproduct_id, // Use the id from the matching variant
+        quantity: 1,
+        price: 0,
+        itemClass: "new-item-free"
+      });
+     }
+   }
+   
+  
+   
+
+    if (sectionswgpnotes) { 
+      sectionswgpnotes.remove(); 
+    }
+  
+    if(flagno_varients === 'true') {
+        if((typeof cart_optionone !== 'undefined' && cart_optionone === null) && (typeof cart_optiontwo !== 'undefined' && cart_optiontwo === null)){  
+          $(this).after('<span class="error_messages" style="color:red; font-weight:600;display:block;">Please Select '+cart_optiondataone+' '+cart_optiondatatwoboth+' Varient!</span>');
+        } else if (typeof cart_optionone !== 'undefined' && cart_optionone === null) {
+          $(this).after('<span class="error_messages" style="color:red; font-weight:600;display:block;">Please select '+cart_optiondataone+' Varient!</span>');
+        } else if (typeof cart_optiontwo !== 'undefined' && cart_optiontwo === null) {
+           $(this).after('<span class="error_messages" style="color:red; font-weight:600;display:block;">Please select the '+cart_optiondatatwo+' Varient!</span>');
+
+        } else { 
+          $('.error_messages').remove();
+        addToCartFree(itemsToAdd);
+        }
+    } else { 
+      $('.error_messages').remove();
+    addToCartFree(itemsToAdd);
+    }
+  });
+});
+
+      
+
+// Unified function to handle adding multiple items to the Shopify cart
+function addToCartFree(items) {
+  $.ajax({
+    type: 'POST',
+    url: '/cart/add.js',
+    data: JSON.stringify({ items: items }),  // Adjusted for batch addition if your Shopify version supports it
+    contentType: 'application/json',
+    success: function(response) {
+      console.log('Items added to cart:', response);
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+      const cartDrawerElement = document.querySelector('#cart-drawer');
+          var freecart = document.querySelector('.free-cart');
+      if (cartDrawerElement) {
+        cartDrawerElement.classList.add('freecartadd');
+        cartDrawerElement.show();
+        
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error('Error adding items to cart:', error);
+    }
+  });
+}
+      
+
+      
+document.addEventListener('DOMContentLoaded', function() {
+ 
+
+ // Fetch the cart total initially after a delay to wait for the cart update to complete
+  setTimeout(fetchCartTotal, 500);
+ 
+ 
+
+$('body').on('click', '#cart-quantity-increaser, #cart-quantity-dcreases, #product-buy-button, .text-xs, .block-swatch', function() {  
+ // alert("test");
+    setTimeout(fetchCartTotal, 800); // Wait for the cart update to complete  
+
+});
+
+  
+});
+
+// Unified function to handle adding multiple items to the Shopify cart
+
+  function fetchCartTotal() {
+    fetch('/cart.js', {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(cartData => {
+
+      var actualprodyctprices = $('.product-info__block-list #product-price-list').find('sale-price').text();
+   
+      var numericPrice = actualprodyctprices ? actualprodyctprices.match(/\d+(\.\d+)?/)[0] : 0;
+    
+    //  var productPrice = parseFloat('{{ actualproductprice }}');
+      var productPrice = parseFloat(numericPrice);
+      var cartTotalPrice = cartData?.total_price ? parseFloat(cartData.total_price / 100) : 0; // Convert from cents to dollars
+      var cartTotalPrices = cartTotalPrice + productPrice;
+    
+ 
+      var element = document.querySelector('.buy-button-wrapper'); // Use the appropriate class name here
+
+      // Remove existing section if it exists
+        var existingSection = document.querySelector('.sectionsgwp-notes_td');
+      
+
+    if(existingSection !=null)  { existingSection.remove();   }
+      console.log({{ statusvrent }});
+        {% if statusvrent == 'true' %} existingSection.css('diplay','none');    {% endif %}
+  
+      if (cartTotalPrices > {{proudcut_prices | default: 0}}) {
+     
+        if (element && '{{ image_html }}') { 
+          var productImage = `{{ product_image }}`;
+          var fallbackImage = `{{ image_html }}`;
+
+          var imageContent = productImage
+            ? `<img src="${productImage}" loading="lazy">`
+            : fallbackImage;
+
+          var newElement = document.createElement('section');
+          newElement.className = 'sectionsgwp-notes_td';
+          newElement.innerHTML = `
+            <div class="sectionsgwp-notes">
+              ${imageContent}
+              <div class="content-gwp">{{ text_contains_replaced }} <a id="myBtn">See details >></a></div>
+            </div>`;
+          element.parentNode.insertBefore(newElement, element); 
+          modalpopup();
+        }
+
+       
+      } else {
+        if (existingSection) {
+         existingSection.remove();
+        }      
+      }
+      
+    })
+    .catch(error => console.error('Error fetching cart data:', error));
+  }
+      
+// Function to check if item with specific id exists
+// function checkItemExists(cart, itemId) {
+//     return cart.items.some(item => item.id === itemId);
+// }
+
+
+      
+function modalpopup(){
+  var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+  var btnshpnow = document.getElementById("btn-shopnow");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on the button, open the modal
+btn.onclick = function() {
+  modal.style.display = "flex";
+  document.querySelector('body').classList.add('page-scroll-hidden');
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+  document.querySelector('body').classList.remove('page-scroll-hidden');
+}
+btnshpnow.onclick = function() {
+  modal.style.display = "none";
+  document.querySelector('body').classList.remove('page-scroll-hidden');
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+    document.querySelector('body').classList.remove('page-scroll-hidden');
+  }
+}
+}
+  </script>
+ 
+ 
+
+  <style>
+      .page-scroll-hidden{
+        overflow: hidden!important;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+      }
+      .sectionsgwp-notes{
+        padding: 16px;
+        /* max-width: 460px; */
+        max-width: 100%;
+        display: grid;
+        grid-template-columns: 120px auto;
+        gap: 20px;
+        text-align: left; /*justify;*/
+        background-color: #ffffff24;
+        box-shadow: rgba(50, 50, 93, 0.15) 0px 13px 27px -5px, rgba(0, 0, 0, 0.2) 0px 8px 16px -8px;
+      }
+
+      .sectionsgwp-notes b{
+        display: block;
+      }
+     .sectionsgwp-notes a{ color:#ea2d24;}
+     .sectionsgwp-notes .content-gwp{padding-right: 10px;}
+
+    /* The Modal (background) */
+    #myModal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 2147483001; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      align-items: center;
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+      border: 0!important;
+      max-width: 900px;
+    }
+
+    .bck-popup_img{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bck-popup_img img{
+      width: 100%!important;
+      height: 100%!important;
+      object-fit: cover;
+    }
+
+    #myModal .close{
+      right: -11px!important;
+      top: -13px !important;
+      background: #ea2d24;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      border-radius: 100%;
+    }
+
+    @media(max-width: 768px){
+      .modal-content{
+        grid-template-columns: 100%;
+        
+      }
+      #myModal .modal-content{
+        width: 100%;
+        margin: 16px;
+      }
+      
+      .bck-popup_img{
+        margin-right: auto!important;
+        margin-left: auto!important;
+      }
+      #myModal .content-popup{
+        padding: 32px 0 0 10px;
+      }
+      .content-gwp h2 {
+        line-height: 1.25;
+        margin-bottom: 5px;
+      }
+      .content-gwp b {
+        line-height: 1.35;
+      }
+    }
+
+    @media(max-width: 480px){
+      .bck-popup_img{
+          max-width: 200px!important;
+      }
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      right: 20px;
+      top: 4px!important;
+    }
+
+    .content-popup{
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .content-popup a#btn-shopnow{
+        background: #EA2D24;
+        color: #fff;
+        padding: 2px 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        min-width: 110px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 600;
+        box-shadow: rgba(50, 50, 93, 0.35) 0px 7px 10px -6px, rgba(0, 0, 0, 0.3) 0px 8px 12px -8px;
+        margin-top: 12px;
+    }
+
+    .popup-content-full{
+      display: block;
+    }
+    .popup-content-full h2, .popup-content-full h3, .popup-content-full h4, .popup-content-full h5, .popup-content-full h6{
+      margin-bottom: 8px!important;
+      font-weight: 600;
+    }
+    .popup-content-full h4{
+      font-size: 18px!important;
+      text-transform: uppercase;
+    }
+    .popup-content-full h3{
+      font-weight: 700;
+      color: #EA2D24;
+      font-size: 32px!important;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* FREE CART */
+    .free-cart{
+      box-shadow: rgba(50, 50, 93, 0.15) 0px 13px 13px -12px, rgba(0, 0, 0, 0.2) 0px 8px 8px -8px;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 12px;
+    }
+    .line-item img{
+      border-radius: 4px;
+    }
+    .line-item-info h3{
+      color: #EA2D24;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .btn.addfree-btn{
+      background: #EA2D24;
+        color: #fff;
+        padding: 2px 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        min-width: 100px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 600;
+        box-shadow: rgba(50, 50, 93, 0.15) 0px 7px 7px -6px, rgba(0, 0, 0, 0.1) 0px 8px 7px -8px;
+        margin-top: 12px;
+    }
+    .btn.addfree-btn:disabled{
+        opacity:0.6;
+    }
+    .product-info__block-list .product-info__block-item[data-block-type="buy-buttons"]{
+      --product-info-gap: 10px!important;
+    }
+     /* .sectionsgwp-notes_td{display:none;} */
+  </style>
+{% if  meta_objprod.enable_gwp_for_product.value == true %}
+  {% if product_free %}
+   <style>
+     .sectionsgwp-notes_td{display:block !important;}
+   </style>
+    <!--{% comment %} {% else %}
+     <style>
+     .sectionsgwp-notes_td{display:none !important;}
+   </style> {% endcomment %}-->
+    {% endif %}
+  {% else %}
+
+   <style>
+     .sectionsgwp-notes_td{display:none !important;}
+   </style>
+{% endif %}

@@ -1,0 +1,15 @@
+<div>
+  <div class="card-thumbnail-{{ section.id }}" style="
+    background-image: url({{ image | img_url: '800x' }});
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  ">
+  </div>
+  <div class="content-{{ section.id }}">
+    <h3 class="card-heading-{{ section.id }} Barlow-Medium dfs-22 mfs-22 ">
+      {{ title }}              
+    </h3>
+    <p class="description-{{ section.id }} dfs-14 mfs-13">{{ description }}</p>
+  </div>
+</div>

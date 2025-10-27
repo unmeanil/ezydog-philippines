@@ -1,0 +1,6 @@
+<button class="upsell-button" data-product-id="{{ product.id }} data-variant-id="{{ product.id }}" data-variants='{{ product.variants | json }}'>
+  {% if image != blank %}
+    <img src="{{ image }}" alt="Product Image">
+  {% endif %}
+  <span class="add-text-{{product.id}}">{{ button_text }}</span>
+</button>

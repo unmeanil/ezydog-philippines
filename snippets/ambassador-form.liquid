@@ -1,0 +1,608 @@
+<style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Barlow Semi Condensed', sans-serif;
+      line-height: 1.5;
+    }
+    #popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .form-container {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      padding: 30px 24px 24px;
+      position: relative;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+      margin: 20px 0;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgb(237, 28, 36);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      line-height: 30px;
+      text-align: center;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1;
+    }
+    h1 {
+      font-size: clamp(24px, 5vw, 28px);
+      font-weight: 700;
+      text-align: center;
+      color: #202124;
+      margin-bottom: 16px;
+    }
+    h1 span {
+      color: rgb(237, 28, 36);
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="url"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: 'Barlow Semi Condensed', sans-serif;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .column {
+      flex: 1;
+      min-width: 120px;
+    }
+    .input-group-ambassador {
+      margin-bottom: 16px;
+    }
+    .btn {
+      background: rgb(237, 28, 36);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #c5131b;
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+    }
+    .error {
+      color: rgb(237, 28, 36);
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    .radio-group, .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .radio-group label, .checkbox-group label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    small {
+      font-size: 12px;
+      color: #666;
+    }
+    .measurement-container {
+      position: relative;
+    }
+    .measurement-container::after {
+      content: 'cm';
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: #666;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 25px 15px 20px;
+      }
+      .row {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .column {
+        width: 100%;
+      }
+      .radio-group, .checkbox-group {
+        gap: 8px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      #popup {
+        padding: 10px;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .form-container {
+        padding: 20px 12px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      label, input, .btn {
+        font-size: 13px;
+      }
+    }
+    .hide {
+        display: none !important;
+    }
+</style>
+
+<div id="popup" class="hide">
+  <div class="form-container">
+    <button class="close-btn" onclick="closePopup()">×</button>
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step1">
+      <h1>Pack <span>Ambassador Form</span></h1>
+
+      <div class="row input-group-ambassador">
+        <div class="column">
+          <label for="first-name">First Name</label>
+          <input id="first-name" type="text" placeholder="First Name">
+          <div class="error" id="error-first">Please fill out this field</div>
+        </div>
+        <div class="column">
+          <label for="last-name">Last Name</label>
+          <input id="last-name" type="text" placeholder="Last Name">
+          <div class="error" id="error-last">Please fill out this field</div>
+        </div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label for="email">Email Address</label>
+        <input id="email" type="email" placeholder="Enter your email address">
+        <div class="error" id="error-email">Please enter a valid email address</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label for="address">Postal Address so we can send you packs!</label>
+        <input id="address" type="text" placeholder="Your address">
+        <div class="error" id="error-address">Please fill out this field</div>
+      </div>
+
+      <button class="btn" onclick="nextStep1()">Next</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <h1>About <span>Your Dog!</span></h1>
+      <p>This is where the real MVP shines. Give us the rundown on your furry mate! Personality, measurements, and all.</p>
+
+      <div class="row input-group-ambassador">
+        <div class="column">
+          <label for="dog-name">Dog's Name</label>
+          <input id="dog-name" type="text" placeholder="Dog's name">
+          <div class="error" id="error-dog-name">Please fill out this field</div>
+        </div>
+        <div class="column">
+          <label for="breed">Dog's Breed</label>
+          <input id="breed" type="text" placeholder="Dog's breed">
+          <div class="error" id="error-breed">Please fill out this field</div>
+        </div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label>Gender</label>
+        <div class="radio-group">
+          <label><input type="radio" name="gender" value="Female"> Female</label>
+          <label><input type="radio" name="gender" value="Male"> Male</label>
+        </div>
+        <div class="error" id="error-gender">Please select gender</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label>Top 3 Fav Colours</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="colors" value="Red"> Red</label>
+          <label><input type="checkbox" name="colors" value="Purple"> Purple</label>
+          <label><input type="checkbox" name="colors" value="Pink"> Pink</label>
+          <label><input type="checkbox" name="colors" value="Black"> Black</label>
+          <label><input type="checkbox" name="colors" value="Blue"> Blue</label>
+          {% comment %} <label><input type="checkbox" name="colors" value="Khaki"> Khaki</label>
+          <label><input type="checkbox" name="colors" value="Sand"> Sand</label> {% endcomment %}
+          <label><input type="checkbox" name="colors" value="Orange"> Orange</label>
+          <label><input type="checkbox" name="colors" value="Brown"> Brown</label>
+        </div>
+        <div class="error" id="error-colors">Please select at least one color</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label for="birthday">Birthday <small>(MM/DD/YYYY)</small></label>
+        <input id="birthday" type="date">
+        <div class="error" id="error-birthday">Please fill out this field</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label for="personality">Dog's Personality in 3-5 Words</label>
+        <input id="personality" type="text" placeholder="e.g. Loyal, Playful, Gentle">
+        <div class="error" id="error-personality">Please fill out this field</div>
+      </div>
+
+      <div class="row input-group-ambassador">
+        <div class="column">
+          <label for="handle">Instagram Handle</label>
+          <input id="handle" type="text" placeholder="@furryfriend">
+          <div class="error" id="error-handle">Please include @ symbol in your handle</div>
+        </div>
+        <div class="column">
+          <label for="followers">Followers</label>
+          <input id="followers" type="text" placeholder="e.g. 10k">
+          <div class="error" id="error-followers">Please enter only letters and numbers</div>
+        </div>
+      </div>
+
+      <div class="row input-group-ambassador">
+        <div class="column">
+          <div class="measurement-container">
+            <label for="girth">Girth measurement</label>
+            <input id="girth" type="number" placeholder="e.g. 45 cm" step="0.1" min="0">
+          </div>
+          <div class="error" id="error-girth">Please enter a valid measurement</div>
+        </div>
+        <div class="column">
+          <div class="measurement-container">
+            <label for="neck">Neck measurement</label>
+            <input id="neck" type="number" placeholder="e.g. 25 cm" step="0.1" min="0">
+          </div>
+          <div class="error" id="error-neck">Please enter a valid measurement</div>
+        </div>
+      </div>
+
+      <button class="btn" onclick="nextStep2()">Next</button>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="step3">
+      <h1>Lifestyle <span>and Content Fit</span></h1>
+      <p>We're looking for creators who live real lives with real dogs. Let us know what kind of content you love to make, and where you and your pup fit in.</p>
+
+      <div class="input-group-ambassador">
+        <label>Which best describes your lifestyle? <small>(required)</small></label>
+        <div class="radio-group">
+          <label><input type="radio" name="lifestyle" value="Beach Bums">Beach Bums</label>
+          <label><input type="radio" name="lifestyle" value="New Puppy Crew">New Puppy Crew</label>
+          <label><input type="radio" name="lifestyle" value="Dogfluencers and Creators">Dogfluencers and Creators</label>
+          <label><input type="radio" name="lifestyle" value="Trail Trekkers">Trail Trekkers</label>
+          <label><input type="radio" name="lifestyle" value="Urban City Strutters">Urban City Strutters</label>
+          <label><input type="radio" name="lifestyle" value="Vanlife Legends">Vanlife Legends</label>
+          <label><input type="radio" name="lifestyle" value="Working and Sporting Dogs">Working and Sporting Dogs</label>
+        </div>
+        <div class="error" id="error-lifestyle">Please select an option</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label for="why-join">Why do you want to be part of the EzyDog Pack? <small>(required)</small></label>
+        <input id="why-join" type="text" placeholder="Tell us why">
+        <div class="error" id="error-why-join">Please fill out this field</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label for="content-link">Link to your fav piece of content you've created <small>(required)</small></label>
+        <input id="content-link" type="url" placeholder="https://example.com">
+        <div class="error" id="error-content-link">Please provide a valid URL</div>
+      </div>
+
+      <button class="btn" onclick="nextStep3()">Next</button>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="step4">
+      <h1>Expectations <span>& Agreement</span></h1>
+      <p>Being part of the pack comes with perks but also commitment. Here's what we ask from our ambassadors when you receive a pack from us.</p>
+
+      <div class="input-group-ambassador">
+        <label>Are you willing to? <small>(required, tick all that apply)</small></label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="commitments" value="Post 1x Reel or TikTok featuring your dog in only EzyDog gear"> Post 1x Reel or TikTok featuring your dog in only EzyDog gear</label>
+          <label><input type="checkbox" name="commitments" value="Post 1x Instagram Story showing the gear, BTS, or your unboxing with your dog"> Post 1x Instagram Story showing the gear, BTS, or your unboxing with your dog</label>
+          <label><input type="checkbox" name="commitments" value="Tag @ezydog and use #BuiltForDogs and #EzyDogPack"> Tag @ezydog and use #BuiltForDogs and #EzyDogPack</label>
+          <label><input type="checkbox" name="commitments" value="Submit RAW content to EzyDog for reuse in marketing"> Submit RAW content to EzyDog for reuse in marketing</label>
+          <label><input type="checkbox" name="commitments" value="Not promote competing dog gear brands while actively participating in the pack"> Not promote competing dog gear brands while actively participating in the pack</label>
+        </div>
+        <div class="error" id="error-commitments">Please select at least one option</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label>Are you interested in testing unreleased gear?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="testing" value="Yes"> Yes</label>
+          <label><input type="radio" name="testing" value="No"> No</label>
+        </div>
+        <div class="error" id="error-testing">Please select an option</div>
+      </div>
+
+      <div class="input-group-ambassador">
+        <label>
+          <input type="checkbox" id="agreement"> 
+          I understand this is a commitment-based program. If selected, I'll receive packs and agree to deliver content for each one.
+        </label>
+        <div class="error" id="error-agreement">You must agree to continue</div>
+      </div>
+
+      <button class="btn" onclick="submitForm()">Submit Application</button>
+    </div>
+
+    <!-- STEP 5 - Confirmation -->
+    <div class="step" id="step5">
+      <h1>Thank you so much for submitting your form!</h1>
+      <p>We're so excited to check out your pup's profile, we can already tell you two would make a great fit for the pack.</p>
+      <p>Our team will be reviewing all applications over the coming weeks, and if you're selected to join the EzyDog Pack Ambassador Program, we'll be in touch with next steps via email.</p>
+      <p><i>Please note: due to the volume of applications, only successful ambassadors will be contacted. In the meantime, make sure you're following us on Instagram <a href="https://www.instagram.com/ezydog/" style="color: #0b68cb;">@ezydog</a> to stay in the loop for future opportunities, giveaways, and dog content you'll love.</i></p>
+      <p>Thanks again for applying, we truly appreciate your interest and can't wait to meet some incredible dog and human duos! 🐾</p>
+      <button class="btn" onclick="closePopup()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formData = {};
+
+  // Show popup after delay
+  setTimeout(() => {
+    document.getElementById("popup").style.display = "flex";
+    document.getElementById("popup").scrollTo(0, 0);
+  }, 2000);
+
+  function closePopup() {
+    document.getElementById("popup").style.display = "none";
+  }
+
+  function showError(id) {
+    document.getElementById(id).style.display = "block";
+  }
+
+  function hideError(id) {
+    document.getElementById(id).style.display = "none";
+  }
+
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  function validateInstagramHandle(handle) {
+    return handle.includes('@');
+  }
+
+  function validateFollowers(followers) {
+    // Allow alphanumeric with optional k/m suffix (e.g. 10k, 1.5m, 10000)
+    const re = /^[a-zA-Z0-9]+$/;
+    return re.test(followers);
+  }
+
+  function formatMeasurement(value) {
+    // Format measurement to 1 decimal place if needed
+    if (value && !isNaN(value)) {
+      return parseFloat(value).toFixed(1);
+    }
+    return value;
+  }
+
+  function nextStep1() {
+    const firstName = document.getElementById("first-name").value.trim();
+    const lastName = document.getElementById("last-name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const address = document.getElementById("address").value.trim();
+
+    let hasError = false;
+
+    if (!firstName) { showError("error-first"); hasError = true; } else { hideError("error-first"); }
+    if (!lastName) { showError("error-last"); hasError = true; } else { hideError("error-last"); }
+    if (!email || !validateEmail(email)) { showError("error-email"); hasError = true; } else { hideError("error-email"); }
+    if (!address) { showError("error-address"); hasError = true; } else { hideError("error-address"); }
+
+    if (hasError) {
+      const firstError = document.querySelector('.error[style="display: block;"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    Object.assign(formData, { firstName, lastName, email, address });
+
+    document.getElementById("step1").classList.remove("active");
+    document.getElementById("step2").classList.add("active");
+    document.getElementById("popup").scrollTo(0, 0);
+  }
+
+  function nextStep2() {
+    const dogName = document.getElementById("dog-name").value.trim();
+    const breed = document.getElementById("breed").value.trim();
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const colorCheckboxes = document.querySelectorAll('input[name="colors"]:checked');
+    const birthday = document.getElementById("birthday").value.trim();
+    const personality = document.getElementById("personality").value.trim();
+    const handle = document.getElementById("handle").value.trim();
+    const followers = document.getElementById("followers").value.trim();
+    const girth = formatMeasurement(document.getElementById("girth").value.trim());
+    const neck = formatMeasurement(document.getElementById("neck").value.trim());
+
+    let hasError = false;
+
+    if (!dogName) { showError("error-dog-name"); hasError = true; } else { hideError("error-dog-name"); }
+    if (!breed) { showError("error-breed"); hasError = true; } else { hideError("error-breed"); }
+    if (!gender) { showError("error-gender"); hasError = true; } else { hideError("error-gender"); }
+    if (colorCheckboxes.length === 0) { showError("error-colors"); hasError = true; } else { hideError("error-colors"); }
+    if (!birthday) { showError("error-birthday"); hasError = true; } else { hideError("error-birthday"); }
+    if (!personality) { showError("error-personality"); hasError = true; } else { hideError("error-personality"); }
+    if (!handle || !validateInstagramHandle(handle)) { showError("error-handle"); hasError = true; } else { hideError("error-handle"); }
+    if (!followers || !validateFollowers(followers)) { showError("error-followers"); hasError = true; } else { hideError("error-followers"); }
+    if (!girth || isNaN(girth)) { showError("error-girth"); hasError = true; } else { hideError("error-girth"); }
+    if (!neck || isNaN(neck)) { showError("error-neck"); hasError = true; } else { hideError("error-neck"); }
+
+    if (hasError) {
+      const firstError = document.querySelector('.error[style="display: block;"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const colors = Array.from(colorCheckboxes).map(cb => cb.value);
+
+    Object.assign(formData, {
+      dogName,
+      breed,
+      gender: gender.value,
+      colors,
+      birthday,
+      personality,
+      handle,
+      followers,
+      girth,
+      neck
+    });
+
+    document.getElementById("step2").classList.remove("active");
+    document.getElementById("step3").classList.add("active");
+    document.getElementById("popup").scrollTo(0, 0);
+  }
+
+  function nextStep3() {
+    const lifestyle = document.querySelector('input[name="lifestyle"]:checked');
+    const whyJoin = document.getElementById("why-join").value.trim();
+    const contentLink = document.getElementById("content-link").value.trim();
+
+    let hasError = false;
+
+    if (!lifestyle) { showError("error-lifestyle"); hasError = true; } else { hideError("error-lifestyle"); }
+    if (!whyJoin) { showError("error-why-join"); hasError = true; } else { hideError("error-why-join"); }
+    if (!contentLink) { showError("error-content-link"); hasError = true; } else { hideError("error-content-link"); }
+
+    if (hasError) {
+      const firstError = document.querySelector('.error[style="display: block;"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    Object.assign(formData, {
+      lifestyle: lifestyle.value,
+      whyJoin,
+      contentLink
+    });
+
+    document.getElementById("step3").classList.remove("active");
+    document.getElementById("step4").classList.add("active");
+    document.getElementById("popup").scrollTo(0, 0);
+  }
+
+  async function submitForm() {
+    const commitmentCheckboxes = document.querySelectorAll('input[name="commitments"]:checked');
+    const testing = document.querySelector('input[name="testing"]:checked');
+    const agreement = document.getElementById("agreement").checked;
+
+    let hasError = false;
+
+    if (commitmentCheckboxes.length === 0) { showError("error-commitments"); hasError = true; } else { hideError("error-commitments"); }
+    if (!testing) { showError("error-testing"); hasError = true; } else { hideError("error-testing"); }
+    if (!agreement) { showError("error-agreement"); hasError = true; } else { hideError("error-agreement"); }
+
+    if (hasError) {
+      const firstError = document.querySelector('.error[style="display: block;"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const commitments = Array.from(commitmentCheckboxes).map(cb => cb.value);
+
+    Object.assign(formData, {
+      commitments,
+      testing: testing.value,
+      agreement
+    });
+
+    try {
+      const response = await fetch('https://primary-production-8cbf1.up.railway.app/webhook/ezydogau-ambassadors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        document.getElementById("step4").classList.remove("active");
+        document.getElementById("step5").classList.add("active");
+        document.getElementById("popup").scrollTo(0, 0);
+      } else {
+        alert('There was an error submitting your form. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('There was an error submitting your form. Please try again.');
+    }
+  }
+
+  // Handle keyboard navigation
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closePopup();
+    }
+  });
+</script>>

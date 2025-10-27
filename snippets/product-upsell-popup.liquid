@@ -1,0 +1,1985 @@
+{% if product.selected_variant.id %}
+  {% assign varient_id = product.selected_variant.id %}
+{% else %}
+  {% assign varient_id = product.id %}
+{% endif %}
+{% if product.metafields.custom.personalise_custom_lebel_sizes_option == '1' %}
+  {% assign var_width = '1.95' %}
+  {% assign var_height = '1.75' -%}
+{%- else -%}
+  {%- assign var_width = '2.1' %}
+  {% assign var_height = '2.6' %}
+{% endif %}
+{% if varient_id == 8785901584680 %}
+  {% assign varwidth = '1.9' %}
+  {% assign varheight = '2.25' %}
+{% else %}
+  {% assign varwidth = var_width %}
+  {% assign varheight = var_height %}
+{% endif %}
+
+{% assign personalise_label = product.metafields.custom.personalise_label.value %}
+{% assign image_data_array = '' %}
+{% if personalise_label %}
+  {% assign parsed_json = personalise_label | parse_json %}
+  {% assign personalise_labels = parsed_json.personalize_image_labels.value %}
+
+  {% for personaliselabel in personalise_labels %}
+    {% assign image_url = personaliselabel | img_url: 'master' %}
+    {% assign image_url_clean = image_url | split: '?' | first %}
+    {% assign image_name = image_url_clean | split: '/' | last %}
+    {% assign image_name = image_name | split: '.' | first %}
+    {% assign image_name = image_name | split: '---' | last %}
+    {% assign image_name = image_name | downcase %}
+
+    {% comment %} Append the image URL and name to the array {% endcomment %}
+    {% assign image_data = image_name | append: '|' | append: image_url_clean %}
+    {% if forloop.first %}
+      {% assign image_data_array = image_data %}
+    {% else %}
+      {% assign image_data_array = image_data_array | append: ',' | append: image_data %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% comment %}
+  {% assign personalizes_product = localization.market.metafields.custom.personalised_labels_product.value %}
+
+  {%  assign personalizes_label_product=personalizes_product %}
+{% endcomment %}
+{% assign personalizes_label_product = all_products[block.settings.label_product] %}
+
+{% assign label_product = all_products['personalised-labels'] %}
+{% assign label_product_price = label_product.price | money | divide: 100 %}
+{% assign label_compare_at_price = label_product.compare_at_price | divide: 100 %}
+
+<div class="customizes-btn">
+  <button
+    type="button"
+    id="product-customize-button"
+    class="product-customize-btn"
+    data-id="{{ varient_id }}"
+    data-handle="rambler-c-straw-bottle-26oz-seafoam"
+    data-usage="main-product"
+    onClick="openModal()"
+  >
+    <div class="customize-tile">
+      PERSONALISE IT! - {{ label_product_price -}}
+      {%- if label_compare_at_price > 0 -%}
+        <span style="text-decoration:line-through;padding-left: 4px;">{{ label_compare_at_price | money }}</span>
+      {%- endif %}
+    </div>
+  </button>
+</div>
+
+<style>
+    html{
+      position: relative;
+    }
+    html, body{
+   /*   width: 100%;
+      height: 100%;*/
+      -webkit-overflow-scrolling : touch !important;
+    }
+    /* size chart */
+    .size-chart-modal, #size-chart-template--23299703767336__main-{
+      z-index: 1000!important;
+    }
+    .size-chart-modal.modal::part(content){
+      padding: 0 16px!important;
+    }
+    .size-chart-modal.modal{
+      --modal-header-padding-inline: 20px;
+      --modal-body-padding-inline: 20px;
+    }
+
+    .product-customize-btn {
+        position: relative;
+        border-radius: 6px;
+        border: 0 solid;
+        cursor: pointer;
+        padding: 2px;
+        display: inline-block;
+        text-transform: uppercase;
+        text-decoration: none;
+        background: linear-gradient(43deg, #57d5d0, #f46b65 46%, #ee2d25);
+        transition: background .3s ease-in-out;
+        width: 100%;
+        height: 45px;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        margin-right: 16px;
+        margin: 25px 0;
+    }
+
+    .customize-tile {
+        background-color: #fff;
+        border-radius: 4px;
+        font-family: var(--font-heading-family);
+        color: #0070ad;
+        font-weight: 900;
+        letter-spacing: .65px;
+        white-space: nowrap;
+        line-height: 1.69;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: center;
+        font-size: 13px;
+        color: #002b45;
+    }
+
+    #popup {
+        display: none;
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000000000000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        height: 100vh!important;
+        background: #fff;
+        overflow-y: auto;
+        overflow-x: hidden;
+        isolation: isolate;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @media(max-width: 576px){
+      #popup{
+        overflow-y: scroll;
+        overflow-x: hidden;
+        background: #fff!important;
+      }
+    }
+
+    .popupcontent {
+        height: 100%;
+        position: relative;
+    }
+
+    .popup-content-wrapper {
+        padding: 28px;
+        position: relative;
+        z-index: 1000000000001;
+        background: #fff;
+        width: 100%;
+        min-width: 1200px;
+        height: 100%;
+    }
+
+    .popup-content-wrapper::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .popup-content-wrapper::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .popup-content-wrapper::-webkit-scrollbar-thumb {
+        background: #EE2D25;
+        border-radius: 100vh;
+    }
+
+    .product-info-popup {
+        z-index: 1000;
+    }
+
+    #popup .product-info__block-itempopup .block-swatch {
+        line-height: 1;
+    }
+
+    #popup .product-info__block-itempopup .color-swatch {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    #popup .cl-color-selector .cl-color-checkboxnew .color-swatch{
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .product-info__block-itempopup {
+        margin: 20px 0;
+    }
+
+    .product-info__block-itempopup .h-stack legend {
+        margin-bottom: 12px;
+    }
+
+    #popup .cl-text-input-wrapper input:focus-visible {
+        outline-color: #EE2D25;
+    }
+
+    #popup .cl-text-input-wrapper {
+        margin-bottom: 12px;
+    }
+
+    #popup .upsell-button-d-ring_new {
+        padding: 16px 20px !important;
+    }
+
+    #popupclose {
+        padding: 0 1px 4px 1px;
+        line-height: 1;
+        cursor: pointer;
+        transform: scale(1.2, 1);
+        background: transparent;
+        font-size: 22px;
+        font-weight: 500;
+        transition: all 200ms ease-in-out;
+        width: 26px;
+        height: 30px;
+        background: #ee2d23;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 100%;
+        margin-top: 2px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 6px, rgba(0, 0, 0, 0.1) 0px 3px 6px;
+    }
+
+    #popupclose:hover {
+        background: #dd2218;
+    }
+
+    .column-cust.first-column {
+        background: #f8f8f8;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .row-cust {
+        display: grid;
+        grid-template-columns: auto 600px;
+        gap: 32px;
+        height: 100%;
+    }
+
+    .cl-color-checkboxnew{
+      display: block!important;
+    }
+
+    .second-column .customizer {
+        margin: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 17px;
+        /* outline: 1px dashed rgba(255, 255, 255, 0.3);
+        outline-offset: -4px; */
+    }
+
+    .second-column .customizer .banner {
+        background-color: #939598;
+        color: rgb(255, 255, 255);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 8px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+
+    .second-column .customizer .banner span{
+      font-weight: 600;
+    }
+    .btn-cancel-custom {
+        transition: all 300ms ease-in-out;
+    }
+
+    .btn-cancel-custom:hover {
+        color: #fff !important;
+        opacity: 0.9
+    }
+
+    #myCanvas {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 800px !important;
+        width: 100% !important;
+    }
+    .cl-color-selector-wrapper {
+        padding-top: 12px !important;
+        padding-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .color-option_silder1{
+      display: flex;
+      align-items: center;
+      gap: 0!important;
+      height: 35px!important;
+      width: 350px;
+      transition: all 300ms ease-in-out;
+    }
+    .color-option_silder1 .cl-color-checkboxnew{
+      margin-right: 8px;
+      margin-left: 8px;
+    }
+    .color-option_silder1 .cl-color-checkboxnew .color-swatch{
+        width: 28px !important;
+        height: 28px !important;
+    }
+    .cl-color-selector{
+      overflow: hidden;
+    }
+    .cl-color-next-btn, .cl-color-prev-btn{
+      width: 20px;
+      height: 20px;
+    }
+    .cl-color-next-btn:disabled, .cl-color-prev-btn:disabled{
+      opacity: 0.5;
+    }
+    .product-ttl-and-btn{
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+    }
+
+    @media screen and (max-width: 1599.98px){
+      .row-cust {
+        grid-template-columns: auto 560px;
+        gap: 24px;
+      }
+    }
+
+    @media screen and (max-width: 1399.98px) {
+        .popup-content-wrapper {
+            width: 100%;
+        }
+
+        .row-cust {
+            grid-template-columns: auto 500px;
+            gap: 24px;
+        }
+    }
+
+    @media screen and (max-width: 1198.98px) {
+        .popup-content-wrapper {
+            min-width: 100%;
+            padding: 20px;
+        }
+
+        .row-cust {
+            grid-template-columns: auto 400px;
+        }
+    }
+
+    @media screen and (max-width: 991.98px) {
+        .row-cust {
+            grid-template-columns: 100%;
+        }
+
+        .cl-color-selector-wrapper {
+            padding-bottom: 10px !important;
+        }
+
+        .column-cust.first-column {
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+            height: auto !important;
+        }
+
+        .second-column-wrapper{
+          padding-bottom: 20px;
+        }
+
+        #myCanvas {
+            margin-left: auto;
+            margin-right: auto;
+            width: 100% !important;
+            max-width: 600px !important;
+        }
+
+        #popup #button-wrapper_new {
+            margin-top: 12px !important;
+        }
+
+        #popupclose {
+            position: absolute;
+            top: 10px;
+            left: auto;
+            right: 10px;
+        }
+    }
+
+    @media screen and (max-width: 575.98px) {
+        .popup-content-wrapper {
+            padding: 20px;
+        }
+
+        .column-cust.first-column {
+            padding: 0 !important;
+        }
+
+        #popup .popupcontent {
+            padding: 0 !important;
+        }
+
+        .popup-content-wrapper::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+      .first-column-wrapper{
+        order: 2;
+      }
+      .second-column-wrapper{
+        order: 1;
+      }
+    }
+
+    @media screen and (max-width: 480px){
+      .color-option_silder1 {
+          width: 260px !important;
+      }
+    }
+
+    @media screen and (max-width: 420px) {
+        #popup .button-wrapper {
+            flex-direction: column;
+        }
+
+        #popup .button-wrapper button {
+            width: 100%;
+        }
+    }
+
+    .color-varient-switch .color-varient-switch-black {
+        background-color: #000000;
+    }
+
+    .color-varient-switch .color-varient-switch-red {
+        background-color: #ff0000;
+    }
+
+    .color-varient-switch .color-varient-switch-blue {
+        background-color: #0d197f;
+    }
+
+    .color-varient-switch .color-varient-switch-purple {
+        background-color: #480F78;
+    }
+
+    .color-varient-switch .color-varient-switch-pink {
+        background-color: #ed1e8e;
+    }
+    .color-varient-switch .color-varient-switch-green {
+        background-color: #36462a;
+    }
+   .color-varient-switch .color-varient-switch-charcoal {
+        background-color: #474747;
+    }
+     .color-varient-switch #color-swatch-green-8785901682984,.color-varient-switch #color-swatch-green-8785901584680 {
+       background: url(//ezydog.com.au/cdn/shop/files/Camo_Swatch.png) center / cover no-repeat !important;
+     }
+
+    .color-varient-switch #color-swatch-blue-8785898307880,.color-varient-switch #color-swatch-blue-8785898176808 {
+       background: url(//ezydog.com.au/cdn/shop/files/Denim_Swatch.png) center / cover no-repeat !important;
+     }
+
+  .color-varient-switch #color-swatch-black-8785898307880 {
+       background: url(//ezydog.com.au/cdn/shop/files/Black_Denim_Swatch.png) center / cover no-repeat !important;
+     }
+
+  .color-varient-switch #color-swatch-tan-8785900044584,.color-varient-switch #color-swatch-tan-8785899946280 {
+       background: url(//ezydog.com.au/cdn/shop/files/Corduroy_Swatch.png) center / cover no-repeat !important;
+     }
+  .color-varient-switch .color-swatch-blue-8785890607400{
+    background-color: #123965 !important;
+  }
+
+    .color-varient-switch {
+        padding-bottom: 20px;
+    }
+
+    .colourway-active {
+        outline: 1px solid #1a1a1a !important;
+        outline-offset: 3px !important;
+        scale: 0.9 !important;
+    }
+
+    .colourwaytext-active {
+        --swatch-disabled-strike-color: unset;
+        color: #fff;
+        border-color: #ea2d24;
+        background: #ea2d24;
+    }
+
+    .upsell-button-d-ring-remove_new {
+        background: rgba(0, 0, 0, 0.15) !important;
+        color: #EA2D24 !important;
+    }
+
+    .upsell-button-d-ring_new {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 20px;
+        border-radius: 10px;
+        background: #FAF9F7;
+    }
+
+    #add-dring-text_new {
+        color: #333;
+        align-self: center;
+        width: 100%;
+        text-align: center;
+    }
+    .overlay-custom{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000000000000;
+      -webkit-overflow-scrolling: touch;
+    }
+    .custom-fixed-util{
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+
+  @media only screen
+    and (min-device-width: 320px)
+    and (max-device-width: 480px)
+    and (-webkit-min-device-pixel-ratio: 2) {
+      @supports (-webkit-appearance: none) {
+          #button-wrapper_new {
+              /* margin-bottom: 80px !important; /* iPhone Safari-specific styles */ */
+          }
+        .first-column-wrapper{
+          padding-bottom: 60px!important;
+        }
+      }
+  }
+
+  .sp-visible-block .upsell-wrapper, .sp-visible-block .button-wrapper1{
+    display: none !important;
+  }
+
+  @media(max-width: 575.98px){
+    .sp-visible-block .upsell-wrapper, .sp-visible-block .button-wrapper1{
+      display: flex !important;
+    }
+    .second-column-wrapper .upsell-wrapper, .second-column-wrapper .button-wrapper1{
+      display: none !important;
+    }
+    .second-column-wrapper{
+      padding-bottom: 0!important;
+    }
+    .first-column-wrapper{
+      padding-bottom: 60px!important;
+    }
+    .row-cust{
+      gap: 12px;
+    }
+
+    .sp-visible-block .upsell-wrapper{
+      margin-top: 12px;
+    }
+  }
+
+  @supports (-webkit-backdrop-filter: blur(0)) {
+      /* Safari-specific CSS */
+      .first-column-wrapper {
+          padding-bottom: 100px!important;
+      }
+  }
+</style>
+
+<div class="customized-popup-main">
+  <div id="popup">
+    <div class="popup-content-wrapper">
+      <div class="popupcontent">
+        <div class="row-cust">
+          <div class="first-column-wrapper">
+            <div class="column-cust first-column imageoverlay">
+              {% assign image_overlay_obj = product.metafields.custom.custom_overlay_images %}
+              {% for image_overlay_list in image_overlay_obj.value %}
+                {% assign image_url = image_overlay_list | img_url: 'master' %}
+                {% assign image_url_clean = image_url | split: '?' | first %}
+                {% assign image_name = image_url_clean | split: '/' | last %}
+                {% assign image_name = image_name | split: '.' | first %}
+                {% assign image_name = image_name | split: '---' | last %}
+
+                {% if image_name contains '_' %}
+                  {% assign image_name = image_name | split: '_' | first %}
+                {% endif %}
+
+                <img
+                  src="{{ image_url }}"
+                  data-zoom="{{ image_url }}"
+                  data-color="{{ image_name }}"
+                  width="100%"
+                  height="100%"
+                  class="{{ image_name | downcase }}"
+                  style="display:none;"
+                >
+              {% endfor %}
+              <canvas id="myCanvas" width="800" height="600" style="display:none;max-width:700px;"></canvas>
+            </div>
+            <div class="sp-visible-block">
+              <div id="upsell-wrapper" class="upsell-wrapper no-click">
+                <button
+                  id="upsell-button-d-ring_new1"
+                  class="upsell-button-d-ring_new relative"
+                  data-product-id=" {{  block.settings.upsell_item_1.id }}"
+                  data-role="add"
+                  onclick="triggerDringClicknew(this)"
+                >
+                  {% if block.settings.upsell_image_1 != blank %}
+                    <img
+                      class="upsell-image upsell-image-dring"
+                      src="{{ block.settings.upsell_image_1 | img_url: '400x' }}"
+                      alt="Product Image"
+                    >
+                  {% endif %}
+                  <span
+                    id="add-dring-text_new"
+                    class="dfs-14 mfs-14 add-text-{{ block.settings.upsell_item_1.id}} Barlow-Medium"
+                    >Add {{ block.settings.upsell_item_1.title }} + {{ block.settings.upsell_item_1.price | money -}}
+                  </span>
+                  <div class="loading-{{ block.settings.upsell_item_1.id }} loading-spinner noopacity">
+                    {% render 'icon' with 'loader' %}
+                  </div>
+                </button>
+              </div>
+              <div
+                id="button-wrapper_new"
+                class="button-wrapper1"
+                style="display: flex; align-items: center; margin-top: 28px; gap: 8px;"
+              >
+                <button
+                  class="button btn-cancel-custom"
+                  id="popupclose-cancel_sp"
+                  style="background-color: black; border-color: black;"
+                >
+                  Cancel
+                </button>
+                <button
+                  id="upsell-patch_new1"
+                  class="d-block button button-{{ product.selected_variant.id }}"
+                  data-product-id="{{ product.selected_variant.id }}"
+                  style="margin-top: 0px;width: 100%;"
+                >
+                  <span id="add-patch-text_new1" class="add-text-{{ product.selected_variant.id }}"
+                    >ADD TO CART - {{ label_product_price -}}
+                    {%- if label_compare_at_price > 0 -%}
+                      <span style="text-decoration:line-through;padding-left: 4px;">
+                        {{- label_compare_at_price | money -}}
+                      </span>
+                    {%- endif -%}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div class="mbl-notice" style="color: #4f4e4e; padding-top: 15px;">
+              <span class="red-text">IMPORTANT!</span>
+              <ul type="none" style="margin-inline-start: 0; line-height: 1.75;">
+                <li>- Please check your text carefully as Personalised Labels cannot be returned.</li>
+                <li>- Labels can be a combination of Letters and Numbers only.</li>
+                <li>- Shorter names we be enlarged to suit space available on labels.</li>
+                <li>- EzyDog reserves the right to refuse any text choices deemed offensive or inappropriate.</li>
+                <li>
+                  - Please allow 2 business days for orders containing Personalised Labels to be processed and shipped.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="second-column-wrapper">
+            <div class="column second-column">
+              <div class="customizer container" data-ui="customizer">
+                <div class="banner" data-banner="">
+                  <!--
+                    <b>Personalise -</b>
+                    <span class="cpricesvarient">$27.95</span>
+                  -->
+                  <b>CHOOSE YOUR COMBINATION</b>
+                </div>
+              </div>
+              <div class="product-ttl-and-btn">
+                <h2 class="product-title Barlow-Medium h3 Barlow-Medium dfs-22 mfs-22 ">{{ product.title }}</h2>
+                <div class="popupcontrols">
+                  <button type="button" aria-label="popup close button" id="popupclose">x</button>
+                </div>
+              </div>
+              <span class="cpricesnew">{{ product.price | money }}</span>
+              <div class="product-info__block-itempopup">
+                {% assign varients_option = product.variants %}
+
+                {% assign variants_array = '' %}
+
+                {% for variant in product.variants %}
+                  {% capture variant_info %}
+                              { "id": {{ variant.id }}, "option1": "{{ variant.option1 |downcase }}", "option2": "{{ variant.option2 | downcase }}", "price": "{{ variant.price | money }}"}
+                            {% endcapture %}
+                  {% if forloop.last %}
+                    {% assign variants_array = variants_array | append: variant_info %}
+                  {% else %}
+                    {% assign variants_array = variants_array | append: variant_info | append: ',' %}
+                  {% endif %}
+                {% endfor %}
+                {% assign variants_array = '[' | append: variants_array | append: ']' %}
+
+                {% assign option_two = '' %}
+                {% assign option_one = '' %}
+
+                {% for variant in varients_option %}
+                  {% assign option_one = option_one | append: variant.option1 | append: '|' %}
+                  {% assign option_two = option_two | append: variant.option2 | append: '|' %}
+                {% endfor %}
+
+                {% assign option_color = option_one | split: '|' | uniq %}
+
+                {% if option_color %}
+                  <!-- <div class="variant-picker__option-info h-stack justify-between gap-2"> -->
+                  <div class="h-stack gap-1">
+                    <legend class="Barlow-Medium letter-spacing-md">Product Colourway</legend>
+                  </div>
+
+                  <div data-option-selector="" class="variant-picker__option-values h-stack gap-4 wrap">
+                    {% for optioncolor in option_color %}
+                      <div class="color-varient-switch">
+                        <input
+                          class="sr-only"
+                          type="radio"
+                          name="option1"
+                          id="swatch--template-{{ optioncolor | downcase }}"
+                          value="{{ optioncolor | downcase }}"
+                        >
+                        <label
+                          id="color-swatch-{{ optioncolor | downcase }}-{{ varient_id }}"
+                          class="color-swatch rounded-full color-varient-switch-{{ optioncolor | downcase }}"
+                          data-option-value="{{ optioncolor | downcase }}"
+                        >
+                          <span class="sr-only ">{{ optioncolor }}</span>
+                        </label>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                {% assign option_size = option_two | split: '|' | uniq %}
+                {% if option_size %}
+                  <div data-option-selector="" class="h-stack gap-2.5 wrap">
+                    {% for optionsize in option_size %}
+                      <div class="vareint-sizes">
+                        <input class="sr-only" type="radio" name="option2" value="{{ optionsize | downcase }}">
+                        <label
+                          class="block-swatch block-swatchsize-{{ optionsize | downcase }}"
+                          data-option-value="{{ optionsize | downcase }}"
+                        >
+                          <span>{{ optionsize }}</span>
+                        </label>
+                      </div>
+                    {% endfor %}
+                    {% assign size_guide = product.metafields.custom.size_guide.value %}
+                    {%- if size_guide == blank -%}
+                      {%- assign size_guide = block.settings.size_chart_page -%}
+                    {%- endif -%}
+                    {%- if size_guide != blank -%}
+                      <div>
+                        <button
+                          type="button"
+                          class="Barlow-Medium dfs-12 mfs-12"
+                          aria-controls="size-chart-template--23299703767336__main-"
+                          aria-expanded="false"
+                          style="text-wrap: nowrap;"
+                        >
+                          <span
+                            class="link"
+                            style="
+                              text-wrap: nowrap;
+                              white-space: pre;
+                            "
+                            >Size chart</span
+                          >
+                        </button>
+                      </div>
+                      </div>
+                    {% endif %}
+                {% endif %}
+              </div>
+
+              <div class="h-stack gap-1"><legend class="Barlow-Medium letter-spacing-md">Label Colourway</legend></div>
+              <div>
+                <div class="cl-color-selector-wrapper">
+                  <button type="button" class="cl-color-prev-btn">
+                    <img src="https://kjmbqc5060wi7n6e-79637807400.shopifypreview.com/cdn/shop/t/42/assets/carousel-left.png">
+                  </button>
+                  <div class="cl-color-selector" id="color-options">
+                    <div class="color-option_silder1" id="slicesslider">
+                      {%- assign variant_array = '' -%}
+                      {% assign sizescustomlabel = product.metafields.custom.personalise_custom_lebel_sizes_option %}
+
+                      {% assign product_image_custom_label = product.metafields.custom.custom_variant_image %}
+
+                      {% for color_match in product_image_custom_label %}
+                        {% assign color_in = color_match.custom_color.value | parse_json %}
+
+                        {% assign custom_color_name = color_in.custom_color_name | downcase | replace: ' ', '' %}
+
+                        {% assign image_value = color_match.image.value | img_url: 'master' %}
+                        {% assign item_index = item_index | plus: 1 %}
+                        <!-- Increment the index -->
+
+                        {% assign color_image_array = color_image_array
+                          | append: '{"color_name": "'
+                          | append: custom_color_name
+                          | append: '", "image": "'
+                          | append: image_value
+                          | append: '"}'
+                        %}
+                        {% if item_index < item_count %}
+                          {% assign color_image_array = color_image_array | append: ',' %}
+                        {% endif %}
+                      {% endfor %}
+
+                      {%- if product.metafields.custom.custom_lebel_color -%}
+                        {%- assign meta_obj = product.metafields.custom.custom_lebel_color.value -%}
+                      {%- else -%}
+                        {%- assign meta_obj = shop.metaobjects.custom_lebel_color.values -%}
+                      {%- endif -%}
+
+                      {%- for meta_objlist in meta_obj -%}
+                        {%- assign variant_obj = '' -%}
+
+                        {%- if meta_objlist.color_image_lebel.value -%}
+                          {%- assign color_image_lebel = meta_objlist.color_image_lebel.value | img_url: 'master' -%}
+                          {%- assign variant_obj = variant_obj
+                            | append: '"color_image_lebel": "'
+                            | append: color_image_lebel
+                            | append: '",'
+                          -%}
+                        {%- endif -%}
+
+                        {%- if meta_objlist.color_picker.value -%}
+                          {%- assign variant_obj = variant_obj
+                            | append: '"color_picker": "'
+                            | append: meta_objlist.color_picker.value
+                            | append: '",'
+                          -%}
+                        {%- endif -%}
+
+                        {%- if meta_objlist.custom_color_name.value -%}
+                          {%- assign variant_obj = variant_obj
+                            | append: '"custom_color_name": "'
+                            | append: meta_objlist.custom_color_name.value
+                            | append: '"'
+                          -%}
+                        {%- endif -%}
+
+                        {%- assign variant_array = variant_array | append: variant_obj | append: ',{}' -%}
+                      {%- endfor -%}
+
+                      {% assign splitarray = variant_array | split: ',{}' %}
+                      {% assign processed_values = '' %}
+                      <!-- Track unique color names -->
+
+                      {% for splitarraylist in splitarray %}
+                        {% assign key_value_pairs = splitarraylist | split: ',' %}
+                        {% assign color_picker = '' %}
+                        {% assign custom_color_name = '' %}
+
+                        {% for pair in key_value_pairs %}
+                          {% assign key_value = pair | split: ': ' %}
+                          {% assign key = key_value[0] | remove: '"' %}
+                          {% assign value = key_value[1] | remove: '"' %}
+
+                          {% case key %}
+                            {% when 'color_picker' %}
+                              {% assign color_picker = value %}
+                            {% when 'custom_color_name' %}
+                              {% assign custom_color_name = value %}
+                              {% assign custom_color_name = custom_color_name | downcase | replace: ' ', '' %}
+                          {% endcase %}
+                        {% endfor %}
+
+                        {% unless processed_values contains color_picker %}
+                          {% assign personal_image_labels = '' %}
+                          {% assign processed_values = processed_values | append: color_picker | append: ',' %}
+                          {% if personalise_label %}
+                            {% assign imagedate = image_data_array | split: ',' %}
+                            {% for imagedataarray in imagedate %}
+                              {% assign imagedataarrays = imagedataarray | split: '|' %}
+                              {% assign imagedataarrayss = imagedataarrays | first %}
+                              {% if imagedataarrayss == custom_color_name %}
+                                {% assign personal_image_labels = imagedataarrays | last %}
+                                {% break %}
+                              {% endif %}
+                            {% endfor %}
+                          {% endif %}
+                          <div>
+                            <!-- Output the color option -->
+
+                            <div
+                              class="cl-color-checkboxnew loadImage {% if forloop.first %}loadimage-active{% endif %}"
+                              data-lebelimage="{{ color_image_lebel }}"
+                              data-picker="{{ color_picker }}"
+                              data-labelimage="{{ personal_image_labels }}"
+                            >
+                              <input
+                                class="cl-color-checkbox"
+                                data-color="{{ custom_color_name }}"
+                                type="checkbox"
+                                id="upsell-patch-color-{{ custom_color_name }}"
+                                name="color-option"
+                              >
+                              <label
+                                class="color-swatch rounded-full {% if forloop.first %}color-swatch-active {% endif %}"
+                                for="upsell-patch-color-{{ custom_color_name }}"
+                                data-option-value="{{ custom_color_name }}"
+                                style="background-color:{{ color_picker }}"
+                              ></label>
+                            </div>
+                          </div>
+                        {% endunless %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <button type="button" class="cl-color-next-btn">
+                    <img src="https://kjmbqc5060wi7n6e-79637807400.shopifypreview.com/cdn/shop/t/42/assets/carousel-right.png">
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <style>
+                  .red-text {
+                    color: #ea2d24;
+                    font-weight: 700;
+                  }
+                  @media only screen and (max-width: 767px){
+                    .dsk-notice{
+                      display: none;
+                    }
+                  }
+                  @media only screen and (min-width: 768px){
+                    .mbl-notice{
+                      display: none;
+                    }
+                  }
+                </style>
+
+                <div class="cl-text-input-wrapper " style="display: grid; gap: 8px;">
+                  <input
+                    type="text"
+                    id="cl-custom-text"
+                    name="properties[Custom Text]"
+                    placeholder="Enter text (Max. 12 characters)"
+                    required=""
+                    style="text-transform:uppercase"
+                  >
+                  <input
+                    type="text"
+                    id="cl-phone-number"
+                    name="properties[Phone Number]"
+                    placeholder="Phone number (Optional)"
+                    maxlength="12"
+                    pattern="[0-9 ]*"
+                    style="text-transform:uppercase"
+                  >
+                </div>
+                <p style="color: #4f4e4e; font-size: 15px; margin-bottom: 0px;">
+                  <span class="red-text">LABELS ARE SOLD IN SETS OF 2</span> - One label attaches securely to each side
+                  of the Harness or Backpack with hook and loop.
+                </p>
+                <div id="upsell-wrapper" class="upsell-wrapper no-click">
+                  <button
+                    id="upsell-button-d-ring_new"
+                    class="upsell-button-d-ring_new relative"
+                    data-product-id=" {{  block.settings.upsell_item_1.id }}"
+                    data-role="add"
+                    onclick="triggerDringClicknew(this)"
+                  >
+                    {% if block.settings.upsell_image_1 != blank %}
+                      <img
+                        class="upsell-image upsell-image-dring"
+                        src="{{ block.settings.upsell_image_1 | img_url: '400x' }}"
+                        alt="Product Image"
+                      >
+                    {% endif %}
+                    <span
+                      id="add-dring-text_new"
+                      class="dfs-14 mfs-14 add-text-{{ block.settings.upsell_item_1.id}} Barlow-Medium"
+                      >Add {{ block.settings.upsell_item_1.title }} + {{ block.settings.upsell_item_1.price | money -}}
+                    </span>
+                    <div class="loading-{{ block.settings.upsell_item_1.id }} loading-spinner noopacity">
+                      {% render 'icon' with 'loader' %}
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div
+                id="button-wrapper_new"
+                class="button-wrapper1"
+                style="display: flex; align-items: center; margin-top: 28px; gap: 8px;"
+              >
+                <button
+                  class="button btn-cancel-custom"
+                  id="popupclose-cancel"
+                  style="background-color: black; border-color: black;"
+                >
+                  Cancel
+                </button>
+                <button
+                  id="upsell-patch_new"
+                  class="d-block button button-{{ product.selected_variant.id }}"
+                  data-product-id="{{ product.selected_variant.id }}"
+                  style="margin-top: 0px;width: 100%;"
+                >
+                  <span id="add-patch-text_new" class="add-text-{{ product.selected_variant.id }}"
+                    >ADD TO CART - {{ label_product_price -}}
+                    {%- if label_compare_at_price > 0 -%}
+                      <span style="text-decoration:line-through;padding-left: 4px;">
+                        {{- label_compare_at_price | money -}}
+                      </span>
+                    {%- endif -%}
+                  </span>
+                </button>
+              </div>
+
+              <div class="dsk-notice" style="color: #4f4e4e; padding-top: 13px;">
+                <span class="red-text">IMPORTANT!</span>
+                <ul type="none" style="margin-inline-start: 0; line-height: 1.75;">
+                  <li>- Please check your text carefully as Personalised Labels cannot be returned.</li>
+                  <li>- Labels can be a combination of Letters and Numbers only.</li>
+                  <li>- Shorter names we be enlarged to suit space available on labels.</li>
+                  <li>- EzyDog reserves the right to refuse any text choices deemed offensive or inappropriate.</li>
+                  <li>
+                    - Please allow 2 business days for orders containing Personalised Labels to be processed and
+                    shipped.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+     $dringVariantsr = [
+     {% for variant in all_products['upfront-d-ring-attachment'].variants %}
+       {{ variant | json }}{% unless forloop.last %},{% endunless %}
+     {% endfor %}
+   ]
+
+    function dringvarients(sizes){
+       let productId ="{{product.id}}";
+       let mappingObject_new = window.mapping.find(mapping => {
+       return mapping.ids.includes(parseInt(productId));
+     });
+
+     let mapping = mappingObject_new.mapping[sizes];
+     $matchingDringVariants = $dringVariantsr.filter(item => item.option2.toLowerCase() === mapping.d_ring.toLowerCase())[0];
+     if($matchingDringVariants){   return $matchingDringVariants.price/100; } else {return 0; }
+    }
+
+     const closePopup = document.getElementById("popupclose");
+     const closePopupcancel = document.getElementById("popupclose-cancel");
+     const closePopupcancelSp = document.getElementById("popupclose-cancel_sp");
+     const popup = document.getElementById("popup");
+     const button = document.getElementById("product-customize-button");
+     const clCustomTextInput = document.getElementById('cl-custom-text');
+     const clCustomPhoneInput = document.getElementById('cl-phone-number');
+
+     clCustomTextInput.addEventListener('input', function() {
+       this.value = this.value.slice(0, 12);
+     });
+
+     clCustomPhoneInput.addEventListener('input', function (e) {
+         this.value = this.value.replace(/[^0-9 ]/g, '');
+     });
+
+     function getColorPicker() {
+       return $('.cl-color-selector')
+                  .find('label.color-swatch-active')
+                  .parent()
+                  .attr('data-picker') || '#679a60';
+     }
+
+      function removeQueryParameters(url) {
+       return url.split('?')[0];
+     }
+
+  // Function to close popup and reset styles
+  function closePopupFunction() {
+  	popup.style.display = 'none';
+         $('.customized-popup-main').removeClass('overlay-custom');
+         $('body').removeClass('custom-fixed-util');
+  	$('.product-info').removeClass('product-info-popup');
+  	$('.imageoverlay img.active').removeClass('active').css('display', 'none');
+  	$('#myCanvas').css('display', 'none');
+         $('.colourway-active').removeClass('colourway-active');
+         $('.colourwaytext-active').removeClass('colourwaytext-active');
+  }
+
+  // Close Popup Events
+  closePopup.onclick = closePopupFunction;
+  closePopupcancel.onclick = closePopupFunction;
+     closePopupcancelSp.onclick = closePopupFunction;
+
+  // Function to handle showing the popup and updating the canvas
+  function showPopupFunction() {
+  	popup.style.display = 'block';
+  	$('.product-info').addClass('product-info-popup');
+         $('.customized-popup-main').addClass('overlay-custom');
+         $('body').addClass('custom-fixed-util');
+
+  	let getColor = $('.variant-picker__option-values input:checked').val().toLowerCase();
+  	$('.imageoverlay').find('img.' + getColor).addClass('active').css('display', 'block');
+  	$('#myCanvas').css('display', 'block');
+  	let image_urls = $('.imageoverlay img.active').attr('src') || $('#pwzrswiper-wrapper .pwzrswiper-slide-active img').attr('src');
+
+         if (image_urls) {
+             image_urls = removeQueryParameters(image_urls);
+         }
+
+         let activevarients = $('.variant-picker__option-Colour .variant-picker__option-values').find('input:checked').val().toLowerCase();
+         let activevarientstext = $('.variant-picker__option-Size .variant-picker__option-values').find('input:checked').val().toLowerCase();
+         $('.color-varient-switch-'+activevarients).addClass('colourway-active');
+         $('.block-swatchsize-'+activevarientstext).addClass('colourwaytext-active');
+
+  	let color_picker = getColorPicker();
+  	handleImageUrl(color_picker, image_urls);
+  	$('.imageoverlay').find('img.active').css('display', 'none');
+
+  	let prices = $('#product-price-list sale-price').text();
+         prices = prices.replace("Sale price", "").trim();
+  	$('.cpricesnew').text(prices);
+
+         let productid= $('form input[name="id"]').val();
+         $('#upsell-patch_new, #upsell-patch_new1').attr('data-product-id',productid);
+         $('#add-dring-text_new').text('Add UpFront D-ring+ $'+dringvarients(activevarientstext.toUpperCase()));
+
+         soldoutsizes_disables();
+         var aNumber = parseFloat(prices.replace("$", ""));
+         var bNumber = {{ label_product_price | remove: '$'}}; // 27.95;
+
+         // Sum the numbers
+         var sum = aNumber + bNumber;
+         $('#add-patch-text_new, #add-patch-text_new1').text('ADD TO CART - $'+sum.toFixed(2));
+  }
+
+  // Show Popup Event
+  button.onclick = showPopupFunction;
+</script>
+<script>
+  // proudct varient for the personalizes 
+   $labelProductVariants_new = [
+    {% for variant in personalizes_label_product.variants %}
+  
+      {{ variant | json }}{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+
+ function soldoutsizes_disables(){  
+    // varients avialibilty
+   $varaientsavailibilty =[
+      {% for variant in product.variants %}
+      
+      {{ variant | json }}{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+   ]
+   
+   // Get all size variant labels
+   let colorpatch =$('.product-info__block-itempopup .colourway-active').attr('data-option-value');
+   $('.vareint-sizes .is-disabled').removeClass('is-disabled');
+    // Add event listeners to size labels
+    $matching_new = $varaientsavailibilty.filter(item => 
+       item.option1.toLowerCase() === colorpatch &&
+         item.available === false
+      
+        );
+      // console.log(JSON.stringify($matching_new, null, 2));
+      $matching_new.forEach(item => {
+          let sizes=item.option2.toLowerCase();
+          $('.vareint-sizes .block-swatchsize-'+sizes).addClass('is-disabled');
+      });
+   }
+  
+    $addDringnew=false;
+    function matchVariantDetails(option_one, option_two) {
+        var variantsArray = {{ variants_array }};
+        var matchingVariant = { id: null, price: null };
+    
+        $.each(variantsArray, function(index, variant) {
+            if (variant.option1 === option_one && variant.option2 === option_two) {
+                matchingVariant.id = variant.id;
+                matchingVariant.price = variant.price;
+                return false; // break the loop
+            }
+        });
+    
+        return matchingVariant;
+    }
+
+    function triggerDringClicknew(el){
+         $addDringnew = !$addDringnew;
+         updateDringAddToCartButtonnew();
+    }
+  
+   function updateDringAddToCartButtonnew(){
+    if($matchingDringVariant && $matchingDringVariant.available){
+      var formattedPrice = $matchingDringVariant.price / 100;
+      //  formattedPrice =  (formattedPrice.toLocaleString("en-US", {style:"currency", currency:"AUD"})).substring(1);
+      $('#upsell-button-d-ring_new, #upsell-button-d-ring_new1').prop('disabled', false).removeClass('button-disabled upsell-button-d-ring-remove_new');
+        let prices=$('#add-patch-text_new, #add-patch-text_new1').text();
+          prices=parseFloat(prices.replace("ADD TO CART - $", ""));
+        if ($addDringnew) {
+          styleDringButtonRemoveFromCartnew();
+            var sum = formattedPrice + prices;
+        } else {
+          styleDringButtonAddToCartnew();
+            var sum = prices - formattedPrice;
+        }
+       $('#add-patch-text_new, #add-patch-text_new1').text('ADD TO CART - $'+sum.toFixed(2));
+    } 
+
+    if(!$matchingDringVariant) {
+      $('#upsell-button-d-ring_new, #upsell-button-d-ring_new1').hide()
+    }
+
+    // if($matchingDringVariant && !$matchingDringVariant.available){
+    //   styleDringButtonSoldOut_new()
+    // }
+  }
+  
+   function styleDringButtonRemoveFromCartnew(){
+    $(`#add-dring-text_new`).text("Remove UpFront D-Ring");
+    $(`#upsell-button-d-ring_new, #upsell-button-d-ring_new1`).addClass("upsell-button-d-ring-remove_new").removeClass('button-disabled button-sold-out').attr('data-role', 'update');
+  }
+  
+   function styleDringButtonAddToCartnew(){
+      $(`#upsell-button-d-ring_new, #upsell-button-d-ring_new1`).removeClass("upsell-button-d-ring-remove_new").removeClass('button-disabled button-sold-out').attr('data-role', 'add');
+      var formattedPrice = $matchingDringVariant.price / 100;
+      formattedPrice =  (formattedPrice.toLocaleString("en-US", {style:"currency", currency:"AUD"})).substring(1);
+      $(`#add-dring-text_new`).text(`Add UpFront Dring - ${formattedPrice}`)
+  }
+
+   function styleDringButtonSoldOut_new(){
+    $(`#upsell-button-d-ring_new, #upsell-button-d-ring_new1`).addClass('button-sold-out').removeClass("upsell-button-d-ring-remove_new").prop('disabled', true);
+    $("#add-dring-text_new").text("Sold Out");
+    $('.cl-color-selector input[type="checkbox"]').not(`[data-color="${$selected_patch_colour}"]`).prop('checked', false);
+  }
+
+    // Debounce function to limit the rate of canvas updates
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+  
+	$(document).ready(function() { 
+        // Debounced version of updateCanvas
+        const debouncedUpdateCanvas = debounce(updateCanvas, 1000); // Adjust the delay as needed
+        
+        // Click handler with debounce
+        $('.variant-picker__option-values .color-varient-switch .color-swatch').click(async function(event) {
+            event.preventDefault();
+            $('.colourway-active').removeClass('colourway-active');
+            $(this).addClass('colourway-active');
+            let valred = $(this).attr('data-option-value');
+            let sizesactive = $('.colourwaytext-active').attr('data-option-value');
+            $('.imageoverlay img.active').removeClass('active');
+            $('.imageoverlay').find('.' + valred).addClass('active');
+            var matchingVariant = matchVariantDetails(valred, sizesactive);
+            $('#upsell-patch_new, #upsell-patch_new1').attr('data-product-id', matchingVariant.id);
+            soldoutsizes_disables();
+            // Use debounced function to handle canvas updates
+            await debouncedUpdateCanvas();
+            var prices = matchingVariant.price;
+            var aNumber = parseFloat(prices.replace("$", ""));
+            var dringprices = $('#upsell-button-d-ring_new, #upsell-button-d-ring_new1').hasClass('upsell-button-d-ring-remove_new') 
+                ? dringvarients(sizesactive.toUpperCase()) 
+                : 0;
+            var bNumber = {{ label_product_price | remove: '$'}} + dringprices; // 27.95 + dringprices;
+            // Sum the numbers
+            var sum = aNumber + bNumber;
+            $('#add-patch-text_new, #add-patch-text_new1').text('ADD TO CART - $' + sum.toFixed(2));
+        });
+
+        $('.product-info__block-itempopup .vareint-sizes .block-swatch').click(function(event) {
+        	event.preventDefault();
+            $('.colourwaytext-active').removeClass('colourwaytext-active');
+            $(this).addClass('colourwaytext-active');
+            let valred = $('.colourway-active').attr('data-option-value');
+            let sizesactive = $(this).attr('data-option-value');
+            var matchingVariant = matchVariantDetails(valred, sizesactive);
+            $('#upsell-patch_new, #upsell-patch_new1').attr('data-product-id',matchingVariant.id);
+         
+            $('.cpricesnew').text(matchingVariant.price);
+            $('#add-dring-text_new').text('Add UpFront D-ring+ $'+dringvarients(sizesactive.toUpperCase()));
+        
+            var prices= matchingVariant.price;
+            var aNumber = parseFloat(prices.replace("$", ""));
+            if($('#upsell-button-d-ring_new, #upsell-button-d-ring_new1').hasClass('upsell-button-d-ring-remove_new')){
+                dringprices=dringvarients(sizesactive.toUpperCase());
+            } else {
+                var dringprices=0;
+            }
+          
+            var bNumber = {{ label_product_price | remove: '$'}} + dringprices; //27.95+dringprices;
+            // Sum the numbers
+            var sum = aNumber + bNumber;
+            $('#add-patch-text_new, #add-patch-text_new1').text('ADD TO CART - $'+sum.toFixed(2));
+        });
+
+        let worker;
+        async function initializeWorker() {
+            if (!worker) {
+                worker = Tesseract.createWorker();
+                await worker.load();
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+            }
+        }
+    
+        async function extractTextFromCanvas(canvas) {
+            try {
+                if (!worker) {
+                    await initializeWorker(); // Ensure the worker is initialized
+                }
+                const { data: { text } } = await worker.recognize(canvas);
+                // Handle the extracted text as needed
+            } catch (err) {
+                console.error('Error during OCR:', err);
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+          if (worker) {
+            worker.terminate();
+            worker = null;
+          }
+        });
+    
+        // Function to update the canvas with the image and overlay
+        function updateCanvas() {
+            $('#myCanvas').css('display', 'block');
+            handleImageUrl();
+            $('.imageoverlay').find('img.active').css('display', 'none');
+        }
+    
+        // Function to update the canvas with the custom text and number, and then trigger OCR
+        function updateCanvastext() {
+            const canvas = document.getElementById('myCanvas');
+            const ctx = canvas.getContext('2d');
+            const overlayText = document.getElementById('cl-custom-text').value;
+            const overlayNumber = document.getElementById('cl-phone-number').value;
+            $('#myCanvas').css('display', 'block');
+            
+            if (img && overlayImg) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                drawOverlayImage(ctx, overlayImg, canvas.width, canvas.height);
+                drawTextOnCanvas(ctx, overlayText, overlayNumber, canvas.width, canvas.height);
+                // Debounced call to Tesseract OCR
+                extractTextFromCanvas(canvas);
+            }
+        }
+    
+        // Debounced version of updateCanvastext
+        const debouncedUpdateCanvastext = debounce(updateCanvastext, 600); 
+    
+        // Handle the image selection event
+        const handleImageClick = debounce(function(event) {
+            event.preventDefault();
+            $('.cl-color-selector').find('.loadimage-active').removeClass('loadimage-active');
+            $(this).addClass('loadimage-active');
+            handleImageUrl();
+        }, 1000); 
+        
+        $('.loadImage').click(handleImageClick);
+        // Input field event listeners with debounced canvas updates
+        $("#cl-custom-text").on('keyup', debouncedUpdateCanvastext);
+        $("#cl-phone-number").on('keyup', debouncedUpdateCanvastext);
+    
+        window.addEventListener('beforeunload', () => {
+            if (worker) {
+                worker.terminate(); // Properly terminate the worker to free memory
+                worker = null;
+            }
+        });
+	});
+  
+    $matchingPatchVariant_new = "";
+    $productIdnew = "{{product.id}}";
+  
+   $('#upsell-patch_new, #upsell-patch_new1').click(function(event) {
+    console.log("clicked")
+      event.preventDefault(); // Prevent the form from submitting traditionally
+      var input = document.getElementById('cl-custom-text');
+      var patchedcolor = $('#slicesslider .color-swatch-active').attr('data-option-value');
+      let size = $('.vareint-sizes .colourwaytext-active').attr('data-option-value').toUpperCase();
+     
+      var inputnumber = $('#cl-phone-number').val();
+      var inputtext = $('#cl-custom-text').val();
+      if (input.value.trim() === '') {
+        input.reportValidity();
+        input.focus();
+        return true;
+      }
+     
+      var itemsToAdd = [];
+      const mainProductId = $(this).attr('data-product-id');  // The variant ID from the form
+      const quantity = 1;
+
+      // Add main product to itemsToAdd array if it exists
+       if (mainProductId) {
+         itemsToAdd.push({
+          id: mainProductId,
+          quantity: quantity
+        });
+       }
+
+      {% comment %} console.log('finding mapped variant') {% endcomment %}
+      let mappingObjectnew = window.mappingnew.find(mappingnew => {
+        return mappingnew.ids.includes(parseInt($productIdnew));
+      });
+      if (mappingObjectnew) {
+        let mappingnew = mappingObjectnew.mappingnew[size];
+        {% comment %} console.log( mappingObjectnew.mappingnew);
+        console.log(mappingnew);
+        console.log(patchedcolor);
+        console.log(mappingnew.patch.toLowerCase());
+        console.log($labelProductVariants_new); {% endcomment %}
+        {% comment %} console.log(JSON.stringify(mappingnew, null, 2));  {% endcomment %}
+         $matchingPatchVariant_new = $labelProductVariants_new.filter(item => 
+            item.option1.toLowerCase() === patchedcolor  && 
+            item.option2.toLowerCase() === mappingnew.patch.toLowerCase()
+          )[0]; 
+          console.log($matchingPatchVariant_new);
+          {% comment %} 
+          console.log(inputtext);
+          console.log(inputnumber); {% endcomment %}
+         if ($matchingPatchVariant_new && $matchingPatchVariant_new.available) {
+              itemsToAdd.push({
+                id: $matchingPatchVariant_new.id,
+                quantity: 1,
+                 properties: {
+                  'Custom Message': inputtext,
+                  'Phone Number': inputnumber      
+                }
+              });
+         }
+     }
+     
+     // Check if the D-ring should be added
+      if ($addDringnew && typeof $matchingDringVariant !== 'undefined') {
+        itemsToAdd.push({
+          id: String($matchingDringVariant.id),
+          quantity: 1  // Assuming quantity is always 1 for additional items
+        });
+      }
+     {% comment %} console.log(itemsToAdd); {% endcomment %}
+      // Only proceed if there are items to add
+      if (itemsToAdd.length > 0) {
+        addToCartnew(itemsToAdd);
+      }
+  });
+
+    // Unified function to handle adding multiple items to the Shopify cart
+    function addToCartnew(items) {
+      $.ajax({
+        type: 'POST',
+        url: '/cart/add.js',
+        data: JSON.stringify({ items: items }),  // Adjusted for batch addition if your Shopify version supports it
+        contentType: 'application/json',
+        success: function(response) {
+          // console.log('Items added to cart:', response);
+          document.dispatchEvent(new CustomEvent('cart:refresh'));
+          const cartDrawerElement = document.querySelector('#cart-drawer');
+          if (cartDrawerElement) {
+            cartDrawerElement.show();
+            $('#popupclose').trigger('click');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error adding items to cart:', error);
+        }
+      });
+    }
+
+    let overlayImageUrl = '';
+    let img = null;
+    let overlayImg = null;
+    let START_X = 0;
+    let START_Y = 0;
+
+
+    if(window.location.pathname == '/products/express-harness' || window.location.pathname == '/products/express-harness-camo' || window.location.pathname == '/products/corduroy-express-harness' || window.location.pathname == '/products/denim-express-harness'){
+      function handleImageUrl() {
+          const imageUrl = $('.imageoverlay img.active').attr('src');
+          overlayImageUrl = $('.loadimage-active').attr('data-labelimage');
+      
+          const overlayText = document.getElementById('cl-custom-text').value;
+          const overlayNumber = document.getElementById('cl-phone-number').value;
+      
+          if (imageUrl) {
+              img = new Image();
+              img.crossOrigin = 'Anonymous';
+              img.onload = function () {
+                  const canvas = document.getElementById('myCanvas');
+                  const ctx = canvas.getContext('2d');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+      
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0);
+      
+                  overlayImg = new Image();
+                  overlayImg.crossOrigin = 'Anonymous';
+                  overlayImg.onload = function () {
+                      drawOverlayImage(ctx, overlayImg, canvas.width, canvas.height);
+                      drawTextOnCanvas(ctx, overlayText, overlayNumber, canvas.width, canvas.height);
+                      extractTextFromCanvas(canvas);
+                  };
+
+                  overlayImg.src = overlayImageUrl;
+              };
+              img.src = imageUrl;
+          } else {
+              console.error('Image URL is not available.');
+          }
+      }
+      
+      function drawOverlayImage(ctx, overlayImg, canvasWidth, canvasHeight) {
+          const centerX = canvasWidth / 2;
+          const centerY = canvasHeight / 2;
+      
+          const isDenimExpressHarness = window.location.pathname === '/products/denim-express-harness';
+          const isBlueColorActive = document.querySelector('.colourway-active') && document.querySelector('.colourway-active').getAttribute('data-option-value') === 'blue';
+          const isBlackColorActive = document.querySelector('.colourway-active') && document.querySelector('.colourway-active').getAttribute('data-option-value') === 'black';
+          const isCorduroyExpressHarness = window.location.pathname === '/products/corduroy-express-harness';
+      
+          let startXAdjustment = centerX - (overlayImg.width / 2);
+          const activeElement = document.querySelector('.loadimage-active');
+          let colorOption = activeElement ? activeElement.querySelector('label').getAttribute('data-option-value') : "";
+        
+          if (isDenimExpressHarness && isBlueColorActive) {
+            startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 43 : 30);
+          } else if (isDenimExpressHarness && isBlackColorActive) {
+            startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 25 : 10);
+          } else if (isCorduroyExpressHarness) {
+            startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 33 : 22);
+          } else {
+              startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 20 : 10);
+          }
+      
+          let startY = centerY - (overlayImg.height / 2) - 208;
+      
+          const imgWidth = overlayImg.naturalWidth;
+          const imgHeight = overlayImg.naturalHeight;
+          let scaleFactor = 810 / imgWidth;
+          if (isDenimExpressHarness && isBlackColorActive) {
+            startY = centerY - (overlayImg.height / 2) - 210;
+            scaleFactor = 850 / imgWidth;
+          } else if (isDenimExpressHarness && isBlueColorActive) {
+            startY = centerY - (overlayImg.height / 2) - 205;
+            scaleFactor = 830 / imgWidth;
+          } else if (isCorduroyExpressHarness) {
+            startY = centerY - (overlayImg.height / 2) - 208;
+            scaleFactor = 820 / imgWidth;
+          }
+        
+          const newWidth = imgWidth * scaleFactor;
+          const newHeight = (imgHeight / imgWidth) * newWidth;
+          
+          ctx.drawImage(overlayImg, startXAdjustment, startY, newWidth, newHeight);
+      }
+      
+      function drawTextOnCanvas(ctx, text, number, canvasWidth, canvasHeight) {
+          ctx.fillStyle = 'white';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+      
+          let fontSize = 80;
+          if (overlayImg.width >= 200 && overlayImg.width < 300) {
+              fontSize = 23;
+          } else if (overlayImg.width >= 300 && overlayImg.width < 400) {
+              fontSize = 35;
+          } else if (overlayImg.width >= 400 && overlayImg.width < 500) {
+              fontSize = 40;
+          } else if (overlayImg.width >= 500 && overlayImg.width < 600) {
+              fontSize = 60;
+          } else if (overlayImg.width >= 700 && overlayImg.width < 800) {
+              fontSize = 80;
+          }
+      
+          ctx.font = `bold ${fontSize}px Arial`;
+      
+          const overlayX = (canvasWidth - overlayImg.width) / 2 - 10;
+          const overlayY = (canvasHeight - overlayImg.height) / 2 - 350;
+      
+          const START_Y = overlayY + overlayImg.height / 2;
+          const overlayHeight = overlayImg.height;
+      
+          let textY, numberY;
+          if (number && text) {
+              textY = START_Y + overlayHeight * 0.45;
+              numberY = textY + fontSize;
+          } else if (text) {
+              textY = START_Y + overlayHeight * 0.45 + fontSize / 2;
+              numberY = null;
+          } else if (number) {
+              textY = null;
+              numberY = START_Y + overlayHeight * 0.45 + fontSize / 2;
+          }
+      
+          if (text && textY !== null) {
+              ctx.fillText(text.toUpperCase(), overlayX + overlayImg.width / 2, textY);
+          }
+          if (number && numberY !== null) {
+              ctx.fillText(number, overlayX + overlayImg.width / 2, numberY);
+          }
+      }
+    } else {
+      function handleImageUrl() {
+          const imageUrl = $('.imageoverlay img.active').attr('src');
+          overlayImageUrl = $('.loadimage-active').attr('data-labelimage');
+      
+          const overlayText = document.getElementById('cl-custom-text').value;
+          const overlayNumber = document.getElementById('cl-phone-number').value;
+      
+          if (imageUrl) {
+              img = new Image();
+              img.crossOrigin = 'Anonymous';
+              img.onload = function() {
+                  const canvas = document.getElementById('myCanvas');
+                  const ctx = canvas.getContext('2d');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+      
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0);
+      
+                  overlayImg = new Image();
+                  overlayImg.crossOrigin = 'Anonymous';
+                  overlayImg.onload = function() {
+                      drawOverlayImage(ctx, overlayImg, canvas.width, canvas.height);
+                      drawTextOnCanvas(ctx, overlayText, overlayNumber, canvas.width, canvas.height);
+                      extractTextFromCanvas(canvas);
+                  };
+                  overlayImg.src = overlayImageUrl;
+              };
+              img.src = imageUrl;
+          } else {
+              console.error('Image URL is not available.');
+          }
+      }
+  
+      function drawOverlayImage(ctx, overlayImg, canvasWidth, canvasHeight) {
+          const targetColor1 = { r: 103, g: 154, b: 96 }; // #679a60
+          const targetColor2 = { r: 86, g: 252, b: 244 }; // #56fcf4
+          const tolerance = 20;
+      
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCanvas.width = canvasWidth;
+          tempCanvas.height = canvasHeight;
+          tempCtx.drawImage(img, 0, 0);
+      
+          const imageData = tempCtx.getImageData(0, 0, canvasWidth, canvasHeight);
+          const data = imageData.data;
+          let totalX = 0, totalY = 0, count = 0;
+      
+          function findColor(targetColor) {
+              totalX = 0;
+              totalY = 0;
+              count = 0;
+      
+              for (let y = 0; y < canvasHeight; y++) {
+                  for (let x = 0; x < canvasWidth; x++) {
+                      const index = (y * canvasWidth + x) * 4;
+                      const r = data[index];
+                      const g = data[index + 1];
+                      const b = data[index + 2];
+      
+                      if (Math.abs(r - targetColor.r) < tolerance &&
+                          Math.abs(g - targetColor.g) < tolerance &&
+                          Math.abs(b - targetColor.b) < tolerance) {
+                          totalX += x;
+                          totalY += y;
+                          count++;
+                      }
+                  }
+              }
+          }
+      
+          findColor(targetColor1);
+  
+          // console.log(count);
+      
+          if (count === 0 || (count > 65 && count < 100)) {
+              findColor(targetColor2);
+          }
+      
+          if (count > 0) {
+              const centerX = totalX / count;
+              const centerY = totalY / count;
+              const startX = centerX - (overlayImg.width / 2.1);
+              const startY = centerY - (overlayImg.height / 2.6);
+              START_X = startX;
+              START_Y = startY;
+              ctx.drawImage(overlayImg, startX, startY, overlayImg.width, overlayImg.height);
+          } else {
+              console.error('Neither target color was found in the image.');
+          }
+      }
+  
+      function drawTextOnCanvas(ctx, text, number, canvasWidth, canvasHeight) {
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        let fontSize = number && text ? 70 : 80;
+      
+        function fitText(text, number, maxWidth, maxHeight) {
+          const decrement = 0.7;
+          const fixedDecrement = 10;
+          let customTextLength = document.querySelector("#cl-custom-text").value;
+          let customPhoneLength = document.querySelector("#cl-phone-number").value;
+          
+          if (overlayImg.width >= 200 && overlayImg.width < 300) {
+              if (text && number) {
+                fontSize = 23;
+              } else if ((text && !number) && customTextLength.length < 7) {
+                fontSize = 35;
+              } else if ((!text && number) && customPhoneLength.length < 7) {
+                fontSize = 35;
+              } else {
+                fontSize = 23;
+              }
+          }
+  
+          if (overlayImg.width >= 300 && overlayImg.width < 400) {
+              if (text && number) {
+                fontSize = 35;
+              } else if ((text && !number) && customTextLength.length < 7) {
+                fontSize = 55;
+              } else if ((!text && number) && customPhoneLength.length < 7) {
+                fontSize = 55;
+              } else {
+                fontSize = 35;
+              }
+          }
+  
+          if (overlayImg.width >= 400 && overlayImg.width < 500) {
+              if (text && number) {
+                fontSize = 40;
+              } else if ((text && !number) && customTextLength.length < 7) {
+                fontSize = 60;
+              } else if ((!text && number) && customPhoneLength.length < 7) {
+                fontSize = 60;
+              } else {
+                fontSize = 40;
+              }
+          }
+  
+          if (overlayImg.width >= 500 && overlayImg.width < 600) {
+              if (text && number) {
+                fontSize = 60;
+              } else if ((text && !number) && customTextLength.length < 7) {
+                fontSize = 85;
+              } else if ((!text && number) && customPhoneLength.length < 7) {
+                fontSize = 85;
+              } else {
+                fontSize = 60;
+              }
+          }
+  
+          if (overlayImg.width >= 700 && overlayImg.width < 800) {
+              if (text && number) {
+                fontSize = 80;
+              } else if ((text && !number) && customTextLength.length < 7) {
+                fontSize = 115;
+              } else if ((!text && number) && customPhoneLength.length < 7) {
+                fontSize = 115;
+              } else {
+                fontSize = 80;
+              }
+          }
+  
+          if (text && number) {
+              fontSize *= 0.9;
+          }
+  
+          ctx.font = `bold ${fontSize}px Arial`;
+      }
+  
+      let overlayWidth = overlayImg.width;
+      let overlayHeight = overlayImg.height;
+      fitText(text, number, overlayWidth, overlayHeight);
+      
+      let textX = START_X + (overlayImg ? overlayImg.width / 2 : 0);
+      let textY, numberY;
+    
+      if (number && text) {
+          textY = START_Y + overlayHeight * 0.45; 
+          numberY = textY + fontSize; 
+      } else if (text) {
+          textY = START_Y + overlayHeight * 0.45 + fontSize / 2; 
+          numberY = null; 
+      } else if (number) {
+          textY = null; 
+          numberY = START_Y + overlayHeight * 0.45 + fontSize / 2;
+      }
+      
+      if (text) {
+        ctx.fillText(text.toUpperCase(), textX, textY);
+      }
+      if (number) {
+        ctx.fillText(number, textX, numberY);
+      }
+    }
+    }
+  
+      // function formatPhoneNumber(input) {
+      //     // Keep special characters (dashes, parentheses, plus signs) and remove alphabetic characters
+      //     let cleaned = input.value.replace(/[a-zA-Z]/g, '');
+      
+      //     // Optionally: Preserve special characters and spaces while removing unwanted characters
+      //     cleaned = cleaned.replace(/[^0-9\s\-\(\)\+]/g, '');
+      
+      //     // Extract and format the numeric part into groups, preserving special characters
+      //     let match = cleaned.match(/(\d{1,3})(\d{1,3})?(\d{1,4})?/);
+      
+      //     if (match) {
+      //         // Format the cleaned input with spaces between groups of digits
+      //         input.value = [match[1], match[2], match[3]].filter(Boolean).join(' ');
+      
+            
+      //     }
+      //     // Update the hidden input with the raw numeric value including special characters
+      //         document.getElementById('cl-phone-number').value = cleaned;
+      // }
+
+  // Make sure to call handleImageUrl at the right moment, e.g., on a button click or image change event
+</script>
+
+<script>
+  function customSlider() {
+    const $colorSelector = $('.color-option_silder1');
+    const $prevBtn = $('.cl-color-prev-btn');
+    const $nextBtn = $('.cl-color-next-btn');
+    const $wrapper = $('.cl-color-selector');
+    const moveAmount = 44;
+    let currentPosition = 0;
+    let isDragging = false;
+    let startX;
+    let scrollLeft;
+
+    function initializeSlider() {
+      if ($colorSelector.length > 0 && $prevBtn.length > 0 && $nextBtn.length > 0 && $wrapper.length > 0) {
+        const maxScrollLeft = $colorSelector[0].scrollWidth - $colorSelector.outerWidth();
+
+        $prevBtn.click(function () {
+          if (currentPosition > 0) {
+            currentPosition -= moveAmount;
+            if (currentPosition < 0) {
+              currentPosition = 0;
+            }
+            $colorSelector.css('transform', `translateX(-${currentPosition}px)`);
+          }
+        });
+
+        $nextBtn.click(function () {
+          if (currentPosition < maxScrollLeft) {
+            currentPosition += moveAmount;
+            if (currentPosition > maxScrollLeft) {
+              currentPosition = maxScrollLeft;
+            }
+            $colorSelector.css('transform', `translateX(-${currentPosition}px)`);
+          }
+        });
+
+        // Mouse down and touch start event to begin dragging
+        $wrapper.on('mousedown touchstart', function (e) {
+          isDragging = true;
+          startX = e.pageX || e.originalEvent.touches[0].pageX - $wrapper.offset().left;
+          scrollLeft = $wrapper.scrollLeft();
+          $wrapper.addClass('active'); // Add a class to indicate active dragging
+        });
+
+        // Mouse leave, mouse up, and touch end events to end dragging
+        $wrapper.on('mouseleave mouseup touchend', function () {
+          if (isDragging) {
+            isDragging = false;
+            $wrapper.removeClass('active');
+            snapToItem(); // Snap to the nearest item
+          }
+        });
+
+        // Mouse move and touch move event to handle dragging
+        $wrapper.on('mousemove touchmove', function (e) {
+          if (!isDragging) return;
+          e.preventDefault();
+          const x = e.pageX || e.originalEvent.touches[0].pageX - $wrapper.offset().left;
+          const walk = (x - startX) * 2; // Scroll-fast multiplier
+          $wrapper.scrollLeft(scrollLeft - walk);
+        });
+
+        // Handle mouse up globally to stop dragging
+        $(window).on('mouseup touchend', function () {
+          if (isDragging) {
+            isDragging = false;
+            $wrapper.removeClass('active');
+            snapToItem(); // Snap to the nearest item
+          }
+        });
+
+        // Snap to the nearest item after dragging ends
+        function snapToItem() {
+          let scrollPos = $wrapper.scrollLeft();
+          let itemIndex = Math.round(scrollPos / moveAmount);
+          let newScrollPos = itemIndex * moveAmount;
+          $wrapper.animate({ scrollLeft: newScrollPos }, 200);
+        }
+      } else {
+        console.error('Color selector elements not found!');
+      }
+    }
+
+    $(document).ready(function () {
+      // For dynamically loaded elements
+      const observer = new MutationObserver(function (mutationsList, observer) {
+        for (const mutation of mutationsList) {
+          if (mutation.type === 'childList' || mutation.type === 'attributes') {
+            initializeSlider();
+          }
+        }
+      });
+
+      // Start observing the target node for configured mutations
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+      // For elements that are present on DOM ready
+      initializeSlider();
+    });
+
+    // Ensure full page load including images and other resources
+    window.onload = function () {
+      initializeSlider();
+    };
+  }
+
+  // Execute the custom slider function
+  customSlider();
+</script>

@@ -1,0 +1,44 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+MEGA MENU IMAGES COMPONENT
+----------------------------------------------------------------------------------------------------------------------
+
+Render the images for a given mega-menu
+
+********************************************
+Supported variables
+********************************************
+
+* context: can be "menu" or "sidebar". This info slightly changes the alignment
+* block: the block containing all the information about the menu to render
+{%- endcomment -%}
+
+{% for article in blog.articles limit: 4 %}
+
+  {%- assign image_setting = 'image_' | append: article.id -%}
+  {%- assign heading_setting = 'image_' | append: article.id | append: '_heading' -%}
+  {%- assign text_setting = 'image_' | append: article.id | append: '_text' -%}
+  {%- assign link_setting = 'image_' | append: article.id | append: '_link' -%}
+
+  {% assign article_image = article.image %}
+  {% assign article_title = article.title %}
+
+  {%- capture image_content -%}
+    <div class="overflow-hidden">
+      <img src="{{ article.image | img_url: 'master' }}" 
+        loading="lazy" 
+        sizes="315px" 
+        width="{{ article_image.width }}" 
+        class="zoom-image group-hover:zoom mega-menu-image" />
+    </div>
+    
+    <div class="v-stack text-left {% if context == 'menu' %}gap-2.5{% else %}gap-0.5{% endif %}">
+      <p class="dfs-18 Barlow">{{ article_title }}</p>
+    </div>
+  {%- endcapture -%}
+   
+  <a href="{{ article.url }}" class="v-stack justify-items-left gap-4 sm:gap-5 group">
+    {{- image_content -}}
+  </a>
+
+{%- endfor -%}

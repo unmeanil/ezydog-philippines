@@ -1,0 +1,77 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+FREE SHIPPING BAR
+----------------------------------------------------------------------------------------------------------------------
+
+Renders the free shipping bar component. It is used on cart page and cart drawer to render the remaining amount before
+being eligible for free shipping.
+{%- endcomment -%}
+
+{%- liquid
+  assign calculated_total_price = 0
+
+  for line_item in cart.items
+    if line_item.requires_shipping
+      assign calculated_total_price = calculated_total_price | plus: line_item.final_line_price
+    endif
+  endfor
+
+  # We have to remove the cart level discount from the calculated amount
+
+  assign total_cart_discount = 0
+
+  for discount_application in cart.cart_level_discount_applications
+    assign total_cart_discount = total_cart_discount | plus: discount_application.total_allocated_amount
+  endfor
+
+  assign calculated_total_price = calculated_total_price | minus: total_cart_discount
+-%}
+
+{%- if cart.requires_shipping -%}
+  <free-shipping-bar class="free-shipping-bar v-stack gap-1" threshold="{{ settings.cart_free_shipping_threshold }}" total-price="{{ calculated_total_price }}" reached-message="{{ 'cart.free_shipping_bar.limit_reached_html' | t | escape }}" unreached-message="{{ 'cart.free_shipping_bar.limit_unreached_html' | t | escape }}">
+    {%- comment -%}The span below is the placeholder where the content will be inserted in JS{%- endcomment -%}
+    
+    {%- assign cart_total_quantity = cart.total_price -%}
+    <progress-bar class="progress-bar shipping-progress-bar" animate-on-scroll aria-valuenow="{{ cart_total_quantity }}" aria-valuemax="{{ settings.cart_free_shipping_threshold | default: 100 | append: '00' }}" data-eligible="false"></progress-bar>
+
+    <span id="free-shipping-text" class="">&nbsp;</span>
+
+</free-shipping-bar>
+{%- endif -%}
+
+<script>
+document.addEventListener("cart:change", function(event) {
+
+  //console.log('Cart change event:', event);
+ // console.log('Cart details:', event.detail);
+
+  const priceForItems = event.detail["cart"]["items"].filter((item) => item["requires_shipping"]).reduce((sum, item) => sum + item["final_line_price"], 0);
+  const cartDiscount = event.detail["cart"]["cart_level_discount_applications"].reduce((sum, discountAllocation) => sum + discountAllocation["total_allocated_amount"], 0);
+
+  let totalPrice = priceForItems - cartDiscount;
+  // totalPrice = Math.floor(totalPrice / 100);
+
+  // Debug
+ // console.log('Total Price (in whole dollars):', totalPrice);
+
+  const progressBar = document.querySelector('.shipping-progress-bar');
+  if (progressBar) {
+    progressBar.setAttribute('aria-valuenow', totalPrice);
+    //console.log('Progress bar updated:', progressBar);
+  } else {
+   // console.log('Progress bar not found.');
+  }
+});
+</script>
+
+<style>
+  .shipping-progress-bar {
+    height: 15px;
+    border: 1px solid #FF0000;
+    border-radius: 3px; 
+    background: unset;
+  }
+  .shipping-progress-bar:before {
+    background: #FF0000;
+  }
+</style>

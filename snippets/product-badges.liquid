@@ -1,0 +1,302 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+PRODUCT BADGES COMPONENT
+----------------------------------------------------------------------------------------------------------------------
+
+This component is used in product listing and product page to render the badges of a given product
+
+********************************************
+Supported variables
+********************************************
+
+* product: the product to render the badges
+* variant: the specific variant to show the badge from
+* vertical: if set to true, the badges are outputted vertically
+* types: the types of badge to output. Can be "custom", "sold_out" or "discount" (or a combination separated by comma). If nothing is set, all badges are outputted.
+* form_id: an optional form ID to use to update the badges when a given variant changes
+{%- endcomment -%}
+
+{%- liquid
+  assign badge_count = 0
+  assign badge_types = types | default: 'sold_out, custom, discount' | split: ','
+  assign variant = variant | default: product.selected_or_first_available_variant
+
+  # Check if product title contains both 'essential' and 'bundle'
+  assign is_essential_bundle = false
+  if product != blank and product.title contains 'Pack' or product.title contains 'Bundle'
+    assign is_essential_bundle = true
+  endif
+-%}
+
+{%- assign is_badge_list_hidden = true -%}
+
+{%- capture badges -%}
+  {%- for badge_type in badge_types -%}
+    {%- assign stripped_badge_type = badge_type | strip -%}
+
+    {%- case stripped_badge_type -%}
+
+      {%- when 'sold_out' -%}
+        {%- if settings.show_sold_out_badge and badge_count < 3 -%}
+          {%- if variant.available == false or form_id != blank -%}
+            {%- unless variant.available -%}
+              {%- assign is_badge_list_hidden = false -%}
+            {%- endunless -%}
+            
+            {%- assign badge_count = badge_count | plus: 1 -%}
+            <sold-out-badge {% if variant.available %}hidden{% endif %} {% if form_id != blank %}form="{{ form_id }}"{% endif %} class="badge badge--sold-out">
+              {{- 'product.general.sold_out_badge' | t -}}
+            </sold-out-badge>
+          {%- endif -%}
+        {%- endif -%}
+      
+      {%- when 'custom' -%}
+        {%- assign custom_badges = product.metafields.custom.badges.value | replace: '[', '' | replace: ']', '' | strip | remove: '"' | split: ',' -%}
+        {%- assign badge_border_styles = product.metafields.custom.badge_border_style.value | replace: '[', '' | replace: ']', '' | split: ',' -%}
+        {%- assign badge_outline_colors = product.metafields.custom.badge_outline_colors | replace: '[', '' | replace: ']', '' | split: ',' -%}
+        {%- assign badge_text_colors = product.metafields.custom.badge_text_color | replace: '[', '' | replace: ']', '' | split: ',' -%}
+        {%- assign badge_background = product.metafields.custom.badge_background | replace: '[', '' | replace: ']', '' | split: ',' -%}
+
+        {%- assign badge_count = 0 -%}
+        {%- for custom_badge in custom_badges -%}
+          {%- if badge_count < 3 -%}
+            {%- assign is_badge_list_hidden = false -%}
+            {%- assign badge_count = badge_count | plus: 1 -%}
+      
+            {%- assign border_style = badge_border_styles[forloop.index0] | replace: '"', '' -%}
+            {%- assign outline_color = badge_outline_colors[forloop.index0] | replace: '"', '' -%}
+            {%- assign text_color = badge_text_colors[forloop.index0] | replace: '"', '' -%}
+            {%- assign background_color = badge_background[forloop.index0] | replace: '"', '' %}
+            {% assign custom_badge_handleized = custom_badge | handleize %}
+
+            <span 
+              class="badge badge--custom badge-{{ custom_badge | handleize }}" 
+              style="
+                color: {%  if text_color != blank %}{{ text_color }}{% else %}#ea2d24{% endif %};
+                background: {%  if background_color != blank%}{{ background_color }}{% else %}#fff{% endif %};
+                {% if custom_badge == "Personalise" or custom_badge_handleized == "personalise" or custom_badge_handleized == "personalisable"%}
+                 {% comment %} border-image: linear-gradient(43deg, #57d5d0, #f46b65 46%, #ee2d25) 2;{% else %}border: 1px{% if border_style != blank %}{{ border_style }}{% else %} solid{% endif %} {% if outline_color != blank %}{{ outline_color }}{% else %}#EA2D24{% endif %}; {% endcomment %}
+                 border-radius: 5px;
+                 background: linear-gradient(to right, #fff, #fff) padding-box, linear-gradient(to right, #6FC3DF, #FF4D4D) border-box;
+                 border: 1px solid transparent;
+                {% else %}
+                  border: 1px{% if border_style != blank %}{{ border_style }}{% else %} solid{% endif %} {% if outline_color != blank %}{{ outline_color }}{% else %}#EA2D24;{% endif %}
+                {% endif %}
+              ">
+              {{ custom_badge | remove: '"' }}
+            </span>
+          {% endif %}
+        {%- endfor -%}
+
+      {%- when 'discount' -%}
+        {%- unless is_essential_bundle -%}
+          {%- if settings.show_discount and badge_count < 3 -%}
+          {%- assign is_variant_on_sale = false -%}
+          {%- assign selected_variant = product.variants.first -%}
+
+          {% comment %}
+            If on the Clearance page, prioritize showing a variant that is on sale.
+          {% endcomment %}
+          {%- if request.path contains 'clearance' -%}
+            {%- for variant in product.variants -%}
+              {%- if variant.compare_at_price > variant.price -%}
+                {%- assign selected_variant = variant -%}
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          <div class="variant-data" data-product-id="{{ product.id }}">
+            {% for variant in product.variants %}
+              <div class="variant-info"
+                data-variant-id="{{ variant.id }}"
+                data-option-value="{{ variant.option1 | escape }}" 
+                {% if variant.option2 != blank %}data-option-value2="{{ variant.option2 | escape }}"{% endif %}
+                data-price="{{ variant.price | times: 0.01 }}"
+                data-compare-price="{{ variant.compare_at_price | times: 0.01 }}">
+              </div>
+            {% endfor %}
+          </div>
+
+          {%- assign selected_variant = product.variants.first -%}
+          {%- if selected_variant.compare_at_price > selected_variant.price -%}
+            {%- assign is_variant_on_sale = true -%}
+            {%- assign savings = selected_variant.compare_at_price | minus: selected_variant.price | divided_by: 100.0 | round: 2 -%}
+          {%- endif -%}
+        
+          <on-sale-badge id="discount-badge-{{ product.id }}"
+            {% if is_variant_on_sale == false %}hidden{% endif %}
+            discount-mode="{{ settings.discount_mode | escape }}"
+            class="badge badge--on-sale">
+            {{- 'product.general.discount_badge_html' | t: savings: '$' | append: savings -}}
+          </on-sale-badge>
+        
+          {%- endif -%}
+        {%- endunless -%}
+    {%- endcase -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if badges != blank -%}
+
+  {% unless hide_wishlist == true %}
+
+  {% endunless %}
+  
+  <badge-list {% if form_id != blank and is_badge_list_hidden %}hidden{% endif %} class="badge-list {% if vertical %}badge-list--vertical{% endif %}">
+    {{- badges -}}
+  </badge-list>
+{%- endif -%}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Clearance Page
+    let isClearancePage = window.location.pathname.includes("collections"); // clearance
+    
+    if (isClearancePage) {
+      document.querySelectorAll(".product-card").forEach(function (productCard) {
+        let variants = productCard.querySelectorAll(".variant-info");
+        let bestVariant = null;
+        let maxDiscount = 0;
+  
+        variants.forEach(variant => {
+          let price = parseFloat(variant.dataset.price);
+          let comparePrice = parseFloat(variant.dataset.comparePrice);
+          let discount = comparePrice - price;
+
+          if (discount > maxDiscount) {
+            maxDiscount = discount;
+            bestVariant = variant;
+          }
+        });
+  
+        if (bestVariant) {
+            let bestOptionValue = bestVariant.dataset.optionValue;
+            let bestVariantId = bestVariant.dataset.variantId;
+            let productLink = productCard.querySelector(".product-card__link");
+            let saleBadge = productCard.querySelector(".on-sale-badge");
+  
+            // Preselect the best discount variant
+            let radioInput = productCard.querySelector(`input[value="${bestOptionValue}"]`);
+            if (radioInput) {
+              radioInput.checked = true;
+              radioInput.dispatchEvent(new Event("change", { bubbles: true })); // Ensure UI updates
+            }
+  
+            // Show the On Sale badge if there is a discount
+            if (saleBadge) {
+              saleBadge.style.display = maxDiscount > 0 ? "block" : "none";
+            }
+  
+            // Update product link to selected variant
+            if (productLink) {
+              let baseUrl = productLink.href.split("?")[0]; // Remove existing query params
+              productLink.href = `${baseUrl}?variant=${bestVariantId}`;
+            }
+  
+            // Listen for variant selection changes
+            productCard.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener("change", function () {
+              let selectedVariant = [...variants].find(v => v.dataset.optionValue === this.value);
+              if (selectedVariant) {
+                let newVariantId = selectedVariant.dataset.variantId;
+                let newPrice = parseFloat(selectedVariant.dataset.price);
+                let newComparePrice = parseFloat(selectedVariant.dataset.comparePrice);
+                let newDiscount = newComparePrice - newPrice;
+
+                // Update product link dynamically
+                if (productLink) {
+                  let baseUrl = productLink.href.split("?")[0];
+                  productLink.href = `${baseUrl}?variant=${newVariantId}`;
+                }
+
+                // Show or hide the On Sale badge
+                if (saleBadge) {
+                  saleBadge.style.display = newDiscount > 0 ? "block" : "none";
+                }
+              }
+            });
+          });
+        }
+      });
+    }
+
+    // Other Pages - Home, Collection
+    document.querySelectorAll(".product-card").forEach(function (productCard) {
+        let radioButtons = productCard.querySelectorAll('.product-card__info fieldset[data-option-position="1"] input[type="radio"]');
+
+        radioButtons.forEach(function (radio) {
+            radio.addEventListener("change", function () {
+                let selectedOptionValue = this.value;
+                let badge = productCard.querySelector(".badge--on-sale");
+                let allVariants = productCard.querySelectorAll(`.variant-info[data-option-value='${selectedOptionValue}']`);
+
+                let isOnSale = Array.from(allVariants).some(variant => parseFloat(variant.dataset.comparePrice) > parseFloat(variant.dataset.price));
+
+                if (isOnSale) {
+                    badge.innerHTML = "On Sale";
+                    badge.removeAttribute("hidden");
+                } else {
+                    let selectedVariant = productCard.querySelector(`.variant-info[data-option-value='${selectedOptionValue}']`);
+                    if (selectedVariant) {
+                        let price = parseFloat(selectedVariant.dataset.price);
+                        let comparePrice = parseFloat(selectedVariant.dataset.comparePrice);
+                        let savings = comparePrice > price ? (comparePrice - price).toFixed(2) : "";
+
+                        if (comparePrice > price) {
+                            badge.innerHTML = `Save $${savings}`;
+                            badge.removeAttribute("hidden");
+                        } else {
+                            badge.setAttribute("hidden", "true");
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+    // Product Page
+    document.querySelectorAll(".product").forEach(function (productCard) {
+        let radioButtons = productCard.querySelectorAll('.variant-picker__option input[type="radio"]');
+
+        function updateBadge(selectedRadio) {
+            if (!selectedRadio) return;
+            let selectedOptionValue = selectedRadio.value;
+            let badge = productCard.querySelector(".badge--on-sale");
+            let allVariants = productCard.querySelectorAll(`.variant-info[data-option-value='${selectedOptionValue}']`);
+
+            let isOnSale = Array.from(allVariants).some(variant => 
+                parseFloat(variant.dataset.comparePrice) > parseFloat(variant.dataset.price)
+            );
+
+            if (isOnSale) {
+                badge.innerHTML = "On Sale";
+                badge.removeAttribute("hidden");
+            } else {
+                let selectedVariant = productCard.querySelector(`.variant-info[data-option-value='${selectedOptionValue}']`);
+                if (selectedVariant) {
+                    let price = parseFloat(selectedVariant.dataset.price);
+                    let comparePrice = parseFloat(selectedVariant.dataset.comparePrice);
+                    let savings = comparePrice > price ? (comparePrice - price).toFixed(2) : "";
+
+                    if (comparePrice > price) {
+                        badge.innerHTML = `Save $${savings}`;
+                        badge.removeAttribute("hidden");
+                    } else {
+                        badge.setAttribute("hidden", "true");
+                    }
+                }
+            }
+        }
+
+        let checkedRadio = productCard.querySelector('.variant-picker__option input[type="radio"]:checked');
+        updateBadge(checkedRadio);
+
+        radioButtons.forEach(function (radio) {
+            radio.addEventListener("change", function () {
+                updateBadge(this);
+            });
+        });
+    });
+  });
+</script>

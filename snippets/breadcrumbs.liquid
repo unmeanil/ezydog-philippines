@@ -1,0 +1,79 @@
+<nav class="breadcrumb {{ extra_classes }} {% if floating %} breadcrumb--floating {% endif %}" aria-label="{{ 'general.breadcrumb.label' | t | escape }}">
+  <ol class="breadcrumb__list unstyled-list dfs-12 mfs-12">
+    <li class="breadcrumb__list-item">
+      <a href="/" title="Home">Home</a>
+    </li>
+
+    {% if collection %}
+      <li class="breadcrumb__list-item">
+        <a href="{{ collection.url }}" title="{{ collection.title }}">{{ collection.title }}</a>
+      </li>
+    {% endif %}
+
+    {% if product %}
+      {% assign collection_to_use = product.collections.first %}
+      {% if collection_to_use.title == 'All' %}
+        {% if product.collections.size > 1 %}
+          {% assign collection_to_use = product.collections[1] %}
+        {% endif %}
+      {% endif %}
+      <li class="breadcrumb__list-item">
+        <a href="{{ collection_to_use.url }}" title="{{ collection_to_use.title }}">{{ collection_to_use.title }}</a>
+      </li>
+      <li class="breadcrumb__list-item">
+        {{ product.title }}
+      </li>
+    {% endif %}
+
+    {% if blog %}
+      <li class="breadcrumb__list-item ">
+        {{ blog.title }}
+      </li>
+    {% endif %}
+    
+    {% if article %}
+      <li class="breadcrumb__list-item">
+        <a href="{{ article.blog.url }}" title="{{ article.blog.title }}">{{ article.blog.title }}</a>
+      </li>
+      <li class="breadcrumb__list-item ">
+        {{ article.title }}
+      </li>
+    {% endif %}
+
+    {% if page %}
+      <li class="breadcrumb__list-item ">
+        {{ page.title }}
+      </li>
+    {% endif %}
+
+    {% if current_tags %}
+      {% for tag in current_tags %}
+        <li class="breadcrumb__list-item">
+          <a href="{{ url_for_tag }}" title="{{ tag }}">{{ tag }}</a>
+        </li>
+      {% endfor %}
+    {% endif %}
+  </ol>
+</nav>
+<style>
+  {% if floating %}
+    #section-{{section.id}}:has(.breadcrumb){ position: relative; }
+    .breadcrumb{
+      z-index: 1;
+      color: #fff;
+    }
+    .breadcrumb__list-item+.breadcrumb__list-item:before { color: #FFF; }
+  
+    {% if color %}
+      .breadcrumb__list-item+.breadcrumb__list-item:before { color: color; }
+      .breadcrumb{ color: #fff; }
+    {% endif %}
+  
+  {% endif %}
+  
+  {% if color %}
+    .breadcrumb__list-item+.breadcrumb__list-item:before { color: color; }
+    .breadcrumb{ color: #fff; }
+  {% endif %}
+  
+</style>

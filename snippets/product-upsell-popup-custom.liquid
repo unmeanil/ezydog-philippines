@@ -1,0 +1,1485 @@
+<!-- <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script> -->
+<div class="customizes-btn">
+  <button
+    type="button"
+    id="product-customize-button_new"
+    class="product-customize-btn"
+    data-id="8785890935080"
+    data-handle="rambler-c-straw-bottle-26oz-seafoam"
+    data-usage="main-product"
+  >
+    <div class="customize-tile">
+      PERSONALISE IT! - {{ product.price | money | divide: 100 -}}
+      {%- if product.compare_at_price > 0 -%}
+        <span style="text-decoration:line-through;padding-left: 4px;">
+          {{- product.compare_at_price | money | divide: 100 -}}
+        </span>
+      {%- endif %}
+    </div>
+  </button>
+</div>
+<style>
+      html{
+        position: relative;
+      }
+      html, body{
+        width: 100%;
+        height: 100%;
+        -webkit-overflow-scrolling : touch !important;
+      }
+     .product-customize-btn {
+        position: relative;
+        border-radius: 6px;
+        border: 0 solid;
+        cursor: pointer;
+        padding: 2px;
+        display: inline-block;
+        text-transform: uppercase;
+        text-decoration: none;
+        background: linear-gradient(43deg, #57d5d0, #f46b65 46%, #ee2d25);
+        transition: background .3s ease-in-out;
+        width: 100%;
+        height: 45px;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        margin-right: 16px;
+        margin: 25px 0;
+    }
+
+    .customize-tile {
+        background-color: #fff;
+        border-radius: 4px;
+        font-family: var(--font-heading-family);
+        color: #0070ad;
+        font-weight: 900;
+        letter-spacing: .65px;
+        white-space: nowrap;
+        line-height: 1.69;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: center;
+        font-size: 13px;
+        color: #002b45;
+    }
+
+    #popupclose {
+        padding: 0 1px 4px 1px;
+        line-height: 1;
+        cursor: pointer;
+        transform: scale(1.2, 1);
+        background: transparent;
+        font-size: 22px;
+        font-weight: 500;
+        transition: all 200ms ease-in-out;
+        width: 26px;
+        height: 30px;
+        background: #ee2d23;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 100%;
+        margin-top: 2px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 6px, rgba(0, 0, 0, 0.1) 0px 3px 6px;
+    }
+
+    #popupclose:hover {
+        background: #dd2218;
+    }
+
+    .modal {
+        display: none;
+    }
+
+    .modal-content {
+        height: 100%;
+        position: relative;
+    }
+
+    .product-inner-wrapper {
+        z-index: 0;
+    }
+
+    #myModal_new {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000000000000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        height: 100vh!important;
+        background: #fff;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        isolation: isolate;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @media(max-width: 576px){
+      #myModal_new{
+        overflow-y: scroll;
+        overflow-x: hidden;
+        background: #fff!important;
+      }
+    }
+
+    #myModal_new .new-modal-content-wrapper {
+        padding: 28px;
+        position: relative;
+        z-index: 1000000000001;
+        background: #fff;
+        width: 100%;
+        min-width: 1200px;
+        height: 100%;
+    }
+
+    #myModal_new .new-modal-content-wrapper::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    #myModal_new .new-modal-content-wrapper::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #myModal_new .new-modal-content-wrapper::-webkit-scrollbar-thumb {
+        background: #EE2D25;
+        border-radius: 100vh;
+    }
+
+    .cl-color-wrapper {
+        padding-top: 12px !important;
+        padding-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .cl-color-selector{
+      display: flex;
+      align-items: center;
+      gap: 0!important;
+      height: 35px!important;
+      transition: all 300ms ease-in-out;
+    }
+    .cl-color-selector .cl-color-checkboxnew{
+      margin-right: 8px;
+      margin-left: 8px;
+      border-radius: 50%;
+    }
+    .cl-color-selector .cl-color-checkboxnew .color-swatch{
+        width: 28px !important;
+        height: 28px !important;
+        overflow: hidden;
+        border-radius: 50%;
+        -webkit-border-radius: 50%;
+    }
+    #myModal_new .modal-content {
+        background-color: #fefefe;
+        margin: 0;
+        padding: 0;
+        border: 1px solid #888;
+        width: 100%;
+        position: relative;
+        display: block;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: center;
+        box-shadow: none;
+        border: 0 !important;
+        max-width: 100%;
+    }
+    #color-options_new {
+        width: 350px !important;
+    }
+    .cl-color-selector-wrapper{
+      overflow: hidden;
+    }
+    .cl-color-next-btn, .cl-color-prev-btn{
+      width: 20px;
+      height: 20px;
+    }
+    .cl-color-next-btn:disabled, .cl-color-prev-btn:disabled{
+      opacity: 0.5;
+    }
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .row-cust {
+        display: grid;
+        grid-template-columns: auto 600px;
+        gap: 32px;
+        height: 100%;
+    }
+    .column-cust.first-column {
+        background: #f8f8f8;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .second-column .customizer {
+        margin: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 17px;
+        /* outline: 1px dashed rgba(255, 255, 255, 0.3);
+        outline-offset: -4px; */
+    }
+    .second-column .customizer .banner {
+        background-color: #939598;
+        color: rgb(255, 255, 255);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 8px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+    .second-column .customizer .banner span {
+        font-weight: 600;
+    }
+    .product-ttl-and-btn {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+    }
+    .product-info__block-itempopup {
+        margin: 20px 0;
+    }
+    .product-info__block-itempopup .h-stack legend {
+        margin-bottom: 12px;
+    }
+    .product-info__block-itempopup .block-swatch {
+        line-height: 1;
+    }
+    .product-info__block-itempopup .color-swatch {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    .cl-text-input-wrapper input {
+        border-radius: 5px;
+        border: 1px solid #C4C4C4;
+    }
+
+    .cl-text-input-wrapper input:focus-visible {
+        outline-color: #EE2D25;
+    }
+
+    .cl-text-input-wrapper {
+        margin-bottom: 12px;
+    }
+
+    .upsell-button-d-ring_new {
+        padding: 16px 20px !important;
+    }
+
+    .btn-cancel-custom {
+        transition: all 300ms ease-in-out;
+    }
+
+    .btn-cancel-custom:hover {
+        color: #fff !important;
+        opacity: 0.9
+    }
+
+    @media screen and (max-width: 1599.98px) {
+        .row-cust {
+            grid-template-columns: auto 560px;
+            gap: 24px;
+        }
+    }
+
+    @media screen and (max-width: 1399.98px) {
+        #myModal_new .new-modal-content-wrapper {
+            width: 100%;
+        }
+
+        .row-cust {
+            grid-template-columns: auto 500px;
+            gap: 24px;
+        }
+    }
+
+    @media screen and (max-width: 1198.98px) {
+        #myModal_new .new-modal-content-wrapper {
+            min-width: 100%;
+            padding: 20px;
+        }
+
+        .row-cust {
+            grid-template-columns: auto 400px;
+        }
+    }
+
+    @media screen and (max-width: 991.98px) {
+        .row-cust {
+            grid-template-columns: 100%;
+        }
+
+        .cl-color-wrapper {
+            padding-bottom: 10px !important;
+        }
+
+        .column-cust.first-column {
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+            height: auto !important;
+        }
+
+        .second-column-wrapper {
+            padding-bottom: 20px;
+        }
+
+        #myCanvas {
+            margin-left: auto;
+            margin-right: auto;
+            width: 100% !important;
+            max-width: 600px !important;
+        }
+
+        #myModal_new #button-wrapper_new {
+            margin-top: 12px !important;
+        }
+
+        #popupclose {
+            position: absolute;
+            top: 5px;
+            left: auto;
+            right: 10px;
+        }
+    }
+
+    @media screen and (max-width: 575.98px) {
+        #myModal_new .new-modal-content-wrapper {
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .column-cust.first-column {
+            padding: 0 !important;
+        }
+
+        #myModal_new .popupcontent {
+            padding: 0 !important;
+        }
+
+        #myModal_new .new-modal-content-wrapper::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .first-column-wrapper{
+          order: 2;
+        }
+        .second-column-wrapper{
+          order: 1;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        #color-options_new {
+            width: 260px !important;
+        }
+    }
+
+    @media screen and (max-width: 420px) {
+        #myModal_new .button-wrapper {
+            flex-direction: column;
+        }
+
+        #myModal_new .button-wrapper button {
+            width: 100%;
+        }
+    }
+
+    .color-varient-switch .color-varient-switch-black {
+        background-color: #000000;
+    }
+
+    .color-varient-switch .color-varient-switch-red {
+        background-color: #ff0000;
+    }
+
+    .color-varient-switch .color-varient-switch-blue {
+        background-color: #0d197f;
+    }
+
+    .color-varient-switch .color-varient-switch-purple {
+        background-color: #480F78;
+    }
+
+    .color-varient-switch .color-varient-switch-pink {
+        background-color: #ed1e8e;
+    }
+
+    .color-varient-switch .color-varient-switch-green {
+        background-color: #36462a;
+    }
+
+    .color-varient-switch .color-varient-switch-charcoal {
+        background-color: #474747;
+    }
+
+    .color-varient-switch #color-swatch-green-8785901682984,
+    .color-varient-switch #color-swatch-green-8785901584680 {
+        background: url(//ezydog.com.au/cdn/shop/files/Camo_Swatch.png) center / cover no-repeat !important;
+    }
+
+    .color-varient-switch #color-swatch-blue-8785898307880,
+    .color-varient-switch #color-swatch-blue-8785898176808 {
+        background: url(//ezydog.com.au/cdn/shop/files/Denim_Swatch.png) center / cover no-repeat !important;
+    }
+
+    .color-varient-switch #color-swatch-black-8785898307880 {
+        background: url(//ezydog.com.au/cdn/shop/files/Black_Denim_Swatch.png) center / cover no-repeat !important;
+    }
+
+    .color-varient-switch #color-swatch-tan-8785900044584,
+    .color-varient-switch #color-swatch-tan-8785899946280 {
+        background: url(//ezydog.com.au/cdn/shop/files/Corduroy_Swatch.png) center / cover no-repeat !important;
+    }
+
+    .color-varient-switch .color-swatch-blue-8785890607400 {
+        background-color: #123965 !important;
+    }
+
+    .color-varient-switch {
+        padding-bottom: 20px;
+    }
+
+    .color-swatch-active {
+        outline: 1px solid #1a1a1a !important;
+        outline-offset: 3px !important;
+        scale: 0.9 !important;
+    }
+
+    .colourway-active {
+        outline: 1px solid #1a1a1a !important;
+        outline-offset: 3px !important;
+        scale: 0.9 !important;
+    }
+
+    #myCanvas {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 800px !important;
+        width: 100% !important;
+    }
+  .material-image-wrapper{
+        cursor: pointer !important;
+  }
+  .overlay-custom{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000000000000;
+    }
+    .custom-fixed-util{
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+
+  @media only screen
+    and (min-device-width: 320px)
+    and (max-device-width: 480px)
+    and (-webkit-min-device-pixel-ratio: 2) {
+
+      @supports (-webkit-appearance: none) {
+          #button-wrapper_new {
+              /* margin-bottom: 80px !important; /* iPhone Safari-specific styles */ */
+          }
+        .first-column-wrapper{
+          padding-bottom: 60px!important;
+        }
+      }
+  }
+
+  .sp-visible-block .shipping-info-text, .sp-visible-block .button-wrapper1{
+    display: none !important;
+  }
+
+  @media(max-width: 575.98px){
+    .sp-visible-block .shipping-info-text, .sp-visible-block .button-wrapper1{
+      display: flex !important;
+    }
+    .second-column-wrapper .button-wrapper1, .second-column-wrapper .shipping-info-text{
+      display: none !important;
+    }
+    .second-column-wrapper{
+      padding-bottom: 0!important;
+    }
+    .first-column-wrapper{
+      padding-bottom: 60px!important;
+    }
+    .row-cust{
+      gap: 12px;
+    }
+    .sp-visible-block .upsell-wrapper{
+      margin-top: 12px;
+    }
+  }
+
+  @supports (-webkit-backdrop-filter: blur(0)) {
+      /* Safari-specific CSS */
+      .first-column-wrapper {
+          padding-bottom: 100px!important;
+      }
+  }
+  .red-text {
+    color: #ea2d24;
+    font-weight: 700;
+  }
+  @media only screen and (max-width: 767px){
+    .dsk-notice{
+      display: none;
+    }
+  }
+  @media only screen and (min-width: 768px){
+    .mbl-notice{
+      display: none;
+    }
+  }
+</style>
+<div id="myModal_new" class="modal">
+  <div class="new-modal-content-wrapper">
+    <div class="modal-content">
+      <div class="row-cust">
+        <div class="first-column-wrapper">
+          <div class="column-cust first-column imageoverlay" id="imageoverlay-section">
+            <img
+              src="https://cdn.shopify.com/s/files/1/0796/3780/7400/files/Convert_Harness__cameno_Overlay---green_5573db6d-d4a0-4d0b-8e2c-1be32eb35798.jpg?v=1726058907"
+              data-zoom="https://cdn.shopify.com/s/files/1/0796/3780/7400/files/Convert_Harness__cameno_Overlay---green_5573db6d-d4a0-4d0b-8e2c-1be32eb35798.jpg?v=1726058907"
+              data-color="Black"
+              width="100%"
+              height="100%"
+              class="black active"
+            >
+          </div>
+          <div class="sp-visible-block">
+            <div
+              id="button-wrapper_new"
+              class="button-wrapper1"
+              style="display: flex; align-items: center; margin-top: 28px; gap: 8px;"
+              data-label-pid=""
+            >
+              <button
+                class="button btn-cancel-custom"
+                id="popupclose-cancel_sp"
+                style="background-color: black; border-color: black;"
+              >
+                Cancel
+              </button>
+              <button id="upsell-patch_order1" class="d-block button button-" style="margin-top: 0px;width: 100%;">
+                <span id="add-patch-text_order1" class="add-text-"
+                  >ADD TO CART - {{ product.price | money | divide: 100 -}}
+                  {%- if product.compare_at_price > 0 -%}
+                    <span style="text-decoration:line-through;padding-left: 4px;">
+                      {{- product.compare_at_price | money | divide: 100 -}}
+                    </span>
+                  {%- endif -%}
+                </span>
+              </button>
+            </div>
+            <div class="mbl-notice" style="color: #4f4e4e; margin-top: 13px;">
+              <span class="red-text">IMPORTANT!</span>
+              <ul type="none" style="margin-inline-start: 0; line-height: 1.75;">
+                <li>- Please check your text carefully as Personalised Labels cannot be returned.</li>
+                <li>- Labels can be a combination of Letters and Numbers only.</li>
+                <li>- Shorter names we be enlarged to suit space available on labels.</li>
+                <li>- EzyDog reserves the right to refuse any text choices deemed offensive or inappropriate.</li>
+                <li>
+                  - Please allow 2 business days for orders containing Personalised Labels to be processed and shipped.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="second-column-wrapper">
+          <div class="column second-column">
+            <div class="customizer container" data-ui="customizer">
+              <div class="banner" data-banner="">
+                <b>CHOOSE YOUR COMBINATION</b>
+                <!-- <span class="cpricesvarient">$27.95</span> -->
+              </div>
+            </div>
+            <div class="product-ttl-and-btn">
+              <h2 class="product-title Barlow-Medium h3 Barlow-Medium dfs-22 mfs-22 ">FORMFIT® Mesh Harness</h2>
+              <div class="popupcontrols">
+                <button type="button" aria-label="popup close button" id="popupclose">x</button>
+              </div>
+            </div>
+            <!-- <span class="cpricesnew">$36.95</span> -->
+            <div class="product-info__block-itempopup">
+              <!-- <div class="variant-picker__option-info h-stack justify-between gap-2"> -->
+              <div class="h-stack gap-1">
+                <legend class="Barlow-Medium letter-spacing-md">Product Colourway</legend>
+              </div>
+
+              <div
+                data-option-selector=""
+                class="variant-picker__option-values h-stack gap-4 wrap"
+                id="color-varient-switch"
+              ></div>
+              <div data-option-selector="" class="h-stack gap-2.5 wrap" id="sizes-varient-switch"></div>
+            </div>
+            <div class="h-stack gap-1">
+              <legend class="Barlow-Medium letter-spacing-md">Label Colourway</legend>
+            </div>
+            <div>
+              <div id="custyom_colur_section"></div>
+              <div>
+                <div class="cl-text-input-wrapper " style="display: grid; gap: 8px;">
+                  <input
+                    type="text"
+                    id="cl-custom-text_order"
+                    name="properties[Custom Text]"
+                    placeholder="Enter text (Max. 12 characters)"
+                    required=""
+                    style="text-transform:uppercase"
+                  >
+                  <input
+                    type="text"
+                    id="cl-phone-number_order"
+                    name="properties[Phone Number]"
+                    placeholder="Phone number (Optional)"
+                    maxlength="12"
+                    pattern="[0-9 ]*"
+                    style="text-transform:uppercase"
+                    required="true"
+                  >
+                </div>
+              </div>
+              <p style="color: #4f4e4e; font-size: 15px;">
+                <span class="red-text">LABELS ARE SOLD IN SETS OF 2</span> - One label attaches securely to each side of
+                the Harness or Backpack with hook and loop.
+              </p>
+              <div
+                id="button-wrapper_new"
+                class="button-wrapper1"
+                style="display: flex; align-items: center; margin-top: 28px; gap: 8px;"
+                data-label-pid=""
+              >
+                <button
+                  class="button btn-cancel-custom"
+                  id="popupclose-cancel"
+                  style="background-color: black; border-color: black;"
+                >
+                  Cancel
+                </button>
+                <button id="upsell-patch_order" class="d-block button button-" style="margin-top: 0px;width: 100%;">
+                  <span id="add-patch-text_order" class="add-text-"
+                    >ADD TO CART - {{ product.price | money | divide: 100 -}}
+                    {%- if product.compare_at_price > 0 -%}
+                      <span style="text-decoration:line-through;padding-left: 4px;">
+                        {{- product.compare_at_price | money | divide: 100 -}}
+                      </span>
+                    {%- endif -%}
+                  </span>
+                </button>
+              </div>
+              <div class="dsk-notice" style="color: #4f4e4e; margin-top: 13px;">
+                <span class="red-text">IMPORTANT!</span>
+                <ul type="none" style="margin-inline-start: 0; line-height: 1.75;">
+                  <li>- Please check your text carefully as Personalised Labels cannot be returned.</li>
+                  <li>- Labels can be a combination of Letters and Numbers only.</li>
+                  <li>- Shorter names we be enlarged to suit space available on labels.</li>
+                  <li>- EzyDog reserves the right to refuse any text choices deemed offensive or inappropriate.</li>
+                  <li>
+                    - Please allow 2 business days for orders containing Personalised Labels to be processed and
+                    shipped.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %}
+  {% assign personalizes_product = localization.market.metafields.custom.personalised_labels_product.value %}
+
+  {%  assign personalizes_label_product=personalizes_product %}
+{% endcomment %}
+{% assign personalizes_label_product = all_products[customlabel] %}
+<script>
+
+   // proudct varient for the personalizes 
+   $labelProductVariants_new = [
+    {% for variant in personalizes_label_product.variants %}
+  
+      {{ variant | json }}{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+
+   
+    // Get the modal
+    const modal = document.getElementById("myModal_new");
+    const btn = document.getElementById("product-customize-button_new");
+    const span = document.getElementById("popupclose");
+    const popupclosecancel = document.getElementById("popupclose-cancel");
+    const popupclosecancelSp = document.getElementById("popupclose-cancel_sp");
+    const clPhoneNumberOrder = document.getElementById("cl-phone-number_order");
+
+    clPhoneNumberOrder.addEventListener('input', function (e) {
+        this.value = this.value.replace(/[^0-9 ]/g, '');
+    });
+
+    // When the user clicks the button, open the modal 
+    function openMyModal() { 
+        modal.style.display = "block";
+        document.body.classList.add('custom-fixed-util');
+        $('.shopify-section.shopify-section--main-product').css('z-index', 5);
+        let datacolorval = $('#color-varient-switch .colourway-active').attr('data-option-value');
+        $('#imageoverlay-section').find('.' + datacolorval).addClass('active');
+        
+        let sizes =$('.product-info__block-item #cl-size-selector input:checked').attr('data-product-size').toLowerCase();
+        $('.block-swatchsize-'+sizes).addClass('colourwaytext-active');
+        $('.block-swatchsize-'+sizes).prev().attr('checked','checked');
+        updateCanvas();
+      
+        window.onload = function() {
+            initializeSlider();
+        };
+
+        customSlider();
+    }
+
+    function closeMyModal() {
+        modal.style.display = "none";
+        document.body.classList.remove('custom-fixed-util');
+        $('.shopify-section.shopify-section--main-product').css('z-index', "");
+    }
+
+    function customSlider() {
+        const $colorSelector = $('.cl-color-selector'); 
+        const $prevBtn = $('.cl-color-prev-btn');
+        const $nextBtn = $('.cl-color-next-btn');
+        const $wrapper = $('.cl-color-selector-wrapper');
+        const moveAmount = 44; 
+        let currentPosition = 0;
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+    
+        function initializeSlider() {
+            if ($colorSelector.length > 0 && $prevBtn.length > 0 && $nextBtn.length > 0 && $wrapper.length > 0) {
+              const maxScrollLeft = $colorSelector[0].scrollWidth - $colorSelector.outerWidth();
+          
+              $prevBtn.click(function() {
+                  if (currentPosition > 0) {
+                      currentPosition -= moveAmount;
+                      if (currentPosition < 0) {
+                          currentPosition = 0;
+                      }
+                      $colorSelector.css('transform', `translateX(-${currentPosition}px)`);
+                  }
+              });
+  
+              $nextBtn.click(function() {
+                  if (currentPosition < maxScrollLeft) {
+                      currentPosition += moveAmount;
+                      if (currentPosition > maxScrollLeft) {
+                          currentPosition = maxScrollLeft;
+                      }
+                      $colorSelector.css('transform', `translateX(-${currentPosition}px)`);
+                  }
+              });
+  
+              // Mouse down and touch start event to begin dragging
+              $wrapper.on('mousedown touchstart', function (e) {
+                  isDragging = true;
+                  startX = e.pageX || e.originalEvent.touches[0].pageX - $wrapper.offset().left;
+                  scrollLeft = $wrapper.scrollLeft();
+                  $wrapper.addClass('active'); // Add a class to indicate active dragging
+              });
+  
+              // Mouse leave, mouse up, and touch end events to end dragging
+              $wrapper.on('mouseleave mouseup touchend', function () {
+                  if (isDragging) {
+                      isDragging = false;
+                      $wrapper.removeClass('active');
+                      snapToItem(); // Snap to the nearest item
+                  }
+              });
+  
+              // Mouse move and touch move event to handle dragging
+              $wrapper.on('mousemove touchmove', function (e) {
+                  if (!isDragging) return;
+                  e.preventDefault();
+                  const x = e.pageX || e.originalEvent.touches[0].pageX - $wrapper.offset().left;
+                  const walk = (x - startX) * 2; // Scroll-fast multiplier
+                  $wrapper.scrollLeft(scrollLeft - walk);
+              });
+  
+              // Handle mouse up globally to stop dragging
+              $(window).on('mouseup touchend', function () {
+                  if (isDragging) {
+                      isDragging = false;
+                      $wrapper.removeClass('active');
+                      snapToItem(); // Snap to the nearest item
+                  }
+              });
+  
+              // Snap to the nearest item after dragging ends
+              function snapToItem() {
+                  let scrollPos = $wrapper.scrollLeft();
+                  let itemIndex = Math.round(scrollPos / moveAmount);
+                  let newScrollPos = itemIndex * moveAmount;
+                  $wrapper.animate({ scrollLeft: newScrollPos }, 200);
+              }
+            } else {
+                console.error('Color selector elements not found!');
+            }
+        }
+
+        const observer = new MutationObserver(function(mutationsList, observer) {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                    initializeSlider(); 
+                }
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+        initializeSlider();
+    }
+
+    btn.onclick = openMyModal;
+    popupclosecancel.onclick = closeMyModal;
+    popupclosecancelSp.onclick = closeMyModal;
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = closeMyModal;
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+            modal.classList.remove('modal-open');
+            document.body.classList.remove('custom-fixed-util');
+            $('.shopify-section.shopify-section--main-product').css('z-index', "");
+        }
+    }
+
+    $matchingPatchVariant_new = "";
+  
+    document.getElementById('upsell-patch_order').addEventListener('click', addPatchToCartpoup);
+    document.getElementById('upsell-patch_order1').addEventListener('click', addPatchToCartpoup);
+
+    function addPatchToCartpoup() { 
+        var input = document.getElementById('cl-custom-text_order');
+
+        // Check if the input is empty (considering spaces as empty)
+        if (input.value.trim() === '') {
+            input.reportValidity();
+            input.focus();
+            return
+        }
+
+        let productId = $('#button-wrapper_new').attr('data-label-pid');
+        let customMessage = document.getElementById('cl-custom-text_order').value.toUpperCase();
+        let phoneNumber = document.getElementById('cl-phone-number_order').value;
+        var patchedcolor = $('#color-options_new .color-swatch-active').attr('data-option-value');
+        let size = $('#sizes-varient-switch .vareint-sizes .colourwaytext-active').attr('data-option-value').toUpperCase();
+
+     
+          {% comment %} console.log('finding mapped variant') {% endcomment %}
+       let mappingObjectnew = window.mappingnew.find(mappingnew => {   
+             return mappingnew.ids.includes(parseInt(productId));
+       });
+
+         if (mappingObjectnew) { 
+            let mappingnew = mappingObjectnew.mappingnew[size]
+          // console.log(JSON.stringify($labelProductVariants_new, null, 2)); 
+           $matchingPatchVariant_new = $labelProductVariants_new.filter(item => 
+            item.option1.toLowerCase() === patchedcolor  && 
+            item.option2.toLowerCase() === mappingnew.patch.toLowerCase()
+          )[0];
+       
+  
+      if ($matchingPatchVariant_new && $matchingPatchVariant_new.available) {
+        const formData = {
+            id: $matchingPatchVariant_new.id,
+            quantity: 1,
+            properties: {
+                'Custom Message': customMessage,
+                'Phone Number': phoneNumber
+            }
+        };
+    
+
+        $.ajax({
+            type: 'POST',
+            url: '/cart/add.js',
+            data: JSON.stringify(formData),
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            beforeSend: function() {
+                buttonLoading(productId)
+            },
+            success: function(cart) {
+               // window.location.href = '/checkout';
+                $('#myModal_new').find('.btn-cancel-custom').trigger('click');
+               $.getJSON('/cart.js', function(updatedCart) {
+                  document.dispatchEvent(new CustomEvent('cart:refresh', {
+                    detail: {
+                      cart: updatedCart
+                    }
+                  }));
+             });        
+            
+          const cartDrawerElement = document.querySelector('#cart-drawer');
+          if (cartDrawerElement) {
+            cartDrawerElement.show();
+          } 
+            
+            },
+            error: function(errorThrown) {
+                console.log(errorThrown)
+                var r = jQuery.parseJSON(errorThrown.responseText);
+                $(".error_" + productId).html("Error: " + r.description).show();
+                setTimeout(function() {
+                    $(".error_" + productId).html("").hide(100);
+                }, 3000);
+            }
+        });
+     }
+         }
+    }
+
+    // Debounce function in plain JavaScript
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    $(document).ready(function() {
+        const debouncedUpdateCanvas = debounce(updateCanvas, 1000); // Debounced version of updateCanvas
+        
+        $('body').on('click', '.loadImagnew', async function(event) {
+            event.preventDefault();
+            $('#color-options_new').find('.loadimage-active').removeClass('loadimage-active');
+            $('#color-options_new').find('.color-swatch-active').removeClass('color-swatch-active');
+            $(this).addClass('loadimage-active');
+            $(this).find('.color-swatch').addClass('color-swatch-active');
+            await debouncedUpdateCanvas(); // Use debounced version of updateCanvas
+        });
+        
+        $('body').on('click', '.product-info__block-itempopup .color-swatch-news', async function(event) {
+            event.preventDefault();
+            $('.product-info__block-itempopup').find('.colourway-active').removeClass('colourway-active');
+            $(this).addClass('colourway-active');
+            let valred = $(this).attr('data-option-value');
+            $('#imageoverlay-section').find('.active').removeClass('active');
+            $('#imageoverlay-section').find('.' + valred).addClass('active');
+            await debouncedUpdateCanvas(); // Use debounced version of updateCanvas
+        });
+
+
+        $('body').on('click', '.vareint-sizes .block-swatch', function(event) {
+            event.preventDefault();
+            $('#sizes-varient-switch').find('.colourwaytext-active').removeClass('colourwaytext-active');
+            $(this).addClass('colourwaytext-active');
+            $('#sizes-varient-switch').find('input:checked').removeAttr("checked");
+            $(this).prev().attr("checked", "checked");
+        });
+    });
+
+    let overlayImageUrl = '';
+    let img = null;
+    let overlayImg = null;
+    let START_X = 0;
+    let START_Y = 0;
+
+    function handleImageUrl() {
+        const imageUrl = $('.imageoverlay img.active').attr('src');
+        overlayImageUrl = $('#custyom_colur_section .loadimage-active').attr('data-lebelimage');
+    // alert(imageUrl);
+        const overlayText = document.getElementById('cl-custom-text_order').value;
+        const overlayNumber = document.getElementById('cl-phone-number_order').value;
+
+        if (imageUrl) {
+            img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = function() {
+                const canvas = document.getElementById('myCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                overlayImg = new Image();
+                overlayImg.crossOrigin = 'Anonymous';
+                overlayImg.onload = function() {
+                    drawOverlayImage(ctx, overlayImg, canvas.width, canvas.height);
+                    drawTextOnCanvas(ctx, overlayText, overlayNumber, canvas.width, canvas.height);
+                    extractTextFromCanvas(canvas);
+                };
+                overlayImg.src = overlayImageUrl;
+            };
+            img.src = imageUrl;
+        } else {
+            console.error('Image URL is not available.');
+        }
+    }
+
+    function drawOverlayImage(ctx, overlayImg, canvasWidth, canvasHeight) {
+        const targetColor1 = { r: 103, g: 154, b: 96 }; // #679a60
+        const targetColor2 = { r: 86, g: 252, b: 244 }; // #56fcf4
+        const tolerance = 20;
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = canvasWidth;
+        tempCanvas.height = canvasHeight;
+        tempCtx.drawImage(img, 0, 0);
+
+        const imageData = tempCtx.getImageData(0, 0, canvasWidth, canvasHeight);
+        const data = imageData.data;
+
+        let totalX = 0,
+            totalY = 0,
+            count = 0;
+
+        function findColor(targetColor) {
+            totalX = 0;
+            totalY = 0;
+            count = 0;
+
+            for (let y = 0; y < canvasHeight; y++) {
+                for (let x = 0; x < canvasWidth; x++) {
+                    const index = (y * canvasWidth + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+
+                    if (Math.abs(r - targetColor.r) < tolerance &&
+                        Math.abs(g - targetColor.g) < tolerance &&
+                        Math.abs(b - targetColor.b) < tolerance) {
+                        totalX += x;
+                        totalY += y;
+                        count++;
+                    }
+                }
+            }
+        }
+
+        findColor(targetColor1);
+
+        // console.log(count);
+
+        if (count === 0 || (count > 65 && count < 100)) {
+            findColor(targetColor2);
+        }
+
+        if (count > 0) {
+            const centerX = totalX / count;
+            const centerY = totalY / count;
+            const startX = centerX - (overlayImg.width / 2.1);
+            const startY = centerY - (overlayImg.height / 2.6);
+            START_X = startX;
+            START_Y = startY;
+            ctx.drawImage(overlayImg, startX, startY, overlayImg.width, overlayImg.height);
+        } else {
+            console.error('Neither target color was found in the image.');
+        }
+    }
+
+    function drawTextOnCanvas(ctx, text, number, canvasWidth, canvasHeight) {
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        let fontSize = number && text ? 70 : 80;
+
+        function fitText(text, number, maxWidth, maxHeight) {
+            const decrement = 0.7;
+            const fixedDecrement = 10;
+
+            let customTextLength = document.querySelector("#cl-custom-text_order").value;
+            let customPhoneLength = document.querySelector("#cl-phone-number_order").value;
+
+            if (overlayImg.width >= 200 && overlayImg.width < 300) {
+                if (text && number) {
+                  fontSize = 23;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                  fontSize = 35;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                  fontSize = 35;
+                } else {
+                  fontSize = 23;
+                }
+            }
+    
+            if (overlayImg.width >= 300 && overlayImg.width < 400) {
+                if (text && number) {
+                  fontSize = 35;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                  fontSize = 55;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                  fontSize = 55;
+                } else {
+                  fontSize = 35;
+                }
+            }
+    
+            if (overlayImg.width >= 400 && overlayImg.width < 500) {
+                if (text && number) {
+                  fontSize = 40;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                  fontSize = 60;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                  fontSize = 60;
+                } else {
+                  fontSize = 40;
+                }
+            }
+    
+            if (overlayImg.width >= 500 && overlayImg.width < 600) {
+                if (text && number) {
+                  fontSize = 60;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                  fontSize = 85;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                  fontSize = 85;
+                } else {
+                  fontSize = 60;
+                }
+            }
+    
+            if (overlayImg.width >= 700 && overlayImg.width < 800) {
+                if (text && number) {
+                  fontSize = 80;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                  fontSize = 115;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                  fontSize = 115;
+                } else {
+                  fontSize = 80;
+                }
+            }
+
+            if (text && number) {
+                fontSize *= 0.9;
+            }
+
+            ctx.font = `bold ${fontSize}px Arial`;
+        }
+
+        let overlayWidth = overlayImg.width;
+        let overlayHeight = overlayImg.height;
+        fitText(text, number, overlayWidth, overlayHeight);
+
+        let textX = START_X + (overlayImg ? overlayImg.width / 2 : 0);
+        let textY, numberY;
+
+        if (number && text) {
+            textY = START_Y + overlayHeight * 0.45;
+            numberY = textY + fontSize;
+        } else if (text) {
+            textY = START_Y + overlayHeight * 0.45 + fontSize / 2;
+            numberY = null;
+        } else if (number) {
+            textY = null;
+            numberY = START_Y + overlayHeight * 0.45 + fontSize / 2;
+        }
+
+        if (text) {
+            ctx.fillText(text.toUpperCase(), textX, textY);
+        }
+        if (number) {
+            ctx.fillText(number, textX, numberY);
+        }
+    }
+
+    function handleImageUrl1() {
+        const imageUrl = $('.imageoverlay img.active').attr('src');
+        const overlayImageUrl = $('#custyom_colur_section .loadimage-active').attr('data-lebelimage');
+        const overlayText = document.getElementById('cl-custom-text_order').value;
+        const overlayNumber = document.getElementById('cl-phone-number_order').value;
+    
+        if (imageUrl) {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = function () {
+                const canvas = document.getElementById('myCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+    
+                const overlayImg = new Image();
+                overlayImg.crossOrigin = 'Anonymous';
+                overlayImg.onload = function () {
+                  let position;
+                  position = drawOverlayImage1(ctx, overlayImg, canvas.width, canvas.height);
+                  
+                  drawTextOnCanvas1(ctx, overlayText, overlayNumber, canvas.width, canvas.height, overlayImg, position.startX, position.startY, position.colorOption);
+                };
+                overlayImg.src = overlayImageUrl;
+            };
+            img.src = imageUrl;
+        } else {
+            console.error('Image URL is not available.');
+        }
+    }
+
+    function drawOverlayImage1(ctx, overlayImg, canvasWidth, canvasHeight) {
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+
+        let productTitle = $('.column.second-column h2.product-title').text().trim();
+        // if (productTitle == "Express Harness" || productTitle == 'Express Harness - Camo' || productTitle == 'Express Dog Harness - Corduroy' || productTitle == 'Express Harness - Denim') {
+          
+        const isDenimExpressHarness = productTitle == 'Express Harness - Denim';
+        const isBlueColorActive = document.querySelector('.colourway-active') && document.querySelector('.colourway-active').getAttribute('data-option-value') === 'blue';
+        const isBlackColorActive = document.querySelector('.colourway-active') && document.querySelector('.colourway-active').getAttribute('data-option-value') === 'black';
+        const isCorduroyExpressHarness = productTitle == 'Express Dog Harness - Corduroy';
+        const isCamoExpressHarness = productTitle == 'Express Harness - Camo';
+        
+        let startXAdjustment = centerX - (overlayImg.width / 2);
+        const activeElement = document.querySelector('.loadimage-active');
+        let colorOption = activeElement ? activeElement.querySelector('label').getAttribute('data-option-value') : "";
+      
+        if (isDenimExpressHarness && isBlueColorActive) {
+          startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 43 : 30);
+        } else if (isDenimExpressHarness && isBlackColorActive) {
+          startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 25 : 10);
+        } else if (isCorduroyExpressHarness) {
+          startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 33 : 22);
+        } else {
+            startXAdjustment -= (["pink", "red", "aqua", "navy"].includes(colorOption) ? 23 : 9);
+        }
+    
+        const startY = centerY - (overlayImg.height / 2) - 208;
+    
+        const imgWidth = overlayImg.naturalWidth;
+        const imgHeight = overlayImg.naturalHeight;
+        let scaleFactor = 805 / imgWidth;
+        if (isDenimExpressHarness && isBlackColorActive) {
+          scaleFactor = 850 / imgWidth;
+        } else if (isDenimExpressHarness && isBlueColorActive) {
+          scaleFactor = 830 / imgWidth;
+        } else if (isCorduroyExpressHarness) {
+          scaleFactor = 820 / imgWidth;
+        }
+    
+        const newWidth = imgWidth * scaleFactor;
+        const newHeight = (imgHeight / imgWidth) * newWidth; // imgHeight * scaleFactor;
+    
+        ctx.drawImage(overlayImg, startXAdjustment, startY, newWidth, newHeight);
+
+        return { startX: startXAdjustment, startY: startY, colorOption: colorOption };
+      }
+    
+    function drawTextOnCanvas1(ctx, text, number, canvasWidth, canvasHeight, overlayImg, startX, startY, colorOption ) {
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        let fontSize = number && text ? 70 : 80;
+    
+        function fitText() {
+            const decrement = 0.7;
+            const fixedDecrement = 10;
+    
+            let customTextLength = document.querySelector("#cl-custom-text_order").value;
+            let customPhoneLength = document.querySelector("#cl-phone-number_order").value;
+  
+            console.log("Overlay Text:", customTextLength);
+            console.log("Overlay Number:", customPhoneLength);
+    
+            if (overlayImg.width >= 200 && overlayImg.width < 300) {
+                if (text && number) {
+                    fontSize = 23;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                    fontSize = 35;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                    fontSize = 35;
+                } else {
+                    fontSize = 23;
+                }
+            }
+    
+            if (overlayImg.width >= 300 && overlayImg.width < 400) {
+                if (text && number) {
+                    fontSize = 35;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                    fontSize = 55;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                    fontSize = 55;
+                } else {
+                    fontSize = 35;
+                }
+            }
+    
+            if (overlayImg.width >= 400 && overlayImg.width < 500) {
+                if (text && number) {
+                    fontSize = 40;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                    fontSize = 60;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                    fontSize = 60;
+                } else {
+                    fontSize = 40;
+                }
+            }
+    
+            if (overlayImg.width >= 500 && overlayImg.width < 600) {
+                if (text && number) {
+                    fontSize = 60;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                    fontSize = 85;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                    fontSize = 85;
+                } else {
+                    fontSize = 60;
+                }
+            }
+    
+            if (overlayImg.width >= 700 && overlayImg.width < 800) {
+                if (text && number) {
+                    fontSize = 80;
+                } else if ((text && !number) && customTextLength.length < 7) {
+                    fontSize = 115;
+                } else if ((!text && number) && customPhoneLength.length < 7) {
+                    fontSize = 115;
+                } else {
+                    fontSize = 80;
+                }
+            }
+    
+            if (text && number) {
+                fontSize *= 0.9;
+            }
+    
+            ctx.font = `bold ${fontSize}px Arial`;
+        }
+    
+        fitText(); // Determine appropriate font size
+    
+        let textX = startX + overlayImg.width / 2;
+        let textY, numberY;
+    
+        // Calculate text positions based on startX/startY
+        startY -= 0;
+        if (number && text) {
+            textY = startY + overlayImg.height * 0.45;
+            numberY = textY + fontSize;
+        } else if (text) {
+            textY = startY + overlayImg.height * 0.45 + fontSize / 2;
+        } else if (number) {
+            numberY = startY + overlayImg.height * 0.45 + fontSize / 2;
+        }
+    
+        if (text) ctx.fillText(text.toUpperCase(), textX, textY);
+        if (number) ctx.fillText(number, textX, numberY);
+    }
+  
+    let worker;
+    async function initializeWorker() {
+        if (!worker) {
+            worker = Tesseract.createWorker();
+            await worker.load();
+            await worker.loadLanguage('eng');
+            await worker.initialize('eng');
+        }
+    }
+
+    async function extractTextFromCanvas(canvas) {
+        try {
+            if (!worker) {
+                await initializeWorker(); // Ensure the worker is initialized
+            }
+            const { data: { text } } = await worker.recognize(canvas);
+            // Handle the extracted text as needed
+        } catch (err) {
+            console.error('Error during OCR:', err);
+        }
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (worker) {
+        worker.terminate();
+        worker = null;
+      }
+    });
+
+    function updateCanvas() {
+        $('#myCanvas').css('display', 'block');
+        let productTitle = $('.column.second-column h2.product-title').text().trim();
+        if (productTitle == "Express Harness" || productTitle == 'Express Harness - Camo' || productTitle == 'Express Dog Harness - Corduroy' || productTitle == 'Express Harness - Denim') {
+            handleImageUrl1();
+            $('#cl-custom-text_order').on('input', function() {
+              handleImageUrl1(); // Re-render the canvas on text input
+            });
+    
+            $('#cl-phone-number_order').on('input', function() {
+              handleImageUrl1(); // Re-render the canvas on number input
+            });
+        } else {
+            handleImageUrl();
+        }
+        $('.imageoverlay').find('img.active').css('display', 'none');
+    }
+  
+//   function formatPhoneNumber(input) {
+//     // Keep special characters (dashes, parentheses, plus signs) and remove alphabetic characters
+//     let cleaned = input.value.replace(/[a-zA-Z]/g, '');
+
+//     // Optionally: Preserve special characters and spaces while removing unwanted characters
+//     cleaned = cleaned.replace(/[^0-9\s\-\(\)\+]/g, '');
+
+//     // Extract and format the numeric part into groups, preserving special characters
+//     let match = cleaned.match(/(\d{1,3})(\d{1,3})?(\d{1,4})?/);
+
+//     if (match) {
+//         // Format the cleaned input with spaces between groups of digits
+//         input.value = [match[1], match[2], match[3]].filter(Boolean).join(' ');
+
+      
+//     }
+//     // Update the hidden input with the raw numeric value including special characters
+//         document.getElementById('cl-phone-number_order').value = cleaned;
+// }
+
+    // $('#myModal_new').on('focusin', function (e) {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+  
+    //     // Ensure the modal stays in focus
+    //     $('#myModal_new').focus();
+    // });
+  
+    // $('body').on('focus', '*', function (e) {
+    //     if (!$(e.target).closest('#myModal_new').length) {
+    //         e.stopPropagation();
+    //         $('#myModal_new').focus();
+    //     }
+    // });
+</script>

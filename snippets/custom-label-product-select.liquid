@@ -1,0 +1,1668 @@
+<!-- custom-label-product-select -->
+<div class="cl-wrapper w-100">
+  {% comment %} Step 1 {% endcomment %}
+  <div>
+    <h3 class="Barlow-Medium dfs-14 mfs-14 cl-step-heading">Step 1: What EzyDog product do you have?</h3>
+
+    <details
+      class="accordion cl-accordion-label-customise {% if size %}accordion--{{ size }}{% endif %} group {% if bleed %}bleed sm:unbleed{% endif %}"
+      is="{{ is | default: 'accordion-disclosure' }}"
+      {% if open %}
+        open aria-expanded="true"
+      {% else %}
+        aria-expanded="false"
+      {% endif %}
+      {{ block.shopify_attributes }}
+    >
+      <summary class="cl-accordion-summary">
+        <div id="label-select-image-box"></div>
+        <span id="label-select-text" class="Barlow-Medium dfs-16 mfs-20">Choose Product</span>
+        {%- render 'icon' with 'chevron-down', class: 'group-expanded:rotate' -%}
+      </summary>
+
+      <div class="accordion__content cl-accordion__content {% if prose_content %}prose{% endif %} Open-Sans {{content_class}}">
+        {% for product in collections.labelable.products %}
+          <div class="cl-product-select product-select-{{product.id}}">
+            <input
+              class="d-none cl-product-checkbox"
+              type="checkbox"
+              id="cl-product-checkbox-{{ product.id }}"
+              name="cl-product-checkbox-{{ product.id }} data-product-id={{ product.id }}"
+              onchange="handleProductChange(this, 'cl-product-checkbox', {{ product.id }})"
+            >
+            <label for="cl-product-checkbox-{{ product.id  }}" class="cl-checkbox-container">
+              <img
+                height="64px"
+                width="64px"
+                class="cl-product-image"
+                src="{{ product.featured_image | img_url: '200x200'  }}"
+                alt="Product Image"
+              >
+              <span class="Barlow-Medium dfs-14 mfs-14">{{ product.title }} </span>
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+  {% comment %} Step 2 {% endcomment %}
+  <div class="cl-fabrication-wrapper d-none">
+    <p id="step-2"></p>
+    <h3 class="Barlow-Medium dfs-14 mfs-14 cl-step-heading">Step 2: What Fabrication product do you have?</h3>
+    <div id="cl-fabicricant-slector" class="cl-fabicricant-slector"></div>
+  </div>
+
+  {% comment %} Step 3 {% endcomment %}
+
+  <div class="cl-size-wrapper d-none">
+    <p id="step-2"></p>
+    <h3 class="Barlow-Medium dfs-14 mfs-14 cl-step-heading">Step 3: What size is your EzyDog product?</h3>
+
+    <div id="cl-size-selector" class="cl-size-selector"></div>
+  </div>
+
+  {% comment %} Step 4 {% endcomment %}
+  <div class="cl-customise-wrapper d-none">
+    <h3 class="Barlow-Medium dfs-14 mfs-14 cl-step-heading">Step 4: Customise your labels</h3>
+    {% render 'product-upsell-popup-custom', customlabel: block.settings.custom_label_product %}
+  </div>
+
+  <!-- ezydog kc -->
+  <div class="cl-customiseold-wrapper d-none">
+    <h3 class="Barlow-Medium dfs-14 mfs-14 cl-step-heading">Step 4: Customise your labels</h3>
+    <div id="patch-wrapper" style="background: rgba(0, 0, 0, 0.03); border-radius: 10px; padding: 18px;">
+      <div class="cl-s3-text-wrapper">
+        <img id="label-text-img-sm" src="{{ block.settings.label_text_img_sm | img_url: '400x' }}">
+        <img
+          id="label-text-img-sm-ff"
+          class="d-none"
+          style="height: 25px; width: auto;"
+          src="{{ block.settings.label_text_img_sm_ff | img_url: '400x' }}"
+        >
+        <h3 class="Barlow-Medium dfs-13 mfs-13">Personalised Label</h3>
+      </div>
+
+      <div class="cl-color-selector-wrapper_old">
+        <!--
+          <button type='button' class='cl-color-prev-btn'>
+            <img src='https://kjmbqc5060wi7n6e-79637807400.shopifypreview.com/cdn/shop/t/42/assets/carousel-left.png' />
+          </button>
+        -->
+        <div class="cl-color-selector_old" id="color-options_old">
+          <!-- Color options will be dynamically inserted here -->
+        </div>
+        <!--
+          <button type='button' class='cl-color-next-btn'>
+            <img src='https://kjmbqc5060wi7n6e-79637807400.shopifypreview.com/cdn/shop/t/42/assets/carousel-right.png' />
+          </button>
+        -->
+      </div>
+
+      <div class="cl-text-input-wrapper" style="display: grid; gap: 8px; margin-bottom: 5px;">
+        <input
+          type="text"
+          id="cl-custom-text"
+          name="properties[Custom Text]"
+          placeholder="Enter text (Max. 12 characters)"
+          maxlength="12"
+          required
+          style="text-transform:uppercase;"
+        >
+        <input
+          type="text"
+          id="cl-phone-number"
+          name="properties[Phone Number]"
+          placeholder="Phone number (Optional)"
+          maxlength="12"
+          style="text-transform:uppercase;"
+        >
+      </div>
+
+      <div class="relative">
+        {%- assign meta_obj_oldlabel = shop.metaobjects.personalise_label_image['old-custom-label'] -%}
+        {% assign parsedold_json = meta_obj_oldlabel | parse_json %}
+        {% assign personaliseold_labels = parsedold_json.personalize_image_labels.value %}
+        {% assign classactive = 'd-none' %}
+
+        {% if meta_obj_oldlabel %}
+          {% for personaliselabelold in personaliseold_labels %}
+            {% assign image_urlold = personaliselabelold | img_url: 'master' | split: '?' | first %}
+            {% assign image_nameold = image_urlold
+              | split: '/'
+              | last
+              | split: '.'
+              | first
+              | split: '---'
+              | last
+              | downcase
+            %}
+
+            {% if image_nameold == 'formit_gray' %} {% assign classactive = 'active' %} {% endif %}
+            <img
+              id="inner-label-img-{{ image_nameold }}"
+              class="inner-label-img w-full {{ classactive }}"
+              style="margin-top: 18px;"
+              src="{{ image_urlold }}"
+            >
+          {% endfor %}
+        {% endif %}
+        <div class="patch-text-overlay Helvetica-Neue-Bold" style="letter-spacing: -.12em; font-weight: bold;">
+          <span id="label-text-overlay"></span>
+          <span id="label-phone-overlay"></span>
+        </div>
+      </div>
+
+      {% assign label_product = all_products['personalised-labels'] %}
+      {% assign label_product_price = label_product.price | money | divide: 100 %}
+      {% assign label_compare_at_price = label_product.compare_at_price | money | divide: 100 %}
+
+      <div
+        id="button-wrapper_old"
+        class="button-wrapper1"
+        style="display: flex; align-items: center; margin-top: 28px; gap: 8px;"
+        data-label-pid=""
+      >
+        <button
+          id="upsell-patch_orderold"
+          class="d-block button button-"
+          style="margin-top: 0px;width: 100%;"
+          onclick="addPatch_customold()"
+        >
+          <span id="add-patch-text_orderold" class="add-text-"
+            >ADD TO CART - {{ label_product_price -}}
+            <span style="text-decoration:line-through;padding-left: 4px;">{{ label_compare_at_price }}</span></span
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% assign test = settings %}
+
+{% assign swatches = settings.color_swatch_config | split: ' ' %}
+{% assign swatchObjects = '' %}
+{% for swatch in swatches %}
+  {% assign parts = swatch | split: ':' %}
+  {% if swatchObjects != '' %}
+    {% assign swatchObjects = swatchObjects | append: ',' %}
+  {% endif %}
+  {% assign swatchObject = '"\"' | append: parts[0] | append: '\"":"' | append: parts[1] | file_url | append: '"' %}
+  {% assign swatchObjects = swatchObjects | append: swatchObject %}
+{% endfor %}
+
+<script>
+    const inputField = document.getElementById('cl-custom-text_order');
+      inputField.addEventListener('input', function() {
+      this.value = this.value.slice(0, 12);
+    });
+  
+    //  const inputFieldph = document.getElementById('cl-phone-number_order');
+    //   inputFieldph.addEventListener('input', function() {
+    //   this.value = this.value.slice(0, 12);
+    // });
+   const inputFields = document.getElementById('cl-custom-text');
+      inputFields.addEventListener('input', function() {
+      this.value = this.value.slice(0, 12);
+    });
+  
+     const inputFieldphs = document.getElementById('cl-phone-number');
+      inputFieldphs.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9 ]/g, '');
+    });
+  
+    // document.getElementById('add-patch-to-cart').addEventListener('click', addPatchToCart);
+  
+    $mapped_size = ""
+    $selected_patch_colour = ""
+    $matchingVariant = ""
+  
+    window.mapping.forEach(mapping => {
+      mapping.ids.slice(1).forEach(id => {
+        $(`.product-select-${id}`).hide();
+      });
+    });
+    
+  
+    $labelCollectionDetails = {
+      {% for product in collections.labelable.products %}
+        "{{ product.id }}": {
+          product: {{ product | json }},
+          variants: [
+            {% for variant in product.variants %}
+              {{ variant | json }}{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ]
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    };
+   $labelFabricationDetails ={
+      {% for product in collections.labelable.products %}
+          "{{ product.id }}": {
+              fabrication_list: { 
+                {% assign sibling_handles = product.metafields.custom.product_sibling.value %}
+                 {%- if sibling_handles -%}
+                     {% for handle in sibling_handles %} 
+                       {%  assign id_handle = handle.id %}
+                       {% assign fabractions= handle.metafields.custom.fabrication.value.name %}
+                        {% assign fabractions_img= handle.metafields.custom.fabrication.value.image %}
+                           "fabrication_{{ forloop.index }}":{
+                                fabrcationsList_id :'{{ id_handle }}',
+                                fabrcationsList_name : '{{ fabractions }}',
+                                 fabrcationsList_img :'{{ fabractions_img.value | img_url: 'master' }}'
+                             
+                       }{% unless forloop.last %},{% endunless %}
+                     {% endfor %}
+                 {%- endif -%}
+              }  
+          }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+   };
+ 
+    $labelProductVariants = [
+      {% for variant in product.variants %}
+        {{ variant | json }}{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]
+  $customcolorVariants = {   
+  {% for productf in collections.labelable.products %}
+    "{{ productf.id }}":{ 
+      custom_lebel : {
+        {% assign personalise_label = productf.metafields.custom.personalise_label.value %}
+        {% assign image_data_array = "" %}
+
+        {% if personalise_label %}
+          {% assign parsed_json = personalise_label | parse_json %}
+          {% assign personalise_labels = parsed_json.personalize_image_labels.value %}
+
+          {% for personaliselabel in personalise_labels %}
+            {% assign image_url = personaliselabel | img_url: 'master' %}
+            {% assign image_url_clean = image_url | split: '?' | first %}
+            {% assign image_name = image_url_clean | split: '/' | last %}
+            {% assign image_name = image_name | split: '.' | first %}
+            {% assign image_name = image_name | split: '---' | last %}
+            {% assign image_name = image_name | downcase %}
+
+            {% assign image_data = image_name | append: '|' | append: image_url_clean %}
+            {% if forloop.first %}
+              {% assign image_data_array = image_data %}
+            {% else %}
+              {% assign image_data_array = image_data_array | append: ',' | append: image_data %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        {% assign meta_obj = productf.metafields.custom.custom_lebel_color.value %}
+        {% if meta_obj == blank %}
+          {% assign meta_obj = shop.metaobjects.custom_lebel_color.values %}
+        {% endif %}
+
+        {% for meta_objlist in meta_obj %}          
+
+          {% comment %} {% assign personal_image_labels = meta_objlist.personal_image_label.value | img_url: 'master' %} {% endcomment %}
+         {% assign personal_image_labels ='' %}
+          {% assign custom_color_name = meta_objlist.custom_color_name.value | downcase %}
+
+          {% if personalise_labels %}
+            {% assign imagedate = image_data_array | split: ',' %}
+            {% for imagedataarray in imagedate %}
+              {% assign imagedataarrays = imagedataarray | split: '|' %}
+              {% assign imagedataarrayss = imagedataarrays | first %}
+              {% if imagedataarrayss == custom_color_name %}
+                {% assign personal_image_labels = imagedataarrays | last %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if personalise_label %}
+            "fabrication_{{ forloop.index }}": {
+              test: "{{ personal_image_labels }}",
+              image_url: "{{ personal_image_labels }}",
+              color_image_lebel: "{{ personal_image_labels }}",
+              color_picker: "{{ meta_objlist.color_picker.value }}",    
+              custom_color_name: "{{ custom_color_name }}"
+          
+            },
+          {% endif %}
+        {% endfor %}
+      },
+    }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+};
+
+  
+    $customcolorVariantsImage = {   
+          {% for producti in collections.labelable.products %}
+            "{{ producti.id }}":{ 
+               image_varients : {
+                 {%  assign image_overlay_obj = producti.metafields.custom.custom_overlay_images %}
+                 {% for image_overlay_list in image_overlay_obj.value %}
+                     {% assign image_url = image_overlay_list | img_url: 'master' %}
+                     {% assign image_url_clean = image_url | split: '?' | first %}
+					 {% assign image_name = image_url_clean | split: '/' | last %}
+					 {% assign image_name = image_name | split: '.' | first %}
+					 {% assign image_name = image_name | split: '---' | last %}
+
+                    {% if image_name contains '_' %}
+                    {% assign image_name = image_name | split: '_' | first %}
+
+					{% endif %}
+                    "image_url_{{ forloop.index}}":{
+                          image_url : "{{ image_url }}",
+                          image_name : "{{ image_name }}",
+                          image_name_downcase : "{{ image_name | downcase}}"
+                    },
+                 {% endfor %}
+               },
+             }{% unless forloop.last %},{% endunless %}  
+          {% endfor %}
+    }
+  
+    let colorSwatches = {
+      {% assign swatchConfig = settings.color_swatch_config | newline_to_br | split: '<br />' %}
+      {% for item in swatchConfig %}
+        {% assign parts = item | split: ':' %}
+        {% assign colorName = parts[0] | downcase | strip %}
+        {% assign swatchValue = parts[1] | strip %}
+        "{{ colorName }}": "{{ swatchValue | file_url }}"{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    };
+  
+    function handleProductChange(checkbox, className, productId) { 
+      $('.cl-fabrication-wrapper').addClass('d-none');
+      $('.cl-size-wrapper').addClass('d-none');
+      $('.cl-customise-wrapper').addClass('d-none');
+      $('#button-wrapper_new').attr('data-label-pid',productId);
+      
+      var $checkbox = $(checkbox);
+      var isChecked = $checkbox.is(':checked');
+      $(`input.${className}`).not($checkbox).prop('checked', false);
+      
+      updateSizeOptions(productId)
+      updateFabricationOptions(productId)
+      updateimagevarients(productId)
+      // updateColorOptions(productId)
+  
+      $selected_patch_colour = ""
+      $mapped_size = ""
+  
+      if ($(`#cl-button-text`).length) {
+        $(`#cl-button-text`).text("Choose Size");
+      }
+  
+      updateAddToCartButton();
+      $('.cl-accordion-label-customise').attr('aria-expanded', 'false');
+  
+      var labelText = $(checkbox).closest('.cl-product-select').text()
+      var labelImage = $(checkbox).closest('.cl-product-select').find('img').clone();
+      
+      $(".cl-accordion-summary").addClass("content-replaced")
+      $("#label-select-text").text(labelText)
+      $("#label-select-image-box").html(labelImage)
+      $('.cl-accordion-label-customise').attr('aria-expanded', 'false');
+    
+      if(window.formfit_mapping.includes(productId)){
+        $("#label-text-img-sm").addClass('d-none')
+        $("#label-text-img-sm-ff").removeClass('d-none')
+        $('input[data-color="Formfit Grey"]').click()
+        $(".patch-text-overlay").addClass("patch-text-overlay-form-fit")
+      } else {
+        $("#label-text-img-sm").removeClass('d-none')
+        $(".patch-text-overlay").removeClass("patch-text-overlay-form-fit")
+        $("#label-text-img-sm-ff").addClass('d-none')
+      }
+
+        /* ezydog kc */
+      $('.cl-formitselect-wrapper').remove();
+       $(".cl-customiseold-wrapper").hide().addClass("d-none");
+        $('#patch-wrapper').css('display','none');
+      $('.popup-test-class h3').text('Step 3: Customise your labels');  
+      $('.cl-customiseold-wrapper .relative').find('.active').removeClass('active').addClass('d-none');             
+      $("#inner-label-img-formit_gray").removeClass("d-none").addClass('active');
+     
+    }
+  
+    function handleColourChange(checkbox, className){
+      var $checkbox = $(checkbox);
+      var isChecked = $checkbox.is(':checked');
+      $(`input.${className}`).not($checkbox).prop('checked', false);
+      $selected_patch_colour = checkbox.getAttribute('data-color');
+      selectOption($selected_patch_colour);
+      updateAddToCartButton()
+      $(`.inner-label-img`).addClass('d-none')
+      $(`#inner-label-img-${$selected_patch_colour.toLowerCase().replace(' ', '-')}`).removeClass('d-none')
+    }
+  
+    function updateAddToCartButton(){
+      // filterForMappedVariant()
+      var addToCartButton = $('#add-patch-to-cart');
+      
+      if (!$matchingVariant){
+        addToCartButton.prop('disabled', true);
+        addToCartButton.addClass('button-choose');
+        $('.cl-color-selector input[type="checkbox"]').prop('checked', false);
+        return
+      }
+      
+      if ($matchingVariant && $matchingVariant.available) {
+        addToCartButton.prop('disabled', false);
+        addToCartButton.removeClass('button-choose button-disabled');
+  
+        var formattedPrice = $matchingVariant.price / 100;
+        formattedPrice =  (formattedPrice.toLocaleString("en-US", {style:"currency", currency:"AUD"})).substring(1)
+        $(`.add-text-${addToCartButton[0].dataset.productId}`).text(`ORDER LABEL`)
+        // $(`.add-text-${addToCartButton[0].dataset.productId}`).text(`ADD TO CART - ${formattedPrice}`)
+        {% comment %} $('.product-price-' + product.data('productId')).text('New Price').text(formattedPrice); {% endcomment %}
+      } else {
+        addToCartButton.prop('disabled', true);
+        addToCartButton.addClass('button-disabled');
+        $(`.add-text-${addToCartButton[0].dataset.productId}`).text("SOLD OUT")
+        $('.cl-color-selector input[type="checkbox"]').not(`[data-color="${$selected_patch_colour}"]`).prop('checked', false);
+      }
+    }
+  
+    function updateFabricationOptions(productId){
+        let product_new = $labelFabricationDetails[productId];
+        // console.log($labelFabricationDetails);
+          
+        let fabricationOptionsContainer = document.getElementById('cl-fabicricant-slector');
+        fabricationOptionsContainer.innerHTML = ""; // Clear existing options
+     
+    if (product_new && product_new.fabrication_list && Object.keys(product_new.fabrication_list).length > 0) {
+      let  sizeOptionHtml =`<div class="product-info__block-item" data-block-type="product-variations">
+                             <div class="variant-picker v-stack gap-4">
+                                <div class="variant-picker__option v-stack gap-2">
+                                   <div class="h-stack gap-1">                                
+                                        <div class="variant-picker__option-values h-stack gap-2.5 wrap variant-picker__option-values-material">`;
+          
+                                  for (let key in product_new.fabrication_list) {  
+                                       sizeOptionHtml +=`<div id="variant-picker__option" class="v-stack text-center gap-1" data_varientid="${product_new.fabrication_list[key].fabrcationsList_id}">
+                                                       <div class="material-image-wrapper object-cover">
+                                                          <div class="" style="background-image: url(${product_new.fabrication_list[key].fabrcationsList_img});
+                                                              background-size: cover;
+                                                              height: 50px;
+                                                              border-radius: 5px;
+                                                              width: 50px;
+                                                              "></div>
+                                                              
+                                                    </div>
+                                                </a>
+                                                 <span class="dfs-12 mfs-12 Barlow">${product_new.fabrication_list[key].fabrcationsList_name}</span>
+                                              </div>`;
+                                  }
+        
+                                            sizeOptionHtml += `</div>
+                                              </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+       fabricationOptionsContainer.innerHTML += sizeOptionHtml;
+     $('.cl-size-wrapper h3').text('Step 3: What size is your EzyDog product?');
+        $('.cl-customise-wrapper h3').text('Step 4: Customise your labels');
+         if ($(".cl-fabrication-wrapper").hasClass('d-none')) {    
+          setTimeout(function() {
+              $(".cl-fabrication-wrapper").hide().removeClass("d-none").slideDown('fast');
+          }, 400);
+        }
+    } else { 
+         $('.cl-size-wrapper h3').text('Step 2: What size is your EzyDog product?');
+         $('.cl-customise-wrapper h3').text('Step 3: Customise your labels');
+         $('.cl-fabrication-wrapper').addClass('d-none');
+         if ($(".cl-size-wrapper").hasClass('d-none')) {    
+          setTimeout(function() {
+              $(".cl-size-wrapper").hide().removeClass("d-none").slideDown('fast');
+          }, 400);
+        }
+      } 
+    }
+    function updateimagevarients(productId){
+        let varientimg = $customcolorVariantsImage[productId];
+        if (!varientimg) return;
+        let imageoverlayContainer = document.getElementById('imageoverlay-section');
+        imageoverlayContainer.innerHTML = ''; // Clear existing options
+
+        let imageoverlay = new Set(); // To avoid duplicate sizes
+        let customOptionHtml='';
+     //  console.log(varientimg);
+        // Access the imagevarient array
+        if (varientimg && varientimg.image_varients) {
+            for (let key in varientimg.image_varients) {
+              let classactive='';
+              if(key == 'image_url_1'){  classactive=' '; }  
+              customOptionHtml +=`<img src="${varientimg.image_varients[key].image_url}" data-zoom="${varientimg.image_varients[key].image_url}" data-color="${varientimg.image_varients[key].image_name}" width="100%" height="100%" class="${varientimg.image_varients[key].image_name.toLowerCase()}${classactive}" style="display: none;">`;
+             }
+            customOptionHtml +='<canvas id="myCanvas" width="800" height="600" style="display:none;max-width:700px;"></canvas>';
+            imageoverlayContainer.innerHTML += customOptionHtml;
+        }
+    }
+  
+    function updateSizeOptions(productId) {
+    
+      let product = $labelCollectionDetails[productId];
+      let colorLabelData  = $customcolorVariants[productId];
+      if (!product || !product.variants) return;
+  
+      let sizeOptionsContainer = document.getElementById('cl-size-selector');
+      sizeOptionsContainer.innerHTML = ''; // Clear existing options
+
+      let colorswatchOptionsContainer = document.getElementById('color-varient-switch');
+      colorswatchOptionsContainer.innerHTML = ''; // Clear existing options
+
+      let sizespopupswatchOptionsContainer = document.getElementById('sizes-varient-switch');
+      sizespopupswatchOptionsContainer.innerHTML = ''; // Clear existing options
+
+      let custompopupswatchOptionsContainer = document.getElementById('custyom_colur_section');
+      custompopupswatchOptionsContainer.innerHTML = ''; // Clear existing options
+  
+      let sizes = new Set(); // To avoid duplicate sizes
+      let colors = new Set(); // To avoid duplicate sizes
+      let customcolors = new Set(); // To avoid duplicate sizes
+   
+      // Access the fabrication array
+if (colorLabelData && colorLabelData.custom_lebel) {
+   // Iterate over each property in the custom_lebel object
+   let customOptionHtml=`<div>
+     <div class='cl-color-wrapper'>
+       <button type='button' class='cl-color-prev-btn'>
+         <img src='https://kjmbqc5060wi7n6e-79637807400.shopifypreview.com/cdn/shop/t/42/assets/carousel-left.png' />
+       </button>
+       <div class="cl-color-selector-wrapper">
+     <div class='cl-color-selector' id='color-options_new'>`;
+    for (let key in colorLabelData.custom_lebel) {
+      
+       let class_imageactive='';
+          let class_labelactive='';
+      if(key == 'fabrication_1'){ class_imageactive='loadimage-active'; class_labelactive='color-swatch-active';}
+        if (colorLabelData.custom_lebel.hasOwnProperty(key)) {
+            customOptionHtml +="<div>";
+              customOptionHtml +=`<div class="cl-color-checkboxnew loadImagnew ${class_imageactive}" data-lebelimage="${colorLabelData.custom_lebel[key].image_url}" data-picker="${colorLabelData.custom_lebel[key].color_picker}">`;		   
+              customOptionHtml  +='<input class="cl-color-checkbox" data-color="" type="checkbox" id="upsell-patch-color-" name="color-option">';
+				 customOptionHtml   +=`<label class="color-swatch rounded-full ${class_labelactive}" for="upsell-patch-color-" data-option-value="${colorLabelData.custom_lebel[key].custom_color_name}" style="background-color:${colorLabelData.custom_lebel[key].color_picker}" loading="lazy"></label>`;
+							
+           customOptionHtml +="</div>";					
+            customOptionHtml +="</div>";
+        }
+    }
+    customOptionHtml +=`</div>
+          </div>
+          <button type='button' class='cl-color-next-btn'>
+           <img src='https://kjmbqc5060wi7n6e-79637807400.shopifypreview.com/cdn/shop/t/42/assets/carousel-right.png' />
+           </button>
+         </div>
+       </div>`;
+  custompopupswatchOptionsContainer.innerHTML += customOptionHtml;
+ 
+}
+      let firstSizeSet = false;
+let firstColorSet = false;
+
+product.variants.forEach(variant => {
+    // Assuming the size is in 'option2'
+    if (variant.option2 && !sizes.has(variant.option2)) {
+        sizes.add(variant.option2);
+        
+        let sizeOptionHtml = `
+            <div>
+                <input class="cl-size-checkbox cl-size-checkbox-${variant.option2}" data-product-id=${productId} data-product-size=${variant.option2} type="checkbox" id="size-${variant.id}" name="size-option" onchange="handleProductSizeChange(this, 'cl-size-checkbox')">
+                <label for="size-${variant.id}" class="size-option">${variant.option2}</label>
+            </div>
+        `;
+        sizeOptionsContainer.innerHTML += sizeOptionHtml;
+
+        let sizepopupOptionHtml = `<div class="vareint-sizes">
+            <input class="sr-only" type="radio" name="option2" value="${variant.option2.toLowerCase()}">
+            <label class="block-swatch block-swatchsize-${variant.option2.toLowerCase()} ${!firstSizeSet ? 'colourwaytext-active-test' : ''}" data-option-value="${variant.option2.toLowerCase()}">          
+                <span>${variant.option2}</span>
+            </label>
+        </div>`;
+        sizespopupswatchOptionsContainer.innerHTML += sizepopupOptionHtml;
+
+        firstSizeSet = true; // Mark the first size as set
+    }
+
+    // Assuming the color is in 'option1'
+    if (variant.option1 && !colors.has(variant.option1)) {
+        colors.add(variant.option1);
+
+        let colorOptionHtml = `
+            <div class="color-varient-switch">
+                <input class="sr-only" type="radio" name="option1" id="swatch--template-black" value="${variant.option1.toLowerCase()}" ${!firstColorSet ? 'checked' : ''}>
+                <label id="color-swatch-${variant.option1.toLowerCase()}-${productId}" class="color-swatch color-swatch-news rounded-full color-varient-switch-${variant.option1.toLowerCase()} ${!firstColorSet ? 'colourway-active' : ''}" data-option-value="${variant.option1.toLowerCase()}">
+                    <span class="sr-only">${variant.option1}</span>
+                </label>
+            </div>
+        `;
+        colorswatchOptionsContainer.innerHTML += colorOptionHtml;
+
+        firstColorSet = true; // Mark the first color as set
+    }
+
+});
+
+
+      $('#myModal_new .product-title').text(product.product.title);
+      // let prices = product.product.price/100;
+      //    $('#myModal_new .cpricesnew').text('$'+prices);
+    }
+  
+    function handleProductSizeChange(element, className) { 
+      let sizes_text=$('#formit_select summary span').text(); 
+      var $checkbox = $(element);
+      var isChecked = $checkbox.is(':checked');
+     
+      // $(`input.${className}`).not($checkbox).prop('checked', false);
+      if (isChecked) {
+        $(`input.${className}`).not($checkbox).prop('checked', false);
+      } else {
+          $checkbox.prop('checked', true);
+      }
+      
+      let productId = element.getAttribute('data-product-id');
+      let productSize = element.getAttribute('data-product-size');
+      
+      productId = Number(productId);
+      
+      let mappingObject = window.mapping.find(mapping => mapping.ids.includes(productId));
+  
+      if (mappingObject) {
+        $mapped_size =  mappingObject.mapping[productSize]["patch"];  
+      } else {
+        $mapped_size = "";  
+      }
+  
+      $selected_patch_colour = ""
+      if ($(`#cl-button-text`).length) {
+        $(`#cl-button-text`).text("Choose Colour");
+      }
+      updateAddToCartButton()
+
+      /* ezydog kc checking the formit product 9018885996840*/
+     
+      if(productId == '9018885996840'){
+         $('.cl-formitselect-wrapper').remove();
+       
+      
+        var text_htm ='Select Option';
+        if(sizes_text){  text_htm =sizes_text; }
+      $html_fromit =`<div class="cl-formitselect-wrapper" style="">
+                          <p id="step-3"></p>
+                          <h3 class="Barlow-Medium dfs-14 mfs-14 cl-step-heading">Step 3: What FormFit Harness do you have?</h3>
+                          <div id="cl-formit-selector" class="cl-formit-selector">
+                             <div>
+                            
+                             <div class="custom-dt-dropdown" id="formit_select">
+                               <details>
+                                 <summary><span>${text_htm}</span> {%- render 'icon' with 'chevron-down', class: 'group-expanded:rotate' -%}</summary>
+                                 <div class="custom-dt-list">
+                                   <div class="custom-dt-item">Old FormFit</div>
+                                   <div class="custom-dt-item">New FormFit</div>
+                                 </div>
+                               </details>
+                             </div>
+                             </div>
+                          </div>
+                     </div>`;
+      $('.cl-size-wrapper').after($html_fromit);
+  
+          
+         
+         $('#formit_select .custom-dt-list .custom-dt-item').on('click', function() {
+            let val=$(this).text();
+            $('#formit_select summary span').text(val);
+            $('#formit_select details').removeAttr('open');
+            $('.popup-test-class h3').text('Step 4: Customise your labels');
+
+            let colorLabelDatas  = $customcolorVariants[productId];
+            let colorold_custompopupswatchOptionsContainer = document.getElementById('color-options_old');
+            colorold_custompopupswatchOptionsContainer.innerHTML = ''; // Clear existing options
+            let sizes = new Set(); // To avoid duplicate sizes
+            let colors = new Set(); // To avoid duplicate sizes
+            let customcolors = new Set(); // To avoid duplicate sizes
+            let customOptionHtml='';
+            if (colorLabelDatas && colorLabelDatas.custom_lebel) {
+              // Iterate over each property in the custom_lebel object
+              let customOptionHtml = buildColorOptionsOld(colorLabelDatas.custom_lebel);
+              colorold_custompopupswatchOptionsContainer.innerHTML += customOptionHtml;
+             }
+           
+             $('.cl-color-checkboxold').on('click', function() { 
+                   handleColorSelectionOld(this);
+             });          
+            
+            handleFormitSelectionOld(val);
+
+           // function customSlider() {
+           //    const $colorSelector = $('.color-option_silder_old'); 
+           //    const $prevBtn = $('.cl-color-selector-wrapper_old .cl-color-prev-btn');
+           //    const $nextBtn = $('.cl-color-selector-wrapper_old .cl-color-next-btn');
+           //    const $wrapper = $('.cl-color-selector-wrapper_old .cl-color-selector_old');
+           //    const moveAmount = 44; 
+           //    let currentPosition = 0;
+           //    let isDragging = false;
+           //    let startX;
+           //    let scrollLeft;
+          
+           //    function initializeSlider() {
+           //        if ($colorSelector.length > 0 && $prevBtn.length > 0 && $nextBtn.length > 0 && $wrapper.length > 0) {
+           //            const maxScrollLeft = $colorSelector[0].scrollWidth - $colorSelector.outerWidth();
+          
+           //            $prevBtn.click(function() {
+           //                if (currentPosition > 0) {
+           //                    currentPosition -= moveAmount;
+           //                    if (currentPosition < 0) {
+           //                        currentPosition = 0;
+           //                    }
+           //                    $colorSelector.css('transform', `translateX(-${currentPosition}px)`);
+           //                }
+           //            });
+          
+           //            $nextBtn.click(function() {
+           //                if (currentPosition < maxScrollLeft) {
+           //                    currentPosition += moveAmount;
+           //                    if (currentPosition > maxScrollLeft) {
+           //                        currentPosition = maxScrollLeft;
+           //                    }
+           //                    $colorSelector.css('transform', `translateX(-${currentPosition}px)`);
+           //                }
+           //            });
+          
+           //            // Mouse down and touch start event to begin dragging
+           //            $wrapper.on('mousedown touchstart', function (e) {
+           //                isDragging = true;
+           //                startX = e.pageX || e.originalEvent.touches[0].pageX - $wrapper.offset().left;
+           //                scrollLeft = $wrapper.scrollLeft();
+           //                $wrapper.addClass('active'); // Add a class to indicate active dragging
+           //            });
+          
+           //            // Mouse leave, mouse up, and touch end events to end dragging
+           //            $wrapper.on('mouseleave mouseup touchend', function () {
+           //                if (isDragging) {
+           //                    isDragging = false;
+           //                    $wrapper.removeClass('active');
+           //                    snapToItem(); // Snap to the nearest item
+           //                }
+           //            });
+          
+           //            // Mouse move and touch move event to handle dragging
+           //            $wrapper.on('mousemove touchmove', function (e) {
+           //                if (!isDragging) return;
+           //                e.preventDefault();
+           //                const x = e.pageX || e.originalEvent.touches[0].pageX - $wrapper.offset().left;
+           //                const walk = (x - startX) * 2; // Scroll-fast multiplier
+           //                $wrapper.scrollLeft(scrollLeft - walk);
+           //            });
+          
+           //            // Handle mouse up globally to stop dragging
+           //            $(window).on('mouseup touchend', function () {
+           //                if (isDragging) {
+           //                    isDragging = false;
+           //                    $wrapper.removeClass('active');
+           //                    snapToItem(); // Snap to the nearest item
+           //                }
+           //            });
+          
+           //            // Snap to the nearest item after dragging ends
+           //            function snapToItem() {
+           //                let scrollPos = $wrapper.scrollLeft();
+           //                let itemIndex = Math.round(scrollPos / moveAmount);
+           //                let newScrollPos = itemIndex * moveAmount;
+           //                $wrapper.animate({ scrollLeft: newScrollPos }, 200);
+           //            }
+           //        } else {
+           //            console.error('Color selector elements not found!');
+           //        }
+           //    }
+
+           //   const observer = new MutationObserver(function(mutationsList, observer) {
+           //        for (const mutation of mutationsList) {
+           //            if (mutation.type === 'childList' || mutation.type === 'attributes') {
+           //                initializeSlider(); 
+           //            }
+           //        }
+           //    });
+          
+           //    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+           //    initializeSlider();
+           //  }
+
+           //     window.onload = function() {
+           //        initializeSlider();
+           //    };
+          
+           //  customSlider();
+         });
+      } else{
+        if ($(".cl-customise-wrapper").hasClass('d-none')) {
+        $(".cl-customise-wrapper").hide().removeClass("d-none").slideDown('fast', function() {
+          
+          $('#add-patch-to-cart').removeClass('d-none');
+          if($('.cl-color-checkbox').length == 1){
+            $('.cl-color-checkbox').click();
+          }
+        });
+      } else {
+          // if(isChecked == 'false'){ $('.cl-customise-wrapper').addClass('d-none').hide();} 
+          if($('.cl-color-checkbox').length == 1 && !$('.cl-color-checkbox').is(':checked')){
+            $('.cl-color-checkbox').click();
+            
+          }        
+        }
+      }
+    }
+
+  function buildColorOptionsOld(customLabelData) {
+     let customOptionHtml = `<div class='color-option_silder_old' id='color-option_silder_old'><div>
+              <div class="cl-color-checkboxold loadimageold-active" data-picker="#808080">
+                 <input class="cl-color-checkbox" data-color="" type="checkbox" id="upsell-patch-color-1" name="color-option">
+                   <label class="color-swatch rounded-full color-swatch-active" for="upsell-patch-color-formit_gray" data-option-value="formit_gray" style="background-color:#808080" loading="lazy"></label>
+               
+              </div>
+     </div></div>`;
+  // let customOptionHtml = `
+  //       <div class='color-option_silder_old' id='color-option_silder_old'>`;
+  //       for (let key in customLabelData) {
+  //         if (customLabelData.hasOwnProperty(key)) {
+  //           let isActive = key === 'fabrication_1' ? 'loadimageold-active' : '';
+  //           let isLabelActive = key === 'fabrication_1' ? 'color-swatch-active' : '';
+  //           customOptionHtml += `
+  //             <div>
+  //               <div class="cl-color-checkboxold ${isActive}" data-picker="${customLabelData[key].color_picker}">
+  //                 <input class="cl-color-checkbox" data-color="" type="checkbox" id="upsell-patch-color-${key}" name="color-option">
+  //                 <label class="color-swatch rounded-full ${isLabelActive}" for="upsell-patch-color-${key}" data-option-value="${customLabelData[key].custom_color_name}" style="background-color:${customLabelData[key].color_picker}"></label>
+  //               </div>
+  //             </div>`;
+  //         }
+  //       }
+        customOptionHtml += `
+        </div>
+  `;
+  return customOptionHtml;
+}
+
+  function handleColorSelectionOld(element) {
+  // Remove active classes
+  $('.cl-color-selector_old').find('.loadimageold-active').removeClass('loadimageold-active');
+  $('.cl-color-selector_old').find('.color-swatch-active').removeClass('color-swatch-active');
+
+  // Add active class to selected color
+  $(element).addClass('loadimageold-active');
+  $(element).find('.color-swatch').addClass('color-swatch-active');
+
+  // Update image based on the selected color
+  let colorData = $(element).find('.color-swatch').attr('data-option-value');
+  $('.cl-customiseold-wrapper .relative').find('.active').removeClass('active').addClass('d-none');
+  $("#inner-label-img-" + colorData).removeClass("d-none").addClass('active');
+}
+
+  function handleFormitSelectionOld(selectedValue) {
+  if (selectedValue === 'Old FormFit') {
+    // Show old formit customization options
+    $(".cl-customise-wrapper").hide().addClass("d-none");
+    $('#patch-wrapper').show();
+    $(".cl-customiseold-wrapper").show().removeClass("d-none");
+  } else {
+    // Show new formit customization options
+    $(".cl-customise-wrapper").show().removeClass("d-none");
+    $('#patch-wrapper').hide();
+    $(".cl-customiseold-wrapper").hide().addClass("d-none");
+  }
+}
+  
+    function updateColorOptions(productId) {
+      const colorOptionsContainer = document.getElementById('color-options');
+      colorOptionsContainer.innerHTML = ''; // Clear existing options
+    
+      let colors = new Set(); // To avoid duplicate colors
+    
+      // Check if product ID is in bedding mapping
+      const isBeddingProduct = window.bedding_mapping.includes(productId);
+      const isFormFitProduct = window.formfit_mapping.includes(productId);
+    
+      $labelProductVariants.forEach(variant => {
+          let colorOption = variant.option1.toLowerCase(); // Convert to lowercase
+    
+          if (isBeddingProduct && colorOption !== 'black') {
+              return; 
+          }
+
+          if (isFormFitProduct && colorOption !== 'formfit grey') {
+              return; 
+          }
+
+           if (!isFormFitProduct && colorOption === 'formfit grey') {
+              return; 
+          }
+        
+          if (colorOption && !colors.has(colorOption) && colorSwatches[colorOption]) {
+            colors.add(colorOption);
+            let swatchStyle = `url(${colorSwatches[colorOption]})`;
+            const colorOptionHtml = `
+              <div>
+                <input class="cl-color-checkbox" data-color="${variant.option1}" type="checkbox" id="color-${variant.id}" name="color-option" onchange="handleColourChange(this, 'cl-color-checkbox')">
+                <label class="color-swatch rounded-full" for="color-${variant.id}" data-option-value="" style="--swatch-background: ${swatchStyle};" loading="lazy"></label>
+              </div>
+            `;
+            colorOptionsContainer.innerHTML += colorOptionHtml;
+          }
+      });
+    }
+  
+  
+    function filterForMappedVariant(){
+      var filteredProduct = $labelProductVariants.filter(item => 
+        item.option1.toLowerCase() === $selected_patch_colour.toLowerCase() && 
+        item.option2.toLowerCase() === $mapped_size.toLowerCase());
+        let customMessage = document.getElementById('cl-custom-text').value;
+        let phoneNumber = document.getElementById('cl-phone-number').value;
+      
+      $matchingVariant = filteredProduct[0]
+      if ($('#smartwishlist').length && !!$matchingVariant) {
+        $('#smartwishlist').attr('data-variant', $matchingVariant.id);
+    }
+    
+    }
+   /* ezydog */
+
+  function addPatch_customold(){
+    var input_old = document.getElementById('cl-custom-text');
+
+     // Check if the input is empty (considering spaces as empty)
+      if (input_old.value.trim() === '') { 
+        input_old.reportValidity();
+        input_old.focus();
+        return
+      } 
+
+      let productId = $('#button-wrapper_new').attr('data-label-pid');
+       let size = $('#cl-size-selector .cl-size-checkbox:checked').attr('data-product-size');
+     let colorpatch = $('.cl-color-selector_old .loadimageold-active').find('.color-swatch').attr('data-option-value');
+       let messages_text = "You have selected a label which only fits our FormFit 1.0 harness. Tap confirm if this is correct or cancel to order a FormFit 2.0 label.";
+  
+        
+      let customMessage = document.getElementById('cl-custom-text').value.toUpperCase();
+      let phoneNumber = document.getElementById('cl-phone-number').value;
+
+       {% comment %} console.log('finding mapped variant') {% endcomment %}
+       let mappingObjectnew = window.mappingnew1.find(mappingnew => {   
+             return mappingnew.ids.includes(parseInt(productId));
+       });
+
+     if (mappingObjectnew) {
+      console.log(mappingObjectnew);
+       let mappingnew = mappingObjectnew.mappingnew[size];
+       {% comment %} console.log(parseInt(productId));
+       console.log(mappingObjectnew.mappingnew);
+      console.log(size);
+      console.log(mappingnew.patch.toLowerCase()); {% endcomment %}
+          {% comment %} console.log(JSON.stringify($labelProductVariants_new, null, 2));  {% endcomment %}
+           $matchingPatchVariant_new = $labelProductVariants_new.filter(item => 
+            item.option1 === 'Formfit Grey'  && 
+            item.option2.toLowerCase() === mappingnew.patch.toLowerCase()
+          )[0];
+     //  console.log('test1');
+     {% comment %} console.log(mappingnew.patch.toLowerCase()); {% endcomment %}
+ console.log($labelProductVariants_new);
+      const formData = {
+        title:"test",
+        id: $matchingPatchVariant_new.id,
+        quantity: 1,
+        properties: {
+          'Custom Message': customMessage,
+          'Phone Number': phoneNumber
+        }
+      };
+    // if (confirm(messages_text) == true) {
+       Swal.fire({
+  title: "Are you sure?",
+  text: messages_text,
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#d33",
+ cancelButtonColor: "#000000",
+    customClass: "custom_cancelold",
+  confirmButtonText: "Confirm"
+}).then((result) => {
+  if (result.isConfirmed) {
+      $.ajax({
+        type: 'POST',
+        url: '/cart/add.js',
+        data: JSON.stringify(formData),
+        dataType: 'json',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        beforeSend: function(){
+     buttonLoading(productId)
+        },
+        success: function(cart) {
+      
+      
+          $.getJSON('/cart.js', function(updatedCart) {
+            document.dispatchEvent(new CustomEvent('cart:refresh', {
+              detail: {
+                cart: updatedCart
+              }
+            }));
+          });        
+            
+          const cartDrawerElement = document.querySelector('#cart-drawer');
+          if (cartDrawerElement) {
+            cartDrawerElement.show();
+          } 
+            
+        },
+        error: function(errorThrown) {
+       
+            console.log(errorThrown)
+            
+          
+          },
+        complete: function() {
+          buttonLoading(productId);  // Hide loading on completion
+        }
+      });
+     }
+          });
+     }
+    
+  }
+  
+    // function addPatchToCart(){
+  
+    //   var input = document.getElementById('cl-custom-text');
+      
+    //   // Check if the input is empty (considering spaces as empty)
+    //   if (input.value.trim() === '') {
+    //     input.reportValidity();
+    //     input.focus();
+    //     return
+    //   } 
+  
+  
+    //   var filteredProduct = $labelProductVariants.filter(item => 
+    //   item.option1.toLowerCase() === $selected_patch_colour.toLowerCase() && 
+    //   item.option2.toLowerCase() === $mapped_size.toLowerCase());
+      
+    //   let customMessage = document.getElementById('cl-custom-text').value.toUpperCase();
+    //   let phoneNumber = document.getElementById('cl-phone-number').value;
+      
+    //   let patchId = filteredProduct[0].id
+    //   let productId = this.dataset.productId
+    //   const formData = {
+    //     id: $matchingVariant.id,
+    //     quantity: 1,
+    //     properties: {
+    //       'Custom Message': customMessage,
+    //       'Phone Number': phoneNumber
+    //     }
+    //   };
+    
+    //   $.ajax({
+    //     type: 'POST',
+    //     url: '/cart/add.js',
+    //     data: JSON.stringify(formData),
+    //     dataType: 'json',
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //     },
+    //     beforeSend: function(){
+    //       buttonLoading(productId)
+    //     },
+    //     success: function(cart) {
+    //       buttonStopLoading(productId)
+    //       window.location.href = '/checkout';
+    //       // $.getJSON('/cart.js', function(updatedCart) {
+    //       //   document.dispatchEvent(new CustomEvent('cart:refresh', {
+    //       //     detail: {
+    //       //       cart: updatedCart
+    //       //     }
+    //       //   }));
+    //       // });        
+            
+    //       // const cartDrawerElement = document.querySelector('#cart-drawer');
+    //       // if (cartDrawerElement) {
+    //       //   cartDrawerElement.show();
+    //       // } 
+            
+    //     },
+    //     error: function(errorThrown) {
+    //       buttonStopLoading(productId)
+    //         console.log(errorThrown)
+            
+    //         var r = jQuery.parseJSON(errorThrown.responseText);
+    //         $(".error_" + productId).html("Error: " + r.description).show();
+    //         setTimeout(function() {
+    //             $(".error_" + productId).html("").hide(100);
+    //         }, 3000);
+    //       }
+    //   });
+      
+    // }
+    
+    function buttonLoading(productId){
+      $(`.loading-${productId}`).removeClass('noopacity');
+      $(`#cl-button-text`).addClass('noopacity');
+      $(`.button-${productId}`).prop('disabled', true);
+      $(`.button-${productId}`).addClass('button-disabled');
+    }
+    function buttonStopLoading(productId){
+      $(`.loading-${productId}`).addClass('noopacity');
+      $(`#cl-button-text`).removeClass('noopacity');
+      $(`.button-${productId}`).prop('disabled', false);
+      $(`.button-${productId}`).removeClass('button-disabled');
+    }
+  
+    function selectOption(value) {
+      $("div[data-block-type='variant-picker'] input[type='radio'][name='option1']").each(function() {
+          if ($(this).val().toLowerCase() === value.toLowerCase()) {
+              $(this).click();
+          }
+      });
+  }
+  $('#cl-custom-text').on('input', function() {
+    var text = $(this).val();
+    $('#label-text-overlay').text(text);
+  });
+  
+  $('#cl-phone-number').on('input', function() {
+    var text = $(this).val();
+    $('#label-phone-overlay').text(text);
+    // if (text === '') {
+    //     $('.patch-text-overlay').removeClass('with-phone');
+    // } else {
+    //     $('.patch-text-overlay').addClass('with-phone');
+    // }
+});
+
+function sanitizeInput(input) {
+  const regex = /[^a-zA-Z0-9]/g;
+  return input.replace(regex, "");
+}
+   function updateCanvastext() {
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlayText = document.getElementById('cl-custom-text_order').value;
+    const overlayNumber = document.getElementById('cl-phone-number_order').value;
+    $('#myCanvas').css('display', 'block');
+
+    if (img && overlayImg) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        drawOverlayImage(ctx, overlayImg, canvas.width, canvas.height);
+        drawTextOnCanvas(ctx, overlayText, overlayNumber, canvas.width, canvas.height);
+         extractTextFromCanvas(canvas);
+    }
+    
+}
+
+  $( document ).ready(function() {
+      $('body').on('click','.variant-picker__option-values .v-stack',function(event){
+        event.preventDefault();
+      
+        $('.variant-picker__option-values').find('.material-active').removeClass('material-active');
+        let productId=$(this).attr('data_varientid');
+        $('#button-wrapper_new').attr('data-label-pid',productId);
+        $(this).find('.material-image-wrapper').addClass('material-active');
+           if ($(".cl-size-wrapper").hasClass('d-none')) {    
+          setTimeout(function() {
+              $(".cl-size-wrapper").hide().removeClass("d-none").slideDown('fast');
+          }, 400);
+        }
+     let size_active = $('#cl-size-selector .cl-size-checkbox:checked').attr('data-product-size');
+        
+       updateSizeOptions(productId);
+        updateimagevarients(productId);
+        if(size_active !='undefined'){
+          $('#cl-size-selector .cl-size-checkbox-'+size_active).prop('checked','checked');
+        }
+    });
+
+        // Debounce function to delay Tesseract calls
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+    
+        let worker;
+        async function initializeWorker() {
+            if (!worker) {
+                worker = Tesseract.createWorker();
+                await worker.load();
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+            }
+        }
+    
+        async function extractTextFromCanvas(canvas) {
+            try {
+                if (!worker) {
+                    await initializeWorker(); // Ensure the worker is initialized
+                }
+                const { data: { text } } = await worker.recognize(canvas);
+                // console.log('Extracted text:', text);
+            } catch (err) {
+                console.error('Error during OCR:', err);
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+          if (worker) {
+            worker.terminate();
+            worker = null;
+          }
+        });
+
+        // Debounced version of updateCanvastext
+        const debouncedUpdateCanvastext = debounce(updateCanvastext, 600); 
+        // Input field event listeners with debounced canvas updates
+        $("#cl-custom-text_order").on('keyup', debouncedUpdateCanvastext);
+        $("#cl-phone-number_order").on('keyup', debouncedUpdateCanvastext);
+
+        window.addEventListener('beforeunload', () => {
+            if (worker) {
+                worker.terminate(); // Properly terminate the worker to free memory
+                worker = null;
+            }
+        });
+  });
+</script>
+
+<style>
+    .cl-accordion-summary{
+      display: grid;
+      grid-template-columns: 50px 10fr 1fr;
+      align-items: center;
+    }
+
+    .patch-text-overlay{ text-transform: uppercase; }
+
+    .custom-label-button-wrapper{ display: flex; gap: 5px; }
+    .buy-button-wishlist #smartwishlist .tooltip, .smartwishlist .tooltip {
+      background-color: #EA2D24;
+      display: grid;
+      align-items: center;
+      padding: 0 12px;
+      color: #FFF;
+      border-radius: 10px;
+    }
+    #smartwishlist .unbookmarked{ color: #FFF; }
+    #cl-custom-text,  #cl-phone-number{ border-radius: 5px; border: 1px solid #C4C4C4; }
+
+    .patch-text-overlay{
+      position: absolute;
+      color: #fff;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    /* .patch-text-overlay.with-phone #label-text-overlay, .patch-text-overlay.with-phone #label-phone-overlay{ line-height: 1; text-transform: uppercase; }
+    @media screen and (max-width: 1000px){
+      .patch-text-overlay #label-text-overlay, .patch-text-overlay #label-phone-overlay{ font-size: 11vw; }
+
+      .patch-text-overlay.with-phone #label-text-overlay, .patch-text-overlay.with-phone #label-phone-overlay{ font-size: 5.5vw }
+    }
+
+    @media screen and (min-width: 1000px) and (max-width: 1590px ){
+      .patch-text-overlay #label-text-overlay, .patch-text-overlay #label-phone-overlay{ font-size: 3.4vw; }
+
+      .patch-text-overlay.with-phone #label-text-overlay, .patch-text-overlay.with-phone #label-phone-overlay{ font-size: 3vw; }
+    }
+
+    @media screen and (min-width: 1590px){
+      .patch-text-overlay #label-text-overlay, .patch-text-overlay #label-phone-overlay{ font-size: 70px; }
+
+      .patch-text-overlay.with-phone #label-text-overlay, .patch-text-overlay.with-phone #label-phone-overlay{ font-size: 60px; }
+    } */
+
+    .patch-text-overlay #label-text-overlay{
+      margin-top: 8px;
+      line-height: 1;
+      font-size: 3.2vw !important;
+    }
+    .patch-text-overlay #label-phone-overlay{
+      font-size: 2.3vw !important;
+      letter-spacing: 0.1px;
+    }
+
+    .patch-text-overlay-form-fit { margin-top: 10px; }
+    .patch-text-overlay-form-fit > #label-text-overlay { color: #fff !important; }
+    .patch-text-overlay-form-fit > #label-phone-overlay { color: #fff !important; }
+    .patch-text-overlay-form-fit.with-phone #label-phone-overlay{ font-weight: normal; letter-spacing: 1px;}
+
+    @media(max-width: 1000px){
+      .patch-text-overlay #label-text-overlay{
+        font-size: 7vw !important;
+      }
+      .patch-text-overlay #label-phone-overlay{
+        font-size: 5vw !important;
+      }
+    }
+
+    /* @media screen and (max-width: 1000px){
+      .patch-text-overlay-form-fit #label-text-overlay, .patch-text-overlay-form-fit #label-phone-overlay{ font-size: 11vw; }
+
+      .patch-text-overlay-form-fit.with-phone #label-text-overlay{ font-size: 5.5vw; }
+      .patch-text-overlay-form-fit.with-phone #label-phone-overlay{ font-size: 3.5vw; }
+    }
+
+    @media screen and (min-width: 1000px) and (max-width: 1590px ){
+      .patch-text-overlay-form-fit #label-text-overlay{ font-size: 5vw; }
+
+      .patch-text-overlay-form-fit.with-phone #label-text-overlay{ font-size: 4vw; }
+      .patch-text-overlay-form-fit.with-phone #label-phone-overlay{ font-size: 2vw; }
+    }
+
+    @media screen and (min-width: 1590px){
+      .patch-text-overlay-form-fit #label-text-overlay{ font-size: 70px; }
+
+      .patch-text-overlay-form-fit.with-phone #label-text-overlay{ font-size: 60px; }
+      .patch-text-overlay-form-fit.with-phone #label-phone-overlay{ font-size: 40px; }
+    } */
+
+
+
+
+
+    .d-none { display: none !important; }
+    .cl-color-selector{ display: flex; gap: 10px; }
+     [data-block-type="variant-picker"]{ height: 0; opacity: 0; }
+    [data-block-type="variant-picker"] {
+       display: none;
+    }
+
+    .button-choose{ border: 1px solid: #EA2D24; background: #FFF; color: #EA2D24;  }
+    .add-text-{{product.id}} { transition: opacity 0.2s ease-in-out; }
+    .loading-{{product.id}} {
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out;
+    }
+     .button-{{product.id}}{
+      width: 100%; margin: auto; display: flex;
+      position: relative;
+    }
+
+     .button-{{product.id}} > .loading-{{ product.id }}{
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+
+    .loading-{{ product.id }} > svg{
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+
+
+    .cl-accordion-label-customise{
+      border-block-width: 0;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 10px;
+    }
+
+    .cl-accordion-summary{
+      padding: 10px 15px;
+      position: relative;
+    }
+
+    .cl-accordion-summary svg{
+      margin: auto;
+      position: absolute;
+      right: 26px;
+      top: 0;
+      bottom: 0;
+    }
+
+    .cl-accordion-summary.content-replaced #label-select-text{
+    /* position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: fit-content;
+    width: fit-content; */
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-left: 10px;
+  }
+
+  .cl-accordion-summary.content-replaced img {
+    height: 50px;
+    padding-left: 0;
+  }
+
+    .cl-product-image{
+      height: 50px;
+      width: auto;
+      z-index: 1;
+      position: relative;
+    }
+
+    .cl-wrapper{
+      display: grid;
+      gap: 32px;
+    }
+
+    {% comment %} Step 1 {% endcomment %}
+    .cl-step-heading{ margin-bottom: 12px; }
+    .cl-product-select:first-of-type{padding-top: 0; }
+    .cl-product-select{ position: relative;  }
+    .cl-product-image{ padding-left: 26px; }
+    .cl-checkbox-container input{ visibility: hidden; }
+    .cl-accordion__content{ margin-top: none !important; }
+    .cl-product-select{ padding: 10px 0; }
+    .cl-product-select span{ padding: 0 26px}
+
+    .cl-checkbox-container{
+      /* position: absolute; */
+      display: flex;
+      /* justify-content: center; */
+      inset: 0;
+      margin: auto;
+      align-items: center;
+    }
+
+    .cl-product-select input[type="checkbox"]:checked + label {
+      background-color: #E4E4E4;
+    }
+
+
+    .cl-size-selector input[type="checkbox"]:checked + label {
+      background-color: #EA2D24;
+      border-color: #EA2D24;
+      color: #fff;
+    }
+    .cl-size-selector input[type="checkbox"]:checked + label {
+      background-color: #EA2D24;
+      border-color: #EA2D24;
+      color: #fff;
+    }
+
+  {% comment %} Step 2 {% endcomment %}
+    .cl-size-selector {
+      display: flex;
+      gap: 10px; /* Space between each size option */
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .cl-size-selector input { display: none; }
+    .size-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid #4B4B4B;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .size-option input[type="checkbox"] {
+      display: none;
+    }
+
+
+    {% comment %} Step 3 {% endcomment %}
+    .cl-text-input-wrapper input{
+      width: 100%;
+      border-radius: 5px;
+      height: 40px;
+      padding: 0 10px;
+    }
+
+    .cl-s3-text-wrapper{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .cl-s3-text-wrapper img{ width: 40px; height: 40px;  }
+
+
+    .cl-color-wrapper{ padding-bottom: 15px; }
+    .cl-color-checkbox { display: none; }
+
+
+    /* CUSTOM DROPDOWN */
+    .custom-dt-dropdown details{
+      border-block-width: 0;
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+    .custom-dt-dropdown summary{
+      padding: 10px 15px;
+      color: #1c1c1c;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .custom-dt-dropdown details[open] svg{
+      transform: rotate(180deg);
+    }
+    .custom-dt-dropdown .custom-dt-item{
+      padding: 8px 15px;
+      color: #1c1c1c;
+      transition: all 200ms ease-in-out;
+      cursor: pointer;
+    }
+    .custom-dt-dropdown .custom-dt-item:hover{
+      background: #e4e4e4;
+    }
+
+    .cl-color-selector-wrapper_old{
+      padding-top: 12px !important;
+      padding-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cl-color-selector-wrapper_old .cl-color-selector{
+      display: flex;
+      gap: 10px;
+    }
+    .cl-color-selector-wrapper_old .cl-color-wrapper{
+      padding-bottom: 12px;
+      width: 100% !important;
+      margin-left: -8px;
+      margin-right: -8px;
+    }
+    .cl-color-selector-wrapper_old .cl-color-checkboxold{
+      margin-right: 8px;
+      margin-left: 8px;
+    }
+    .cl-color-selector-wrapper_old .color-swatch{
+      width: 28px !important;
+      height: 28px !important;
+      border: 0!important;
+    }
+    .color-option_silder_old{
+      display: flex;
+      align-items: center;
+      gap: 0 !important;
+      height: 35px !important;
+      width: 350px;
+      transition: all 300ms ease-in-out;
+    }
+    .color-option_silder_old .cl-color-checkboxnew{
+      margin-right: 8px;
+      margin-left: 8px;
+    }
+    .color-option_silder_old .cl-color-checkboxnew .color-swatch{
+        width: 28px !important;
+        height: 28px !important;
+    }
+    .cl-color-selector_old{
+      overflow: hidden;
+    }
+    .cl-color-selector-wrapper_old .cl-color-next-btn, .cl-color-selector-wrapper_old .cl-color-prev-btn{
+      width: 20px;
+      height: 20px;
+    }
+
+    @media screen and (max-width: 991.98px) {
+      .cl-color-selector-wrapper_old {
+          padding-bottom: 10px !important;
+      }
+    }
+
+    @media screen and (max-width: 480px){
+      .color-option_silder_old {
+          width: 260px !important;
+      }
+    }
+
+    @media screen and (max-width: 420px){
+      .color-option_silder_old {
+          width: 220px !important;
+      }
+    }
+  /* .custom_cancelold .swal2-actions button.swal2-cancel{
+      border: 1px solid #000000 !important;
+      color: #000000 !important;
+    } */
+    .custom_cancelold .swal2-icon.swal2-warning{
+      margin-top: 24px!important;
+      color: #EA2D24!important;
+      border-color: #EA2D24!important;
+    }
+    .custom_cancelold .swal2-title{
+      color: #000;
+      font-size: 26px;
+      padding-top: 0!important;
+    }
+    .custom_cancelold .swal2-html-container{
+      color: #000;
+      font-size: 16px;
+    }
+    .custom_cancelold .swal2-actions button.swal2-confirm{
+      border: 1px solid #EA2D24;
+    }
+    .custom_cancelold .swal2-actions button.swal2-confirm:hover{
+      color: #000000 !important;
+      background: white !important;
+    }
+    .custom_cancelold .swal2-actions button{
+      font-size: 14px;
+      height: 40px;
+      padding: 8px 20px!important;
+      transition: all 200ms ease-in-out;
+      border-radius: 6px;
+    }
+</style>

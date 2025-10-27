@@ -1,0 +1,289 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+LINE ITEM
+----------------------------------------------------------------------------------------------------------------------
+
+This component renders a single line item product information, and is used on order and cart page.
+
+********************************************
+Supported variables
+********************************************
+
+* line_item: the line item to render (required)
+* show_quantity_selector: if set to true, the quantity selector is displayed (useful for instance of mini-cart)
+{%- endcomment -%}
+{% assign properties_json = line_item.properties | json %}
+<line-item class="line-item{% if properties_json contains '---' %} bundle-itmes{% endif %}">
+  {%- if line_item.image != blank -%}
+    {{- line_item.image | image_url: width: line_item.image.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 70px, 120px', widths: '70,120,140,210,240,360', class: 'line-item__media' -}}
+  {%- endif -%}
+
+  <div class="line-item-info">
+    {%- assign text_class = '' -%}
+
+    {%- if settings.product_card_text_font == 'heading' -%}
+      {%- assign text_class = 'h6' -%}
+    {%- endif -%}
+
+    <div class="v-stack justify-items-start gap-2">
+      {%- if settings.show_vendor and line_item.vendor != blank -%}
+        {%- capture vendor_class -%}smallcaps {% if settings.product_card_text_font == 'heading' %}heading{% endif %}{% endcapture %}
+        {%- render 'vendor' with line_item.vendor, class: vendor_class -%}
+      {%- endif -%}
+
+      <div class="v-stack justify-items-start gap-1">
+        {%- if line_item.url != blank -%}
+          <a href="{{ line_item.url }}" class="{{ text_class }}">{{ line_item.product.title | default: line_item.title }}</a>
+        {%- else -%}
+          <p class="{{ text_class }}">{{ line_item.product.title | default: line_item.title }}</p>
+        {%- endif -%}
+
+        {%- render 'price-list', line_item: line_item, context: 'line_item' -%}
+      </div>
+
+      {%- capture secondary_information -%}
+      {%- unless line_item.product.has_only_default_variant or line_item.gift_card -%}
+        {%- unless line_item.properties._bundle_product or template contains 'personalised-bundles-template' -%}
+          <p class="smallcaps text-subdued">{{ line_item.variant.title }}</p>
+        {%- endunless -%}
+      {%- endunless -%}
+
+        {%- if line_item.selling_plan_allocation -%}
+          <p class="text-subdued">{{ line_item.selling_plan_allocation.selling_plan.name }}</p>
+        {%- endif -%}
+
+        {%- unless line_item.properties == blank -%}
+          <ul class="text-subdued">
+            {% if line_item.properties._bundle_product != blank or line_item.properties._bundle_product != null %}
+              {%- for property in line_item.properties._bundle_product -%}
+              {%- assign first_character_in_key = property.first | truncate: 1, '' -%}
+
+              {%- if property.last == blank or first_character_in_key == '_' -%}
+                {%- continue -%}
+              {%- endif -%}
+
+            {% if property.first != 'Message' and property.first != 'Phone Number' %}
+              <li class="{%- if properties_json contains '---' -%}bundle-items{% endif %}">
+                {%- if properties_json contains '---' -%}
+                  {% assign propertyname= property.last | split:'---'%}
+                  {% assign propety_firstname = propertyname | first %}
+                   {% assign propety_lastname = propertyname | last %}
+                 <span class="product_title"><b>{{ propety_firstname }}</b></span>
+                  <span class="product_size">{{ propety_lastname }}</span>
+                {%- else if property.last contains '/uploads/' -%}
+                  <a href="{{ property.last }}">{{ property.last | split: '/' | last }}</a>
+                {%- else -%}
+               {{ property.first }}: {{ property.last }}
+             {%- endif -%}
+                
+              </li>
+              {% else %}
+              <span class="proprty-messages" style="width: 100%;display: block;">
+                   {{ property.first }}: {{ property.last }}
+              </span>
+                {% endif %}
+            {%- endfor -%}
+          {% else %}
+            {%- for property in line_item.properties -%}
+              {%- assign first_character_in_key = property.first | truncate: 1, '' -%}
+
+              {%- if property.last == blank or first_character_in_key == '_' -%}
+                {%- continue -%}
+              {%- endif -%}
+
+              <li>
+                {%- if property.last contains '/uploads/' -%}
+                  <a href="{{ property.last }}">{{ property.last | split: '/' | last }}</a>
+                {%- else -%}
+                  {{ property.first }}: {{ property.last }}
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          {% endif %}
+          </ul>
+        {%- endunless -%}
+      {%- endcapture -%}
+
+      {%- if secondary_information != blank -%}
+        <div class="v-stack justify-items-start gap-1">
+          {{- secondary_information -}}
+        </div>
+      {%- endif -%}
+
+      {%- if show_quantity_selector -%}
+        <line-item-quantity class="h-stack gap-4 {% if request.page_type == 'cart' %}sm:hidden{% endif %}">
+          {%- render 'quantity-selector', line_item: line_item, size: 'sm' -%}
+          {% comment %} <a href="{{ line_item.url_to_remove }}" class="link text-xs">{{ 'cart.order.remove' | t }}</a> {% endcomment %}
+          <a href="{{ line_item.url_to_remove }}" class="link text-xs" onclick="event.preventDefault(); removeItemAndUpdateAndRemoveItem({{ line_item.id }}, event)">{{ 'cart.order.remove' | t }}</a>
+        </line-item-quantity>
+      {%- else -%}
+        <p class="text-subdued text-sm sm:hidden">{{ 'customer.order.quantity' | t }}: {{ line_item.quantity }}</p>
+      {%- endif -%}
+
+      {%- if line_item.line_level_discount_allocations != blank -%}
+        <ul class="v-stack justify-items-start gap-1 unstyled-list" role="list">
+          {%- for discount_allocation in line_item.line_level_discount_allocations -%}
+            <li class="discount-badge text-xs">
+              {%- render 'icon' with 'discount', width: 12 -%} {{ discount_allocation.discount_application.title }} (-{{ discount_allocation.amount | money }})
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</line-item>
+
+<script>
+  function removeItemAndUpdateAndRemoveItem(removedItemId, event) {
+    if (event?.preventDefault) event.preventDefault();
+
+    // Show loading state
+    toggleCartLoading(true);
+
+    // First remove the item from cart
+    $.ajax({
+      type: 'POST',
+      url: '/cart/change.js',
+      data: {
+        id: removedItemId,
+        quantity: 0
+      },
+      dataType: 'json',
+      success: function(cartAfterRemoval) {
+        processCartAttributes(cartAfterRemoval, removedItemId);
+      },
+      error: function(xhr, status, error) {
+        console.error('Removal failed:', error);
+        toggleCartLoading(false);
+        alert('Failed to remove item. Please try again.');
+      }
+    });
+  }
+
+  function processCartAttributes(cart, removedItemId) {
+    const attributes = cleanBundleAttributes(cart.attributes || {}, removedItemId, cart.items);
+    const updatedNote = cleanCartNote(cart.note || '');
+
+    $.ajax({
+      type: 'POST',
+      url: '/cart/update.js',
+      data: JSON.stringify({
+        attributes: attributes,
+        note: updatedNote
+      }),
+      dataType: 'json',
+      headers: { 'Content-Type': 'application/json' },
+      success: function(updatedCart) {
+        refreshCartUI(updatedCart);
+      },
+      error: function(xhr, status, error) {
+        console.error('Attribute update failed:', error);
+        refreshCartUI(cart); // Refresh with last known good state
+      }
+    });
+  }
+
+  function cleanBundleAttributes(attributes, removedItemId, cartItems) {
+    const cleaned = JSON.parse(JSON.stringify(attributes));
+    
+    // Clean bundleGroups
+    if (cleaned.bundleGroups) {
+      try {
+        let bundleGroups = typeof cleaned.bundleGroups === 'string' 
+          ? JSON.parse(cleaned.bundleGroups) 
+          : cleaned.bundleGroups;
+
+        bundleGroups = bundleGroups.map(group => {
+          group.items = group.items.filter(item => {
+            // Skip if this is the removed item
+            if (item.id === removedItemId) return false;
+            
+            // Check bundle variants
+            if (item.properties?._bundle) {
+              try {
+                const bundleData = JSON.parse(item.properties._bundle);
+                return !bundleData.some(bundleItem => {
+                  const variantId = bundleItem.variantId?.match(/gid:\/\/shopify\/ProductVariant\/(\d+)/)?.[1];
+                  return variantId === removedItemId.toString();
+                });
+              } catch (e) {
+                console.error('Bundle parse error:', e);
+                return true; // Keep if we can't parse
+              }
+            }
+            return true;
+          });
+          return group;
+        }).filter(group => group.items.length > 0);
+
+        cleaned.bundleGroups = bundleGroups.length > 0 ? bundleGroups : '';
+      } catch (e) {
+        console.error('Bundle group processing failed:', e);
+        cleaned.bundleGroups = '';
+      }
+    }
+
+    // Clean product-specific attributes
+    Object.keys(cleaned).forEach(key => {
+      if (key.startsWith('PRODUCT ')) {
+        try {
+          const productData = JSON.parse(cleaned[key]);
+          if (productData.variantId?.includes(removedItemId.toString())) {
+            delete cleaned[key];
+          }
+        } catch {
+          if (cleaned[key].includes(removedItemId.toString())) {
+            delete cleaned[key];
+          }
+        }
+      }
+    });
+
+    // Clean personalized products attribute if empty
+    if (cleaned['Products_Pesonalised'] && !cartItems.some(i => i.properties?.labels)) {
+      delete cleaned['Products_Pesonalised'];
+    }
+
+    return cleaned;
+  }
+
+  function cleanCartNote(note) {
+    try {
+      const parsed = JSON.parse(note);
+      if (typeof parsed === 'object') {
+        delete parsed["Custom Message"];
+        delete parsed["Phone Number"];
+        return Object.keys(parsed).length ? JSON.stringify(parsed) : '';
+      }
+    } catch (e) {
+      console.warn('Note parse failed:', e);
+    }
+    return note;
+  }
+
+  function refreshCartUI(cart) {
+    // Standard theme event
+    if (typeof document.dispatchEvent === 'function') {
+      document.dispatchEvent(new CustomEvent('cart:refresh', { detail: { cart } }));
+    }
+    
+    // Shopify standard function
+    if (typeof Shopify?.updateCartInfo === 'function') {
+      Shopify.updateCartInfo(cart);
+    }
+    
+    // Custom drawer refresh
+    const cartDrawer = document.querySelector('.cart-drawer');
+    if (cartDrawer?.refresh) {
+      cartDrawer.refresh(cart);
+    }
+
+    toggleCartLoading(false);
+  }
+
+  function toggleCartLoading(show) {
+    document.querySelectorAll('.cart-drawer, .cart-loading').forEach(el => {
+      el.classList.toggle('is-loading', show);
+    });
+  }
+</script>

@@ -1,0 +1,199 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+MEGA MENU COMPONENT
+----------------------------------------------------------------------------------------------------------------------
+
+Render the mega-menu. The mega-menu is a kind of menu optimized for showing a large number of items into several
+columns.
+
+********************************************
+Supported variables
+********************************************
+
+* link: the link from which we need to render the mega-menu. The link must always be a second level link, but it can
+        also be empty (no links), which is the case if the merchant only want to show images, for instance.
+* block: the block containing all the information about the menu to render
+{%- endcomment -%}
+
+{% unless link.type == 'blog_link' %}
+  <div class="mega-menu mega-menu-{{ link.title | handle }} {% if block.settings.images_position == 'left' %}mega-menu--reverse{% endif %}" {{ block.shopify_attributes }}>
+
+    {%- if link.levels > 0 -%}
+      {% assign inner_link_count = link.links.size %} 
+      <ul class="mega-menu__linklist unstyled-list">
+        {%- for sub_link in link.links -%}
+          <li class="v-stack justify-items-start {% if link.title == "Shop The Range" %}gap-1 {% else %} gap-5 {% endif %}">
+            {% if link.title == "Shop The Range" %}
+              {% assign collection = collections[sub_link.object.handle] %}
+              {% if forloop.first %}
+                {% assign collection = collections["All"] %}
+                <a data-url="{{ sub_link.url }}" class="header-link-item header-link-item-all">
+                    <img class="shop-the-range-navimage" src="{{ collection.image | img_url: 'medium' }}" alt="{{ collection.title }}" />
+                    <span class="shop-the-range-navtitle Barlow">Shop All</span>
+                  </a>
+              {% else %}
+                {% assign sub_link_downcase = sub_link.title | downcase %}
+                {% if sub_link_downcase == "essentials" or sub_link_downcase == "premium" or sub_link_downcase == "bundles" %}
+                  <a data-url="{{ sub_link.url }}" class="header-link-item">
+                {% else %}
+                   <a href="{{ sub_link.url }}" class="header-link-item">
+                {% endif %}
+                
+                  {% if collection.image %}
+                    <img class="shop-the-range-navimage" src="{{ collection.image | img_url: 'medium' }}" alt="{{ collection.title }}" />
+                    <span class="shop-the-range-navtitle Barlow">{{ sub_link.title }}</span>
+                  {% endif %}
+                </a>
+              {% endif %}
+            {% else %}
+              {% assign sub_link_downcase = sub_link.title | downcase %}
+              {% if sub_link_downcase == "bestselling" or sub_link_downcase == "best for" %}
+                <a data-url="{{ sub_link.url }}" class="dfs-18 mfs-18 Barlow-Medium">{{ sub_link.title }}</a>
+              {% else %}
+                 <a href="{{ sub_link.url }}" class="dfs-18 mfs-18 Barlow-Medium">{{ sub_link.title }}</a>
+              {% endif %}
+              
+            {% endif %}
+  
+            {%- if sub_link.links.size > 0 -%}
+              <ul class="v-stack gap-2.5 unstyled-list">
+                {%- for sub_sub_link in sub_link.links -%}
+                  {% assign sub_sub_link_downcase = sub_sub_link.title | downcase %}
+                  <li>
+                    {% assign special_sub_sub_links = "new,customise,non-pull,designer,personalised,travel,walking,hiking,active,beach,cityscapes,boating,all activities,daily use,travel,all purpose" | split:"," %}
+                    
+                    {% if special_sub_sub_links contains sub_sub_link_downcase %}
+                      <a data-url="{{ sub_sub_link.url }}" class="link-faded dfs-18 mfs-18 Barlow">{{ sub_sub_link.title }}</a>
+                    {% else %}
+                      <a href="{{ sub_sub_link.url }}" class="link-faded dfs-18 mfs-18 Barlow">{{ sub_sub_link.title }}</a>
+                    {% endif %}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  
+    {%- capture mega_menu_content -%}
+      {%- render 'mega-menu-images', context: 'menu', block: block -%}
+    {%- endcapture -%}
+  
+    {%- if mega_menu_content != blank -%}
+      <div class="mega-menu__promo">
+        {{- mega_menu_content -}}
+      </div>
+    {%- endif -%}
+  </div>
+{% else %}
+  <div class="mega-menu mega-menu-blog {% if block.settings.images_position == 'left' %}mega-menu--reverse{% endif %}" {{ block.shopify_attributes }}>
+    {% assign blog = link.object %}
+    {%- capture mega_menu_content -%}
+      {%- render 'mega-menu-blog-images', context: 'menu', block: block, blog: blog -%}
+    {%- endcapture -%}
+  
+    {%- if mega_menu_content != blank -%}
+      <div class="mega-menu__promo mega-menu__promo-blog">
+        {{- mega_menu_content -}}
+      </div>
+    {%- endif -%}
+  </div>
+{% endunless %}
+
+<style>
+  .mega-menu__promo a{ transition: color: .2s; }
+  .mega-menu__promo a:hover p { color: #EA2D24;  }
+  .header-link-wrapper{
+    flex-grow: 1;
+    display: flex;
+  }
+
+  .mega-menu-blog{ justify-content: center; }
+  
+  li:has(.header-link-item){
+    display: flex;
+  }
+  
+  .header-link-item{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .nav-collection-all{ border: 1px solid #000; border-radius: 50%; height: 60px; width: 60px;  display: flex; justify-content: center;  align-items: center; }
+  .nav-collection-all > span{ font-size: 20px; color: #000; }
+  .shop-the-range-navimage{
+    max-width: 60px;
+    margin-bottom: 10px;
+    filter: grayscale(1); 
+    transition: filter .1s;
+  }
+
+  .shop-the-range-navtitle{
+    transition: color .1s;
+  }
+
+  @media screen and (min-width: 641px){
+    .shop-the-range-navtitle{ color: #6A6A6A; text-transform: capitalize; }
+  }
+
+  .header-link-item:hover .shop-the-range-navimage { filter: grayscale(0); }
+  .header-link-item:hover .shop-the-range-navtitle { color: #EA2D24; }
+
+  .nav-collection-all{ transition: all .1s}
+  .nav-collection-all-plus{ font-size: 20px; transition: all .1s}
+
+  .header-link-item-all:hover > .shop-the-range-navtitle { color: #EA2D24; }
+  .header-link-item-all:hover > .nav-collection-all{ background: #EA2D24; border-color: #EA2D24; }
+
+  a:hover .shop-the-range-navtitle {
+    color: #EA2D24 !important;
+  }
+  .header-link-item:hover .nav-collection-all-plus { color: #FFF !important; }
+
+  {% if inner_link_count > 2 and block.settings['image_1'] != blank  %}
+    @media screen and (min-width: 1000px) and (max-width: 1200px){
+      .mega-menu-{{ link.title | handle }} .mega-menu__promo{
+        display: grid;
+        gap: 16px;
+      }
+      
+      .mega-menu-{{ link.title | handle }} .mega-menu__promo a:last-of-type{ display: none; }
+    }
+    @media screen and (min-width: 1200px) and (max-width: 1500px){
+      .mega-menu-{{ link.title | handle }}{
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        column-gap: 2em;
+      }
+      
+      .mega-menu-{{ link.title | handle }} .mega-menu__promo{
+        /* display: grid;
+        gap: 16px; */
+      }
+    }
+  {% endif %}
+  
+  
+  .mega-menu-shop-the-range .mega-menu__linklist{ gap: 3em; }
+  @media screen and (min-width: 1000px) and (max-width: 1100px){
+    .mega-menu-shop-the-range img{ width: 50px; }
+    .mega-menu-shop-the-range .nav-collection-all{ height: 50px; width: 50px; }
+    .mega-menu-shop-the-range .shop-the-range-navtitle{ font-size: 12px; }
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 1em; justify-content: normal; } 
+  }
+
+  @media screen and (min-width: 1100px) and (max-width: 1260px){
+    .mega-menu-shop-the-range img{ width: 50px; }
+    .mega-menu-shop-the-range .nav-collection-all{ height: 50px; width: 50px; }
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 1.5em; justify-content: normal; } 
+  }
+
+  @media screen and (min-width: 1260px) and (max-width: 1500px){
+    .mega-menu-shop-the-range .mega-menu__linklist { gap: 2em; justify-content: normal; } 
+  }
+  
+</style>

@@ -1,0 +1,488 @@
+<!-- product-stats-landscape -->
+{% capture stats %}
+  <div class="model-stats-{{section.id}}">
+    <div>
+      <p><span class="Barlow-Medium">Name:</span> {{ section.settings.name }}</p>
+      <p><span class="Barlow-Medium">Breed:</span> {{ section.settings.breed }}</p>
+      <p><span class="Barlow-Medium">Age:</span> {{ section.settings.age }}</p>
+      <p><span class="Barlow-Medium">Weight:</span> {{ section.settings.weight }}</p>
+    </div>
+    <div>
+      <p><span class="Barlow-Medium">Girth:</span> {{ section.settings.girth }}</p>
+      <p><span class="Barlow-Medium">Height:</span> {{ section.settings.height }}</p>
+      <p><span class="Barlow-Medium">Length:</span> {{ section.settings.length }}</p>
+      <p><span class="Barlow-Medium">Neck:</span> {{ section.settings.neck }}</p>
+    </div>
+  </div>
+{% endcapture %}
+
+{% capture featured_products %}
+
+
+{% for block in section.blocks %}
+  {% assign current_product = block.settings.product %}
+    <div class="product-{{ section.id }}" data-variants='{{ current_product.variants | json }}' data-block-id="{{block.id}}">
+      <a href="{{ current_product.url }}">
+        <div>
+          <img id="image-{{ block.id }}"  src="{{ current_product.featured_image.src | img_url: 'medium' }}" alt="{{ current_product.title }}">
+          <p class="dfs-14 mfs-14 Barlow-Medium text-mt-sm">{{ current_product.title }}</p>
+          <p class="product-price-{{section.id}} product-price-{{block.id}}" data-base-price="{{ current_product.price | money }}">{{ current_product.price | money }}</p>
+        </div>
+      </a>
+      <div class="stats-select-wrapper select-wrapper-{{section.id}} {% if current_product.variants.size == 1 %} h-stack {% endif %} align-end" data-block-id="{{ block.id }}">
+        {% if current_product.variants.size > 1 %}
+          {% for option in current_product.options_with_values %}
+            {% assign extra_class = "option-selection-" | append: section.id %}
+            {% render 'select', show_label_as_value: true,  show_label_as_block: false, data_option: option.name , extra_class: extra_class,  option_values: option.values %}
+          {% endfor %}
+          <button class="d-block add-to-cart-{{section.id}} button button-disabled button-{{current_product.id}}" data-product-id="{{ current_product.id }}">
+            <span class="add-text-{{current_product.id}}">Select options</span>
+            <div class="loading-{{current_product.id}} loading-{{section.id}} noopacity">{% render 'icon' with 'loader' %}</div>
+          </button>
+          
+        {% endif %}
+
+      {% if current_product.variants.size == 1 %}
+        {% assign variant = current_product.variants.first %}
+        {% if variant.available %}
+          <button class="d-block quick-add-to-cart-{{section.id}} button button-{{current_product.id}}" data-product-id="{{ current_product.id }}" data-id="{{current_product.variants.first.id}}">
+            <span class="add-text-{{current_product.id}}">ADD TO CART</span>
+            <div class="loading-{{current_product.id}} loading-{{section.id}} noopacity">{% render 'icon' with 'loader' %}</div>
+          </button>
+            
+        {% else %}
+          <button class="d-block add-to-cart-{{section.id}} button button-disabled">SOLD OUT</button>
+        {% endif %}
+      {% endif %}
+          </div>
+    </div>
+{% endfor %}
+
+{% comment %}
+  <div class="button-wrapper-{{section.id}}">
+    <a href="{{ section.settings.button_url }}" class="button">{{ section.settings.button_text }}</a>
+  </div>
+{% endcomment %}
+
+{% endcapture %}
+
+<section id="{{ section.id }}" class="section-{{section.id}} section-x-spacing {% if section.settings.apply_top_padding %} section-mt {% endif %} {% if section.settings.apply_bottom_padding %} section-mb {% endif %}">
+  <p class="dfs-30 mfs-30">{{ section.settings.title }}</p>
+  <p class="dfs-16 mfs-14 text-mb-lg Barlow-Medium">{{ section.settings.content }}</p>
+
+  <div class="content-wrapper-{{section.id}}">
+    <div class="content-{{section.id}}">
+      <p class="dfs-20 mfs-14 Barlow-Medium text-mb-lg">{{ section.settings.subheading }}</p>
+      <div class="content-inner-{{section.id}}">
+        <div class="video-content-{{section.id}}">
+      {%- render 'media', media: section.settings.video, autoplay: false, loop: true, controls: true, muted: true -%}
+      </div>
+        <div class="stats-products-wrapper-{{section.id}}">
+
+        <div class="stats-{{ section.id }}">
+          <p class="text-1 Barlow-Medium letter-spacing-md img-text-mt-lg mg-text-mb-lg stats-text-{{section.id}}">{{ section.settings.stats_text }}</p>
+            {{ stats }}
+          <p class="img-text-mt-lg">{{ section.settings.dog_description }}</p>
+        </div>
+
+        <div>
+          <p class="mg-text-mb-lg img-text-mt-lg text-1 Barlow-Medium letter-spacing-md products-text-{{section.id}}">{{ section.settings.products_text }}</p>
+          <div class="featured-products-{{ section.id }}">
+              {{featured_products}}
+          </div>
+        </div>
+
+      </div>
+      </div>
+    </div>
+</section>
+
+<style>    
+  .content-inner-{{section.id}}{}
+  .button-choose{ border: 1px solid: #EA2D24; background: #FFF; color: #EA2D24;  }
+  .product-{{ section.id }} button { padding: 10px; }
+  span[class^="add-text-"] {
+    transition: opacity 0.2s ease-in-out; 
+  }
+
+  .featured-products-{{section.id}} .slick-slide img {
+    display: block;
+    width: 100%;
+    max-height: 300px;
+    max-width: 300px;
+    margin: auto;
+  }
+  .featured-products-{{section.id}} .slick-dots[aria-selected="true"]{background: red; }
+  .featured-products-{{section.id}} .slick-track{ display: flex !important; }
+  .featured-products-{{section.id}} .slick-slide{ height: inherit !important; margin: 0 15px;  display: flex !important; flex-direction: column; justify-content: space-between;}
+
+  .select-wrapper-{{section.id}} {
+    
+  }
+
+  .select-wrapper-{{section.id}} select{ background: #FFF; border-radius: 5px;  border: none; box-shadow: none; }
+  
+  .select-wrapper-{{section.id}}  svg{
+    inset: 0;
+    margin: auto;
+    right: 10px;
+    left: unset;
+    bottom: 6px;
+   }
+
+  div[class^="loading-"] {
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out; 
+  }
+  
+  .add-to-cart-{{section.id}}{ position: relative; }
+  .loading-{{ section.id }} > svg{
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  .product-{{section.id}} {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 20px;
+    padding-bottom: 0;
+    box-sizing: border-box;
+
+    gap: 1em;
+  }
+
+  .product-{{section.id}} img {
+    {% comment %} max-width: 50%; {% endcomment %}
+    margin-right: 20px;
+  }
+
+  .product-info-{{section.id}} {
+    flex: 1;
+  }
+
+  .product-price-{{section.id}} {
+    margin-bottom: 20px;
+  }
+
+  .option-selection-{{section.id}} {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+    appearance: none;
+  }
+
+  .add-to-cart-{{section.id}} {
+    width: 100%;
+
+    transition: background-color 0.3s ease;
+  }
+
+  .stats-text-{{section.id}}, .products-text-{{section.id}}{
+    border-bottom: 1px solid #C1C1C1;
+    width: fit-content;
+  }
+
+  .products-text-{{section.id}}{ margin-bottom: 10px; }
+  
+  #section-{{ section.id }}{}
+  .content-wrapper-{{section.id}}{ border-radius: 10px; background: {{ section.settings.section_background }}; }
+  .content-{{ section.id }}{ margin: auto; padding-left: 5vw; padding-right: 5vw; padding-top: 30px; padding-bottom: 30px }
+
+  @media screen and (max-width: 640px){
+    .select-wrapper-{{section.id}}{ align-self: unset; }
+    .content-{{ section.id }}{ margin: auto; padding: 15px 20px; }
+  }
+
+  .stats-wrapper-{{ section.id }}{ background: {{ section.settings.stats_background }}; }
+  .stats-products-wrapper-{{section.id}}{ display: grid; grid-template-columns: 2fr 3fr;  margin: 0 auto; gap: 5%; }
+
+  @media screen and (min-width: 800px) and (max-width: 1150px){
+    .stats-products-wrapper-{{section.id}}{ display: grid; grid-template-columns: 1fr 1fr;  margin: 0 auto; gap: 5%; }
+  }
+  @media screen and (min-width: 800px) and (max-width: 1300px){
+    .featured-products-{{section.id}} .slick-list{ margin-bottom: 50px !important; }
+  }
+
+  .featured-products-{{ section.id }}{ display: grid; grid-template-columns: 1fr; gap: 24px; }
+
+  .model-stats-{{section.id}} {
+    display: flex;
+    gap: 2em;
+    margin-top: 20px;
+    margin-bottom: 48px;
+  }  
+
+  @media screen and (max-width: 700px){
+    .model-stats-{{section.id}} {
+      flex-wrap: wrap;
+      margin-top: 16px;
+      margin-bottom: 24px;
+     }
+    .stats-{{section.id}}{ margin-bottom: 48px; }
+    .product-{{section.id}} {
+
+      padding: 0;
+    }
+    .content-{{ section.id }}{ font-size: 14px; }
+    .stats-products-wrapper-{{section.id}}{ grid-template-columns: 1fr; gap: 24px; }
+    .featured-products-{{ section.id }}{ grid-template-columns: 1fr; }
+    .product-{{section.id}} {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .video-content-{{section.id}} {
+    width: 100%;
+  }
+
+  .video-content-{{section.id}} img, .video-content-{{section.id}} video{
+    border-radius: 10px; 
+  }
+
+  .product-block-{{section.id}} img {
+    max-width: 100%;
+    display: block;
+  }
+  .button-wrapper-{{section.id}}{
+    height: max-content;
+    align-self: end;
+  }
+
+  @media screen and (min-width: 640px) and (max-width: 800px){
+    .stats-products-wrapper-{{section.id}}{ grid-template-columns: 1fr; gap: 1fr !important;}
+  }
+
+  .slick-custom-arrow-{{section.id}}{
+    top: 138px;
+  }
+</style>
+
+<script>
+
+
+
+  $('.featured-products-{{ section.id }}').slick({
+    dots: false,
+    infinite: false,
+    speed: 300,
+    arrows: true,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    prevArrow: '<img class="slick-custom-arrow-prev slick-custom-arrow-{{section.id}}" src="{{ 'carousel-left.png' | asset_url }}" alt="Previous">', 
+    nextArrow: '<img class="slick-custom-arrow-next slick-custom-arrow-{{section.id}}" src="{{ 'carousel-right.png' | asset_url }}" alt="next">', 
+     adaptiveHeight: true,
+     responsive: [
+      {
+        breakpoint: 1000,
+        settings: {
+          dots: true,
+          slidesToShow: 2,
+          slidesToScroll: 1
+        }
+      },
+      {
+        breakpoint: 800,
+        settings: {
+          dots: false,
+          slidesToShow: 3,
+          slidesToScroll: 1
+        }
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          dots: true,
+          slidesToShow: 1,
+          slidesToScroll: 1
+        }
+      }
+    ]
+  });
+  function adjustNavigationArrows(retryDuration = 500) {
+    const RETRY_INTERVAL = 50;
+  
+    var arrowsExist = $('.slick-custom-arrow-prev.slick-custom-arrow-{{section.id}}').length > 0;
+   
+    if (arrowsExist) {
+      
+      var imageHeight = $('.featured-products-{{ section.id }} .slick-list .slick-track .slick-active img').first().height();
+      var arrowHeight = $('.slick-custom-arrow-prev.slick-custom-arrow-{{section.id}}').height();
+      var buttonTopOffset = (imageHeight / 2) - (arrowHeight / 2);
+  
+      $('.slick-custom-arrow-prev.slick-custom-arrow-{{section.id}}').css('top', buttonTopOffset);
+      $('.slick-custom-arrow-next.slick-custom-arrow-{{section.id}}').css('top', buttonTopOffset);
+    } else if (retryDuration > 0) {
+      console.log('no arrows')
+      setTimeout(function() {
+        adjustNavigationArrows(retryDuration - RETRY_INTERVAL);
+      }, RETRY_INTERVAL);
+    }
+  }
+  
+  adjustNavigationArrows(); // Call the function without specifying the retry duration
+  
+  
+  $(window).on('resize', adjustNavigationArrows);
+ 
+
+  $(document).ready(function() {
+    
+    $('.feat-col-carousel-{{ section.id }}').on('setPosition', adjustNavigationArrows);
+    adjustNavigationArrows()
+    preProcessOptions()
+
+    $('.option-selection-{{section.id}}').change(function() {
+      var currentProduct = $(this).closest('.product-{{ section.id }}');
+      var selectedOptions = [];
+      var variants = JSON.parse(currentProduct.attr('data-variants'));
+      var selectCount = currentProduct.find('.option-selection-{{section.id}}').length
+      
+      currentProduct.find('.option-selection-{{section.id}}').each(function() {
+        selectedOptions.push($(this).val());
+      });
+      var changedSelect = $(this);
+      var changedOptionValue = changedSelect.val();
+      var isColourSelect = changedSelect.data('option') === 'Colour';
+      
+      if(isColourSelect && selectCount > 1){
+        onColourSelectChange(this, currentProduct, variants, selectedOptions)
+      } else {
+        updateContentBasedOnAvailability(currentProduct, selectedOptions)
+      }
+    });
+
+    // When "Add to Cart" is clicked
+    $('.add-to-cart-{{section.id}}').click(function() {
+        var $product = $(this).closest('.product-{{ section.id }}');
+        var selectedOptions = [];
+
+        $product.find('.option-selection-{{section.id}}').each(function() {
+          selectedOptions.push($(this).val());
+        });
+
+        var matchingVariant = getMatchingVariant(JSON.parse($product.attr('data-variants')), selectedOptions);
+
+        if (matchingVariant) {
+          addProductToCart(matchingVariant.id, this.dataset.productId)
+        }
+    });
+  });
+
+  function updateContentBasedOnAvailability(product, selectedOptions){
+    var matchingVariant = getMatchingVariant(JSON.parse(product.attr('data-variants')), selectedOptions);
+    
+    if (matchingVariant) {
+      
+      var addToCartButton = product.find('.add-to-cart-{{section.id}}');
+
+      if (matchingVariant.available){
+        addToCartButton.prop('disabled', false);
+        addToCartButton.removeClass('button-disabled button-choose');
+
+        var formattedPrice = matchingVariant.price / 100;
+        formattedPrice =  (formattedPrice.toLocaleString("en-US", {style:"currency", currency:"AUD"})).substring(1)
+        $('.product-price-' + product.data('blockId')).text(formattedPrice);
+        // $(`.add-text-${addToCartButton[0].dataset.productId}`).text(`ADD TO CART - ${formattedPrice}`)
+        $(`.add-text-${addToCartButton[0].dataset.productId}`).text(`ADD TO CART`)
+      } else{
+        addToCartButton.prop('disabled', true);
+        addToCartButton.addClass('button-disabled');
+        $(`.add-text-${addToCartButton[0].dataset.productId}`).text("SOLD OUT")
+      }
+    }
+  }
+
+  function onColourSelectChange(selected, currentProduct,  variants, selectedOptions){
+    var parsed = JSON.parse(currentProduct.attr('data-variants'))
+    let matchingObject = parsed.find(obj => 
+        obj.option1 === selectedOptions[0] ||
+        obj.option2 === selectedOptions[0] ||
+        obj.option3 === selectedOptions[0]
+    );
+    let selectWrapper = selected.closest('.stats-select-wrapper');
+
+    let imageId = `#image-${selectWrapper.dataset.blockId}`;
+    let imageElement = $(imageId);
+    if (matchingObject && matchingObject.featured_image && matchingObject.featured_image.src) {
+      imageElement.attr('src', matchingObject.featured_image.src);
+    }
+    currentProduct.find('.option-selection-{{section.id}}').not(selected).each(function() {
+      var otherSelect = $(this);
+      otherSelect.val('')
+      var addToCartButton = currentProduct.find('.add-to-cart-{{section.id}}');
+      addToCartButton.prop('disabled', true);
+      addToCartButton.addClass('button-choose');
+      $(`.add-text-${addToCartButton[0].dataset.productId}`).text("Select options")
+      var productPrice = currentProduct.find('.product-price-{{section.id}}');
+      productPrice.text(productPrice.data('basePrice'))
+    })
+  }
+
+  // Remove options where none are available
+    function preProcessOptions() {
+    $('.product-{{ section.id }}').each(function() {
+      var $product = $(this);
+      var variants = JSON.parse($product.attr('data-variants'));
+  
+      $product.find('.option-selection-{{section.id}}').each(function() {
+        var $select = $(this);
+        var hasVisibleOption = false;
+  
+        $select.find('option').each(function() {
+          var $option = $(this);
+          var optionValue = $option.val();
+  
+          var isMatchFound = variants.some(function(variant) {
+            return variant.options.includes(optionValue) && variant.available;
+          });
+  
+          if (!isMatchFound) {
+            $option.hide();
+          } else {
+            hasVisibleOption = true;
+          }
+        });
+  
+        // If no visible options, hide the select
+        if (!hasVisibleOption) {
+          $select.closest('.form-control').hide();
+        }
+  
+        // Check if there are any available combinations
+        var anyCombinationAvailable = variants.some(function(variant) {
+          return variant.available;
+        });
+        
+        var addToCartButton = $product.find('.add-to-cart-{{section.id}}');
+        if (!anyCombinationAvailable) {
+          addToCartButton.prop('disabled', true);
+          addToCartButton.text('Sold Out');
+          addToCartButton.addClass('button-disabled');
+        } else {
+          {% comment %} $product.find('.ww-select-wrapper').removeClass("hidden") {% endcomment %}
+          addToCartButton.removeClass('button-disabled');
+          addToCartButton.addClass('button-choose');
+      }
+      });
+    });
+  }
+
+  // Helper function to find matching variant
+  function getMatchingVariant(variants, selectedOptions) {
+    return variants.find(variant => {
+      return selectedOptions.every(option => {
+        return variant.options.includes(option);
+      });
+    });
+  }
+
+  $('button.quick-add-to-cart-{{section.id}}').on('click', function() {
+      var id = $(this).data('id');
+      addProductToCart(id, this.dataset.productId);
+  });
+
+</script>

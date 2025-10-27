@@ -1,0 +1,230 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+OPTION SWATCH
+----------------------------------------------------------------------------------------------------------------------
+
+This component renders a single option swatch. The supported options depend on the type of swatch.
+
+********************************************
+Supported variables
+********************************************
+
+* selected: if set to true, this swatch is preselected
+* allow_multiple: if set to true, it allows several values to be selected (by using a checkbox instead of radio)
+* value: the color value
+* name: the name attribute when field is submitted
+* form: the form ID that this swatch is linked to
+* disabled: if set to true, this swatch is disabled
+* href: if defined, the swatch will be outputted as a link instead of an input (most of the other attributes are ignored)
+* id_prefix: an optional prefix to be used to dissociate the ID
+
+Media swatch specific parameters:
+
+* media: the media to use
+
+Block swatch specific parameters
+
+* show_color: if set to true, show the color as a small tile.
+
+Color swatch specific parameters:
+
+* show_tooltip: if set to true, display a tooltip on hover
+{%- endcomment -%}
+
+{%- capture id -%}swatch-{{ id_prefix }}-{{ section.id }}-{{ form }}-{{ name }}-{{ value | handle }}{%- endcapture -%}
+
+{%- liquid
+  assign swatch_style = nil
+  if swatch == 'color' or swatch == 'block' and show_color
+    if product.metafields.custom.custom_colours != blank 
+      assign swatch_config = settings.color_swatch_config | prepend: product.metafields.custom.custom_colours 
+    else
+      assign swatch_config = settings.color_swatch_config 
+    endif
+    
+    assign swatch_config = swatch_config | newline_to_br | split: '<br />'
+    assign value_downcase = value | downcase | strip
+
+    for swatch_item in swatch_config
+      assign swatch_parts = swatch_item | split: ':'
+      assign swatch_name = swatch_parts.first | downcase | strip
+
+      if value_downcase == swatch_name
+        assign swatch_value = swatch_parts.last | strip
+
+        if swatch_value contains '#'
+          assign swatch_style = '--swatch-background: linear-gradient(to right, ' | append: swatch_value | append: ', ' | append: swatch_value | append: ')'
+        elsif swatch_value contains 'linear-gradient('
+          assign swatch_style = '--swatch-background: ' | append: swatch_value
+        elsif images[swatch_value] != blank
+          assign swatch_image = images[swatch_value] | image_url: width: 72
+          assign swatch_style = '--swatch-background: url(' | append: swatch_image | append: ')'
+        endif
+
+        break
+      endif
+    endfor
+  endif
+-%}
+
+<!-- swatch_style: {{ swatch_style }} -->
+
+{%- if href == blank -%}
+  <input class="sr-only" type="{% if allow_multiple %}checkbox{% else %}radio{% endif %}" name="{{ name }}" id="{{ id | escape }}" {% if form %}form="{{ form | escape }}"{% endif %} value="{{ value | escape }}" {% if disabled %}disabled{% endif %} {% if selected %}checked="checked"{% endif %}>
+{%- endif -%}
+
+{%- case swatch -%}
+  {%- when 'media' -%}
+    {%- if media != blank -%}
+      {%- if href == blank -%}
+        <label class="media-swatch" for="{{ id | escape }}" data-option-value>
+          <span class="sr-only">{{ value }}</span>
+          {{- media | image_url: width: media.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 48px, 68px', widths: '48,68,96,136', class: 'object-cover' -}}
+        </label>
+      {%- else -%}
+        <a href="{{ href }}" class="media-swatch {% if selected %}is-selected{% endif %}">
+          <span class="sr-only">{{ value }}</span>
+          {{- media | image_url: width: media.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 48px, 68px', widths: '48,68,96,136', class: 'object-cover' -}}
+        </a>
+      {%- endif -%}
+    {%- else -%}
+      <label class="block-swatch" for="{{ id | escape }}" data-option-value>{{ value }}</label>
+    {%- endif -%}
+
+  {%- when 'block' -%}
+    {%- if href == blank -%}
+      <label class="block-swatch" for="{{ id | escape }}" data-option-value>
+        {%- if show_color -%}
+          <span class="block-swatch__color" style="{{ swatch_style }}"></span>
+        {%- endif -%}
+        {% assign new_value = value | downcase %}
+        {% case new_value %}
+        {% when 'xsmall' %}
+          {% assign new_value = "XS" %}
+        {% when 'small' %}
+          {% assign new_value = "S" %}
+        {% when 'medium' %}
+          {% assign new_value = "M" %}
+        {% when 'large' %}
+          {% assign new_value = "L" %}
+        {% when 'xlarge' %}
+          {% assign new_value = "XL" %}
+        {% endcase %}
+        <span>{{ new_value | upcase }}</span>
+      </label>
+    {%- else -%}
+      <a href="{{ href }}" class="block-swatch {% if selected %}is-selected{% endif %}">
+        {%- if show_color -%}
+          <span class="block-swatch__color {% if settings.round_color_swatches %}rounded-full{% endif %}" style="{{ swatch_style }}"></span>
+        {%- endif -%}
+
+        <span>{{ value }}</span>
+      </a>
+    {%- endif -%}
+
+  {%- when 'color' -%}
+    {%- assign white_label = 'general.label.white' | t | downcase -%}
+    {%- assign value_downcase = value | downcase | strip -%}
+
+    {%- comment -%} Skip non-color values (e.g., sizes, quantities) {%- endcomment -%}
+    {%- assign is_color = false -%}
+    {%- assign swatch_config = settings.color_swatch_config -%}
+    {%- if product.metafields.custom.custom_colours != blank -%}
+      {%- assign swatch_config = product.metafields.custom.custom_colours | prepend: settings.color_swatch_config -%}
+    {%- endif -%}
+    {%- assign swatch_config = swatch_config | newline_to_br | split: '<br />' -%}
+
+    {%- comment -%} Check swatch_config for matching color {%- endcomment -%}
+    {%- for swatch_item in swatch_config -%}
+      {%- assign swatch_parts = swatch_item | split: ':' -%}
+      {%- assign swatch_name = swatch_parts.first | downcase | strip -%}
+      {%- if value_downcase == swatch_name -%}
+        {%- assign is_color = true -%}
+        {%- assign swatch_value = swatch_parts.last | strip -%}
+        {%- if swatch_value contains '#' -%}
+          {%- assign swatch_style = '--swatch-background: linear-gradient(to right, ' | append: swatch_value | append: ', ' | append: swatch_value | append: ')' -%}
+        {%- elsif swatch_value contains 'linear-gradient(' -%}
+          {%- assign swatch_style = '--swatch-background: ' | append: swatch_value -%}
+        {%- elsif images[swatch_value] != blank -%}
+          {%- assign swatch_image = images[swatch_value] | image_url: width: 72 -%}
+          {%- assign swatch_style = '--swatch-background: url(' | append: swatch_image | append: ')' -%}
+        {%- else -%}
+          {%- assign swatch_style = '--swatch-background: #ccc' -%}
+        {%- endif -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%} Fallback: Check for common color names if not found in swatch_config {%- endcomment -%}
+    {%- unless is_color -%}
+      {%- assign common_colors = 'aqua,black,grey,gray,orange,white,red,blue,navy,green,yellow,purple,pink,brown,tan' | split: ',' -%}
+      {%- for color_name in common_colors -%}
+        {%- if value_downcase == color_name -%}
+          {%- assign is_color = true -%}
+          {%- case value_downcase -%}
+            {%- when 'aqua' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #00FFFF, #00FFFF)' -%}
+            {%- when 'black' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #000000, #000000)' -%}
+            {%- when 'grey', 'gray' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #808080, #808080)' -%}
+            {%- when 'orange' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #FFA500, #FFA500)' -%}
+            {%- when 'white' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #FFFFFF, #FFFFFF)' -%}
+            {%- when 'red' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #FF0000, #FF0000)' -%}
+            {%- when 'blue', 'navy' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #0b0b7f, #0b0b7f)' -%}
+            {%- when 'green' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #008000, #008000)' -%}
+            {%- when 'yellow' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #FFFF00, #FFFF00)' -%}
+            {%- when 'purple' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #800080, #800080)' -%}
+            {%- when 'pink' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #FFC0CB, #FFC0CB)' -%}
+            {%- when 'brown' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #A52A2A, #A52A2A)' -%}
+            {%- when 'tan' -%}{%- assign swatch_style = '--swatch-background: linear-gradient(to right, #d2b48c, #d2b48c)' -%}
+          {%- endcase -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endunless -%}
+
+    {%- comment -%} Final fallback: if still no color but looks like a hex color, use grey {%- endcomment -%}
+    {%- unless is_color -%}
+      {%- if value_downcase contains '#' and value_downcase.size == 7 -%}
+        {%- assign is_color = true -%}
+        {%- assign swatch_style = '--swatch-background: #ccc' -%}
+      {%- endif -%}
+    {%- endunless -%}
+
+    {%- comment -%} Debug output {%- endcomment -%}
+    <!-- Debug: value={{ value }}, value_downcase={{ value_downcase }}, swatch_style={{ swatch_style }}, href={{ href }}, is_color={{ is_color }} -->
+
+    {%- if is_color -%}
+      {%- if href == blank -%}
+        <label class="color-swatch {% if settings.round_color_swatches %}rounded-full{% endif %} {% if white_label == value_downcase %}border{% endif %}" for="{{ id | escape }}" {% if show_tooltip %}data-tooltip="{{ value | escape }}"{% endif %} data-option-value style="{{ swatch_style }}">
+          <span class="sr-only">{{ value }}</span>
+        </label>
+      {%- else -%}
+        <a href="{{ href }}" class="color-swatch {% if selected %}is-selected{% endif %} {% if settings.round_color_swatches %}rounded-full{% endif %} {% if white_label == value_downcase %}border{% endif %}" {% if show_tooltip %}data-tooltip="{{ value | escape }}"{% endif %} style="{{ swatch_style }}">
+          <span class="sr-only">{{ value }}</span>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+
+  {%- when 'material' -%}
+    {% if product.metafields.custom.fabrication.value.name.value == fabrication %}
+      {% assign material_image_class = "object-cover material-active" %}
+    {% else %}
+      {% assign material_image_class = "object-cover" %}
+    {% endif %}
+    {%- if media != blank -%}
+      {%- if href == blank -%}
+        <label class="media-swatch" for="{{ id | escape }}" data-option-value>
+          <div class="material-image-wrapper {{ material_image_class }}">
+            <div style="background-image: url({{ media | image_url: width: 400 }}); background-size: cover; height: 50px; border-radius: 5px; width: 50px;"></div>
+          </div>
+        </label>
+      {%- else -%}
+        <a href="{{ href }}" class="media-swatch-material m-auto w-fit {% if selected %}is-selected{% endif %}">
+          <div class="material-image-wrapper {{ material_image_class }}">
+            <div style="background-image: url({{ media | image_url: width: 400 }}); background-size: cover; height: 50px; border-radius: 5px; width: 50px;"></div>
+          </div>
+        </a>
+      {%- endif -%}
+    {%- else -%}
+      <label class="block-swatch" for="{{ id | escape }}" data-option-value>{{ value }}</label>
+    {%- endif -%}
+{%- endcase -%}

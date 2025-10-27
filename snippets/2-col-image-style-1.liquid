@@ -1,0 +1,205 @@
+<!-- sections/2-column-image-style-1 -->
+<section id="section-{{ section.id }}"
+  class="section-x-spacing
+    {% if section.settings.apply_top_padding %} section-pt {% endif %}
+    {% if section.settings.apply_bottom_padding %} section-pb {% endif %}
+  ">
+  <div class="grid-{{ section.id }}">
+    {% for i in (1..2) %}
+      <div class="">          
+        {% assign url_id = "url_" | append: i %}
+        <a data-url="{{ block.settings[url_id] }}">
+          {% assign image_id = "image_" | append: i %}
+          {% assign text_color = "text_color_" | append: i %}
+          <div class="grid-item-{{ section.id }} d-grid" style="
+            padding-left: 0 20px;
+            background: url({{ block.settings[image_id] | img_url: '800x800' }});
+            background-position: top center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: {{ block.settings[text_color]}};
+            ">
+            
+
+            {% assign mobile_text_position = "mobile_text_position_" | append: i %}
+            {% assign desktop_text_position = "desktop_text_position_" | append: i %}
+            <div class="{{ block.settings[mobile_text_position] }} {{ block.settings[desktop_text_position] }}">
+              {% assign title_id = "title_" | append: i %}
+              <p class="Barlow-Medium title-{{ section.id }} dfs-30 mfs-30 dpb-16">{{ block.settings[title_id] | newline_to_br }}</p>
+              {% assign body_id = "body_" | append: i %}
+              <p class="Open-Sans dfs-14  body-{{ section.id }} dfs-14 mfs-14">{{ block.settings[body_id] | newline_to_br }}</p>
+      
+              {% if block.settings[url_id] != blank %}
+                <div class="grid-arrow-{{ section.id }}">
+                  <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.3165 4.95773C11.1311 5.14749 11.0273 5.40223 11.0273 5.66748C11.0273 5.93274 11.1311 6.18748 11.3165 6.37723L21.6716 17.0001L11.3165 27.6209C11.1311 27.8106 11.0273 28.0653 11.0273 28.3306C11.0273 28.5959 11.1311 28.8506 11.3165 29.0404C11.4065 29.1329 11.5143 29.2064 11.6332 29.2567C11.7522 29.3069 11.8801 29.3327 12.0092 29.3327C12.1384 29.3327 12.2662 29.3069 12.3852 29.2567C12.5041 29.2064 12.6119 29.1329 12.702 29.0404L23.7137 17.7417C23.9071 17.5433 24.0154 17.2772 24.0154 17.0001C24.0154 16.723 23.9071 16.4569 23.7137 16.2585L12.702 4.95986C12.6119 4.86733 12.5041 4.79379 12.3852 4.74357C12.2662 4.69335 12.1384 4.66748 12.0092 4.66748C11.8801 4.66748 11.7522 4.69335 11.6332 4.74357C11.5143 4.79379 11.4065 4.86733 11.3165 4.95986V4.95773Z" fill="black"/>
+</svg>
+                  <!-- <div class="arrow"></div> -->
+                </div>
+              {% endif %}
+      
+            </div> 
+
+          </div>
+        </a>
+        {% assign content_id = "content_" | append: i %}
+        {% if block.settings[content_id] != blank %}
+          <p class="Open-Sans dfs-14  content-{{ section.id }} dfs-14 mfs-14">{{ block.settings[content_id] | newline_to_br }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+
+<style>
+  .button-{{ section.id }}{ margin-top: 24px; }
+  .content-{{ section.id }}{ margin-right: 10%; margin-top: 32px; }
+  #section-{{ section.id }} { background: {{ section.settings.background }}; }
+  .grid-{{ section.id }}{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .body-{{ section.id }}{
+    margin: auto;
+  }
+  
+  .grid-item-{{ section.id }}{
+    position: relative;
+    padding: 2em;
+  }
+
+
+  
+  {% if section.settings.minimise_bottom_padding %}
+    #section-{{ section.id }}{ padding-bottom: 10px; }
+    @media screen and (max-width: 640px){
+      #section-{{ section.id }}{ padding-bottom: 24px; }
+    }
+  {% endif %}
+
+  @media screen and (max-width: 640px){
+ 
+    {% if block.settings.mobile_style == "1" %}
+      .grid-{{section.id}} > div:nth-child(1) .grid-item-{{section.id}} {
+        border-radius: 0 10px 10px 0;
+        padding-left: 32px; /* Adjust the padding value as per your requirement */
+      }
+      .grid-{{section.id}} > div:nth-child(2) .grid-arrow-{{section.id}} {
+        border-radius: 0 10px 0 0;
+        left: 0;
+        right: unset;
+      }
+    
+      .grid-{{section.id}} > div:nth-child(1){
+        margin-left: -32px;
+      }
+      .grid-{{section.id}} > div:nth-child(2) .grid-item-{{section.id}} {
+        border-radius: 10px 0 0 10px;
+      }
+
+      .grid-{{section.id}} > div:nth-child(2){
+        margin-right: -32px;
+      }
+    
+      {% else %}
+        .grid-item-{{ section.id }}{
+          border-radius: 10px;
+        }
+    {% endif %}
+  }
+  
+  .grid-arrow-{{ section.id }}{
+    display: grid;
+    color: #000;
+    border-radius: 10px 0 0 0;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    opacity: 1;
+    transition: opacity .2s;
+    height: 40px;
+    width: 60px;
+    background: #FFF;
+    z-index: 1;
+  }
+
+  .grid-arrow-{{ section.id }} > svg {
+        height: 65%;
+    width: 100%;
+    margin: auto;
+  }
+  
+  .grid-item-{{ section.id }}:hover .grid-arrow-{{ section.id }} {
+    opacity: 1;
+  }
+
+
+  @media screen and (max-width: 640px){
+    .grid-{{ section.id }} {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .content-{{ section.id }}{ margin-left: 20px; margin-top: 16px; }
+    .grid-item-{{ section.id }} { min-height: 260px; }
+    .grid-{{ section.id }} > div:nth-child(odd) > .grid-item-{{ section.id }} { margin-right: 20px; border-radius: 0 10px 10px 0; }
+    .grid-{{ section.id }} > div:nth-child(even) > .grid-item-{{ section.id }} { margin-left: 20px; border-radius: 10px 0 0 10px; }
+  }
+
+  @media screen and (min-width: 641px){
+    .grid-item-{{ section.id }}{
+      min-height: 300px;
+      height: 30vw;
+      max-height: 600px;
+       border-radius: 10px;
+    }
+    .grid-arrow-{{ section.id }}{
+      opacity: 0;
+    }
+  }
+
+  .grid-arrow-{{section.id}} .arrow {
+    width: 71px;
+    height: 70px;
+    box-sizing: border-box;
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    transform: rotate(45deg);
+  }
+  
+  @media screen and (max-width: 950px){
+    .grid-arrow-{{section.id}} {
+      height: 50px;
+      width: 99px;
+    }
+
+  .grid-arrow-{{section.id}} .arrow {
+    width: 44px;
+    height: 41px;
+    right: 10px;
+    top: 13px;
+    }
+    
+  }
+  
+
+  .grid-arrow-{{section.id}} > .arrow::before{
+    content: '';
+    width: 100%;
+    border-color: #EA2D24;
+  }
+  
+  .grid-arrow-{{section.id}} > .arrow::before {
+    height: 100%;
+    border-width: 10px 10px 0 0;
+    border-style: solid;
+    border-radius: 3px;
+    display: block;
+    transform: scale(.3);
+  }
+
+
+</style>

@@ -1,0 +1,1357 @@
+{% assign simple_bundle = product.metafields.custom.simple_bundle_product_step.value %}
+{% assign all_products_available = true %}
+{% assign main_variant = product.selected_or_first_available_variant %}
+{% assign mainproduct_id = main_variant.id %}
+{% assign product_price = main_variant.price | money %}
+{% assign all_products_available = true %}
+
+{% if simple_bundle %}
+  {% assign productsmain_array = '' %}
+  {% assign existing_ids = '' %}
+  {% assign array_bundleoption_main = '' %}
+  {% assign array_bundleoption_main_sizes = '' %}
+
+  <div id="bundle-apps-ezy" class="simple-bundle-sections accordion cl-accordion-label-customise group">
+    {% for simplebundle in simple_bundle %}
+      {% assign option_heading = simplebundle.option_display.value %}
+      {% assign option_subheading = simplebundle.option_display_sub_heading.value %}
+      {% assign option_product_add = simplebundle.option_product_add.value %}
+      {% assign single_product_add = simplebundle.single_product_add.value %}
+      {% assign product_variant = simplebundle.product_variant.value %}
+
+      {% if product_variant %} 
+        {% assign array_bundleoption = '' %}
+        {% assign array_bundleoptionsizes = '' %}
+        {% assign product_has_available_variant = false %}
+
+        {% for variant_option in product_variant %}
+          {% if variant_option.available %}
+            {% assign product_has_available_variant = true %}
+          {% endif %}
+
+          {% if variant_option.featured_image.product_id %}
+            {% assign product_id = variant_option.featured_image.product_id %}
+          {% else %}
+            {% assign product_id = variant_option.product.id %}
+          {% endif %}
+          
+          {% assign color_downcase = variant_option.option1 | downcase %}
+          {% assign size_downcase = variant_option.option2 %}
+          {% assign option_headingv = option_heading | downcase | replace: " ", "-" %}      
+          {% assign combined_value_color = '"' | append: option_headingv | append: "_" | append: product_id | append: "_" | append: color_downcase | append: "_" | append: size_downcase | append: '"' %}
+          {% assign combined_value_sizes = '"' | append: option_headingv | append: "_" | append: product_id | append: "_" | append: size_downcase | append: '"' %}
+
+          {% if forloop.last %}
+            {% assign array_bundleoption = array_bundleoption | append: combined_value_color %}
+            {% assign array_bundleoptionsizes = array_bundleoptionsizes | append: combined_value_sizes %}
+          {% else %}
+            {% assign array_bundleoption = array_bundleoption | append: combined_value_color | append: ',' %}
+            {% assign array_bundleoptionsizes = array_bundleoptionsizes | append: combined_value_sizes | append: ',' %}
+          {% endif %}
+        {% endfor %}
+
+        {% unless product_has_available_variant %}
+          {% assign all_products_available = false %}
+        {% endunless %}
+
+        {% assign array_bundleoption_main = array_bundleoption_main | append: array_bundleoption | append: ',' %}
+        {% assign array_bundleoption_main_sizes = array_bundleoption_main_sizes | append: array_bundleoptionsizes | append: ',' %} 
+      {% endif %}
+
+      {% if single_product_add and single_product_add.available == false %}
+        {% assign all_products_available = false %}
+      {% endif %}
+
+      <div id="simple-bundles-options" class="{{ option_heading | downcase | replace: ' ', '-' }} {% if single_product_add %}single-product{% else %}bundle-template-option{% endif %}">
+        <h3 class="heading">{{ option_heading }}</h3>
+        <label for="harness" class="label">{{ option_subheading }}</label>
+        {% if single_product_add %}
+          {% comment %} {% assign single_product_price = single_product_add.variants[0].price | times: 0.9 | money %} {% endcomment %}
+          {% assign special_discount_ids = '97270222359442' | split: ',' %}
+          {% if special_discount_ids contains single_product_add.id  %}
+            {% assign single_product_price = single_product_add.variants[0].price | times: 0.8 | money %}
+          {% else %}
+            {% assign single_product_price = single_product_add.variants[0].price | times: 0.9 | money %}
+          {% endif %}
+          <div class="crard-show_single-product row" id="crard-show_single-product" data-id="{{ single_product_add.variants[0].id }}" data-prices="{{ single_product_add.variants[0].price | money_without_currency }}">
+            <div class="container">
+              <div class="col-first">
+                <figure>
+                  <img id="image-product" src="{{ single_product_add.featured_image.src | img_url: 'master' }}" width="100px" height="100px" alt="{{ single_product_add.title }}">
+                </figure>
+              </div>
+              <div class="col-second">
+                <h3>{{ single_product_add.title }}</h3>
+                <span class="color-p">{{ single_product_add.variants[0].title }}</span>
+                <span class="price">Price: ${{ single_product_add.variants[0].price | times: 0.01  }}</span>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <details class="accordion cl-accordion-label-customise group" is="accordion-disclosure" aria-expanded="false">
+            <summary class="cl-accordion-summary">
+              <div id="label-select-image-box"></div>
+              <span id="label-select-text" class="Barlow-Medium dfs-16 mfs-20">Choose Product</span>
+              <svg aria-hidden="true" focusable="false" fill="none" width="10" class="group-expanded:rotate icon icon-chevron-down" viewBox="0 0 10 10">
+                <path d="m1 3 4 4 4-4" stroke="currentColor" stroke-linecap="square"></path>
+              </svg>
+            </summary>
+            <div class="accordion__content cl-accordion__content Open-Sans">
+              {% assign products_array = '' %}
+              {% for product_list in option_product_add %}
+                {% assign product_title = product_list.title %}
+                {% assign product_id = product_list.id %}
+                {% assign product_handle = product_list.handle %}
+                {% assign product_price = product_list.price %}
+                {% assign product_featuresimages = product_list.featured_image | img_url: 'master' %}
+                {% assign variants_array = '' %}
+
+                {% for variant in product_list.variants %}
+                  {% assign variant_id = variant.id %}
+                  {% assign variant_title = variant.title %}
+                  {% assign variant_price = variant.price %}
+                  {% assign variant_available = variant.available %}
+                  {% assign variant_image = variant.featured_image.src | img_url: 'master' %}
+                  {% assign variant_option_one = variant.option1 | downcase %}
+                  {% assign variant_option_two = variant.option2 %}
+                  {% assign variant_serialized = '("id"%' | append: variant_id | append: ', "handle_new"%"' | append: variant.handle | append: ', "title"%"' | append: variant_title | append: '", "price"%' | append: variant_price | append: '", "available"%' | append: variant_available | append: ', "variant_image"%"' | append: variant_image | append: ', "option_one"%"' | append: variant_option_one | append: ', "option_two"%"' | append: variant_option_twos | append: '")' %}
+
+                  {% if variants_array == '' %}
+                    {% assign variants_array = variant_serialized %}
+                  {% else %}
+                    {% assign variants_array = variants_array | append: '=' | append: variant_serialized %}
+                  {% endif %}
+                {% endfor %}
+
+                {% assign variants_array = '[' | append: variants_array | append: ']' %}
+                {% assign product_serialized = '{"id":' | append: product_id | append: '--"handle_new":"' | append: product_handle | append: '--"title":"' | append: product_title | append: '--"price":' | append: product_price | append: '--"featured_image":"' | append: product_featuresimages | append: '--"variants":' | append: variants_array | append: '}' %}
+                {% assign existing_ids = existing_ids | append: product_id | append: ',' %}
+
+                <div class="cl-product-select product-select-{{ product_id }}" data-pdid="{{ product_id }}">
+                  <label for="cl-product-checkbox-{{ product_id }}" class="cl-checkbox-container">
+                    <img height="64px" width="64px" class="cl-product-image" src="{{ product_featuresimages }}" alt="{{ product_title }}">
+                    <span class="Barlow-Medium dfs-14 mfs-14 {{ option_heading | capitalize | replace: " ", "-" }}">{{ product_title }}</span>
+                  </label>
+                </div>
+
+                {% if products_array == '' %}
+                  {% assign products_array = product_serialized %}
+                {% else %}
+                  {% assign products_array = products_array | append: ',' | append: product_serialized %}
+                {% endif %}
+
+                {% assign sibling_handles = product_list.metafields.custom.product_sibling.value %}
+                {% if sibling_handles %}
+                  {% for handle in sibling_handles %}
+                    {% assign id_handle = handle.id %}
+                    {% assign fabrication = handle.metafields.custom.fabrication.value.name %}
+                    {% assign fabrication_img = handle.metafields.custom.fabrication.value.image | img_url: 'master' %}
+                    {% assign price_handle = handle.price %}
+                    {% assign title_handle = handle.title %}
+                    {% assign product_image = handle.featured_image | img_url: 'master' %}
+                    {% assign product_variants = handle.variants %}
+                    {% assign variants_array_fab = '' %}
+
+                    {% for variantss in product_variants %}
+                      {% assign variant_ids = variantss.id %}
+                      {% assign variant_titles = variantss.title %}
+                      {% assign variant_prices = variantss.price %}
+                      {% assign variant_availables = variantss.available %}
+                      {% assign variant_images = variantss.featured_image.src | img_url: 'master' %}
+                      {% assign variant_option_ones = variantss.option1 | downcase %}
+                      {% assign variant_option_twos = variantss.option2 %}
+                      {% assign variant_serialized_fab = '("id"%' | append: variant_ids | append: ', "title"%"' | append: variant_titles | append: ', "handle_new"%"' | append: variantss.handle | append: '", "price"%' | append: variant_prices | append: '", "available"%' | append: variant_availables | append: ', "variant_image"%"' | append: variant_images | append: ', "option_one"%"' | append: variant_option_ones | append: ', "option_two"%"' | append: variant_option_twos | append: '")' %}
+
+                      {% if variants_array_fab == '' %}
+                        {% assign variants_array_fab = variant_serialized_fab %}
+                      {% else %}
+                        {% assign variants_array_fab = variants_array_fab | append: '=' | append: variant_serialized_fab %}
+                      {% endif %}
+                    {% endfor %}
+
+                    {% assign variants_array_fab = '[' | append: variants_array_fab | append: ']' %}
+                    {% assign product_fabrication = '{"id":' | append: id_handle | append: '--"title":"' | append: title_handle | append: '--"handle_new":"' | append: handle.handle | append: '--"price":' | append: price_handle | append: '--"featured_image":"' | append: product_image | append: '--"variants":' | append: variants_array_fab | append: '}' %}
+                    {% assign products_array = products_array | append: ',' | append: product_fabrication %}
+                    {% assign existing_ids = existing_ids | append: id_handle | append: ',' %}
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+              {% assign products_array = products_array %}
+              {% if productsmain_array == '' %}
+                {% assign productsmain_array = products_array %}
+              {% else %}
+                {% assign productsmain_array = productsmain_array | append: ',' | append: products_array %}
+              {% endif %}
+            </div>
+          </details>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+  </div>
+
+  {% style %}
+    #product-buy-button-simplebundle {
+      background-color: red;
+      border-color: red;
+      --button-text-color: 255 255 255;
+    }
+    #product-disables-button-simplebundle,
+    #product-disables-button-simplebundle[disabled],
+    .buy-buttons-simplebundle button.button.w-full[disabled] {
+      background-color: #939598;
+      border-color: #939598;
+      --button-text-color: 255 255 255;
+    }
+    .price {
+      font-weight: bold;
+      color: #333;
+      margin-top: 5px;
+      display: block;
+    }
+  {% endstyle %}
+
+  {% if all_products_available %}
+    {% assign buttonid = 'product-buy-button-simplebundle' %}
+    {% assign buttonattr = '' %}
+  {% else %}
+    {% assign buttonid = 'product-disables-button-simplebundle' %}
+    {% assign buttonattr = 'disabled' %}
+  {% endif %}
+
+  <div class="buy-button-wrapper-simplebundle" style="padding-top:20px;">
+    <buy-buttons class="buy-buttons-simplebundle">
+      <button id="{{ buttonid }}" type="submit" class="button w-full" {{ buttonattr }}>
+        {% if is_sold_out or all_products_available == false %}Sold Out{% else %}Add to cart{% endif %}
+      </button>
+    </buy-buttons>
+    <div class="buy-button-wishlist">
+      <div id="smartwishlist" data-product="{{ product.id }}" data-variant="{{ product.variants.first.id }}"></div>
+    </div>
+    <!--<div class="total-price" id="total-bundle-price">Total: {{ product_price }}</div>-->
+  </div>
+
+  {% assign productsmain_array = productsmain_array | replace: '},{', '}|{' %}
+  {% assign productsmain_array = productsmain_array | split: '|' %}
+
+  <script>
+    // Cart refresh on open
+    document.addEventListener('click', (event) => {
+    if (event.target.closest('.header__nav-icon.icon.icon-cart') || event.target.closest('.quantity-selector__button')) {
+        event.preventDefault();
+
+        const cartDrawer = document.querySelector('#cart-drawer');
+        fetch('/cart', { headers: { 'Accept': 'text/html' } })
+          .then(response => response.text())
+          .then(() => {
+            cartDrawer.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+          })
+          .catch(error => console.error('Error reloading cart drawer:', error));
+      }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function () {
+      // Explicitly set initial price to $0.00
+      if ($('sale-price span#product-price').length) {
+        $('sale-price span#product-price').text('$0.00');
+        $('sale-price').text('$0.00');
+      } else {
+        console.warn('sale-price element not found');
+      }
+
+      if ($('compare-at-price').length) {
+        $('compare-at-price').text('$0.00');
+      } else {
+        console.warn('compare-at-price element not found');
+      }
+
+      $(document).on('click', '.card-close-button', function(event) {
+        $(this).parent().remove();
+        $(this).parent().parent().find('span#label-select-text').text('Choose Product');
+        const $simpleBundleButton = $('.buy-buttons-simplebundle button');
+        const $simpleclasselement = $(this).attr('data-class_element');
+        const optionCount = $('.simple-bundle-sections #simple-bundles-options').length;
+        const cardCount = $('.simple-bundle-sections .crard-show').length + $('.simple-bundle-sections .crard-show_single-product').length;
+        $('.'+$simpleclasselement).find('span#label-select-text').text('Choose Product');
+        
+        if (optionCount !== cardCount) {
+          $simpleBundleButton.attr('id', 'product-disables-button-simplebundle').attr('disabled', true).css({ 'background-color': '#939598', 'border-color': '#939598' });
+        }
+        updateTotalPrice();
+      });
+
+      {% assign filtered_products = product.metafields.custom.simple_bundle_product_step.value %}
+      
+      let products_new = {                  
+        {% for productsmain_item in productsmain_array %}
+          {% assign productsmain_items = productsmain_item | replace: '{', '' | replace: '}', '' %}
+          {% assign productsmain_itemss = productsmain_items | split: '--' %}                  
+          {% for productsmain_itemsss in productsmain_itemss %}
+            {% assign productsmain_itemssss = productsmain_itemsss | replace: '"', '' | split: ':' %}
+            {% if productsmain_itemssss[0] == 'id' %}
+              {% assign id_tert = productsmain_itemssss[1] %}
+            {% endif %}                  
+            {% if productsmain_itemssss[0] == 'title' %}
+              {% assign title_tesr = productsmain_itemssss[1] %}
+            {% endif %}                  
+            {% if productsmain_itemssss[0] == 'price' %}
+              {% assign price_tert = productsmain_itemssss[1] %}
+            {% endif %}                  
+            {% if productsmain_itemssss[0] == 'featured_image' %}
+              {% assign featured_imagefgt = productsmain_itemssss[1] %}
+            {% endif %}                  
+            {% if productsmain_itemssss[0] == 'handle_new' %}
+              {% assign handle = productsmain_itemssss[1] %}
+            {% endif %}                  
+          {% endfor %}                  
+          "{{ id_tert }}": {
+            "product_id": "{{ id_tert }}",
+            "product_title": "{{ title_tesr }}",
+            "product_image": "{{ featured_imagefgt }}",
+            "product_price": "{{ price_tert | money }}",
+            "product_variants": [
+              {% if productsmain_itemssss[0] == 'variants' %}
+                {% assign variants = productsmain_itemssss[1] | replace: '[', '' | replace: ']', '' | split: '=' %}
+                {% assign variant_ids = '' %}
+                {% for variant in variants %}
+                  {% assign variant_coma = variant | replace: '(', '' | replace: ')', '' | split: ',' %} 
+                  {% for variant_comas in variant_coma %}
+                    {% assign variant_data = variant_comas | split: '%' %}                   
+                    {% if variant_data[0] == 'id' %}{% assign id_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' title' %}{% assign title_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' variant_image' %}{% assign image_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' available' %}{% assign available_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' price' %}{% assign price_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' option_one' %}{% assign option_one_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' option_two' %}{% assign option_two_v=variant_data[1] %}{% endif %}
+                    {% assign variant_data = title_v | split: " / " %}
+                    {% assign variant_data_0 = variant_data[0] | downcase | strip %}
+                    {% assign variant_data_1 = variant_data[1] | strip %}
+                  {% endfor %}
+                  {% unless variant_ids contains id_v %}
+                    {
+                      "variant_id": "{{id_v }}",
+                      "variant_title": "{{ title_v }}",
+                      "variant_price": "{{ price_v | money }}",
+                      "variant_inventory": "1",
+                      "variant_image": "{{ image_v }}",
+                      "option_1": "{{ variant_data_0 }}",
+                      "option_2": "{{ variant_data_1 }}",
+                      "available": {{ available_v }}
+                    }{% unless forloop.last %},{% endunless %}
+                    {% assign variant_ids = variant_ids | append: id_v | append: ',' %} 
+                  {% endunless %}
+                {% endfor %}               
+              {% endif %}
+            ],
+            "color_seetings":{         
+              {% assign product_obj = all_products[handle] %}           
+              {% if product_obj != blank %}
+                {% if product_obj.metafields.custom.custom_colours != blank %} 
+                  {% assign swatch_config = settings.color_swatch_config | append: '<br />' | append: product_obj.metafields.custom.custom_colours %}
+                {% else %}
+                  {% assign swatch_config = settings.color_swatch_config %}                   
+                {% endif %}             
+                {%- assign swatch_config = swatch_config | newline_to_br | split: '<br />' -%}
+                {% for swatch_item in swatch_config %}
+                  {% assign swatch_parts = swatch_item | split: ':' %}
+                  {% assign swatch_name = swatch_parts.first | downcase | strip | replace:' ','-' %}
+                  {% assign swatch_image = swatch_parts.last | strip %}
+                  {% if images[swatch_image] != blank %}
+                    "{{swatch_name}}":{
+                      "name":"{{swatch_name}}",
+                      "image":"{{images[swatch_image] | img_url: 'master' }}"
+                    }{% unless forloop.last %},{% endunless %}
+                  {% endif %}                      
+                {% endfor %}
+              {% endif %}
+            }         
+          }{% unless forloop.last %},{% endunless %}         
+        {% endfor %}
+      };
+
+      $labelCollectionDetails_new ={
+        {% for productsmain_item in productsmain_array %}
+          {% assign productsmain_items = productsmain_item | replace: '{', '' | replace: '}', '' %}
+          {% assign productsmain_itemss = productsmain_items | split: '--' %}          
+          {% for productsmain_itemsss in productsmain_itemss %}
+            {% assign productsmain_itemssss = productsmain_itemsss | replace: '"', '' | split: ':' %}                
+            {% if productsmain_itemssss[0] == 'id' %}
+              {% assign id_tert = productsmain_itemssss[1] %}
+            {% endif %}              
+          {% endfor %}
+          "{{ id_tert }}": {
+            product: { "id":{{ id_tert}} },
+            variants: [
+              {% if productsmain_itemssss[0] == 'variants' %}
+                {% assign variants = productsmain_itemssss[1] | replace: '[', '' | replace: ']', '' | split: '=' %}
+                {% for variant in variants %}
+                  {% assign variant_coma = variant | replace: '(', '' | replace: ')', '' | split: ',' %} 
+                  {% for variant_comas in variant_coma %}
+                    {% assign variant_data = variant_comas | split: '%' %} 
+                    {% if variant_data[0] == 'id' %}{% assign id_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' title' %}{% assign title_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' vareint_image' %}{% assign image_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' available' %}{% assign available_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' price' %}{% assign price_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' option_one' %}{% assign option_one_v=variant_data[1] %}{% endif %}
+                    {% if variant_data[0] == ' option_two' %}{% assign option_two_v=variant_data[1] %}{% endif %}
+                    {% assign variant_data = title_v | split: " / " %}
+                    {% assign variant_data_0 = variant_data[0] | downcase | strip %}
+                    {% assign variant_data_1 = variant_data[1] | strip %}
+                  {% endfor %}
+                  {"id":{{ id_v }},"title":"{{ title_v }}","option1":"{{ variant_data_0 }}","option2":"{{ variant_data_1 }}","featured_image":"{{ image_v }}","available":{{ available_v }},"price":{{ price_v }}}{% unless forloop.last %},{% endunless %}
+                {% endfor %}               
+              {% endif %}           
+            ]
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      };
+
+      const accordions = document.querySelectorAll('.accordion.cl-accordion-label-customise .cl-product-select');     
+
+      accordions.forEach(accordion => {
+        accordion.addEventListener('click', function () {     
+          let product_id = $(this).attr('data-pdid');
+          let classelement = $(this).parents('#simple-bundles-options').attr('class').replace('bundle-template-option', '').trim();
+          
+          $('.'+classelement+' .cl-accordion-label-customise span#label-select-text').text($(this).find('.cl-checkbox-container span').text());
+          const products_color = [{{ array_bundleoption_main }}];
+          const products_sizes = [{{ array_bundleoption_main_sizes }}];
+          const filteredProducts_color = products_color.filter(products_color => products_color.includes(classelement) && products_color.includes(product_id));
+          const filteredProducts_sizes = products_sizes.filter(products_sizes => products_sizes.includes(classelement) && products_sizes.includes(product_id));
+
+          $labelFabricationDetails ={
+            {% for product in filtered_products %}
+              "{{ product.id }}": {
+                fabrication_list: { 
+                  {% assign sibling_handles = product.metafields.custom.product_sibling.value %}
+                  {%- if sibling_handles -%}
+                    {% for handle in sibling_handles %} 
+                      {% assign id_handle = handle.id %}
+                      {% assign fabractions= handle.metafields.custom.fabrication.value.name %}
+                      {% assign fabractions_img= handle.metafields.custom.fabrication.value.image %}
+                      "fabrication_{{ forloop.index }}":{
+                        fabrcationsList_id :'{{ id_handle }}',
+                        fabrcationsList_name : '{{ fabractions }}',
+                        fabrcationsList_img :'{{ fabractions_img.value | img_url: 'master' }}'                             
+                      }{% unless forloop.last %},{% endunless %}
+                    {% endfor %}
+                  {%- endif -%}
+                }  
+              }{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          };          
+    
+          if (products_new[product_id]) {   
+            var $labelProductVariants_new = products_new[product_id];      
+          } else {
+            console.error('Product not found in allProducts.');
+          }  
+
+          let labelFabricationDetails = $labelFabricationDetails[product_id];
+          let sizeOptionHtml ='';
+          let selectedAttr='';
+          
+          if (labelFabricationDetails && labelFabricationDetails.fabrication_list && Object.keys(labelFabricationDetails.fabrication_list).length > 0) {
+            sizeOptionHtml +=` <div class="first-product-slect ${classelement}" id="select-leash">
+              <label>Choose your Harness</label>
+              <select class="select-leash select-option">
+                <option value="">Choose your Product</option>`;
+            let isFirstOption = true;
+            
+            for (let key in labelFabricationDetails.fabrication_list) { 
+              if(labelFabricationDetails.fabrication_list[key].fabrcationsList_id == product_id) { selectedAttr='selected'; } else { selectedAttr=''; }
+              sizeOptionHtml += `<option value="${labelFabricationDetails.fabrication_list[key].fabrcationsList_id}" ${selectedAttr}>${labelFabricationDetails.fabrication_list[key].fabrcationsList_name}</option>`;
+              isFirstOption = false;
+            }
+            
+            sizeOptionHtml +=`</select></div>`;
+          }           
+
+          var $labelCollectionDetails = $labelCollectionDetails_new[product_id];    
+          let sizes = new Set();
+          let colers = new Set();
+          let sizes_array ='false';
+          let sizeOptionHtmlsizes = ``;
+          let sizeOptionHtmlcolor = ``;
+          let colormatches= '';
+          let sizesmatches= '';
+          let prduct_color ='';
+          var prduct_sizes ='';
+
+          if($labelCollectionDetails){        
+            sizeOptionHtmlsizes += `<div class="first-product-slect" id="select-sizes"><label>Choose your Size</label><select class="select-sizes select-option1"><option value="">Choose your Size</option>`;
+            let isFirstOptionSizes = true;
+            let isFirstColorOption = true;
+            let processedIds = new Set();
+
+            $labelCollectionDetails.variants.forEach(variant => {
+              if (processedIds.has(variant.id)) {
+                return;
+              }
+              processedIds.add(variant.id);
+              
+              let selected_color = "";
+              let allAvailableColors = '';
+
+              if (variant.option1 && !colers.has(variant.option1)) {
+                allAvailableColors = variant.option1.toLowerCase().replace(/ /g, '-');
+                let varientColorCompare = products_new[product_id].color_seetings;
+                
+                $.each(varientColorCompare, function(index, variantColor) { 
+                  if (variantColor.name.toLowerCase().replace(/ /g, '-') === allAvailableColors) {
+                    selected_color = allAvailableColors;
+                    return false; 
+                  }
+                });
+                selected_color = selected_color || false;
+              }
+
+              if (filteredProducts_color.length > 0){ 
+                const colormatch = filteredProducts_color.filter(products_size => {
+                  const parts = products_size.split('_');              
+                  const colorMatches = parts[parts.length - 1] === prduct_sizes;
+                  const sizeMatch = parts[parts.length - 2] === allAvailableColors;              
+                  if (sizeMatch && parts[parts.length - 1] === variant.option2) {
+                    if (variant.option2 && !sizes.has(variant.option2)) {
+                      sizes.add(variant.option2);
+                      let lowerCaseOption = variant.option2;
+                      let availableDetails = filterProductsBySizeColorAndId(product_id, variant.option2, variant.option1);
+                      let availability, disabled;
+
+                      if(availableDetails[0].available == true || availableDetails[0].available == "true"){
+                        availability = '';
+                        disabled = '';
+                      } else {
+                        availability = '(Sold Out)';
+                        disabled = 'disabled';
+                      }
+
+                      if(filteredProducts_sizes.length > 0){ 
+                        var sizesmatched = filteredProducts_sizes.filter(filteredProducts_sizes => filteredProducts_sizes.includes(variant.option2));
+                        if (sizesmatched.length > 0) {
+                          sizesmatches= 'style="display:block;"';
+                        } else {
+                          sizesmatches = 'style="display:none;"';
+                        }
+                      } else {
+                        sizesmatches=  'style="display:block;"';
+                      }
+                      
+                      let selectedAttrSize = '';
+                      if (sizesmatches === 'style="display:block;"' && isFirstOptionSizes == true && availability === '') { 
+                        prduct_sizes = lowerCaseOption;
+                        selectedAttrSize = 'selected';
+                        isFirstOptionSizes = false;
+                      }
+                      
+                      sizeOptionHtmlsizes += `<option value="${variant.option2}" ${selectedAttrSize} ${sizesmatches} ${disabled}>${variant.option2} ${availability}</option>`;
+                      sizes_array='true';
+                    }
+                  }
+                });
+              }
+            });
+
+            $labelCollectionDetails.variants.forEach(variant => {                  
+              if (variant.option1 && !colers.has(variant.option1)) {  
+                let lowerCaseOption = variant.option1.toLowerCase().replace(/ /g, '-');
+                let colorimage='';
+                let varientArray=products_new[product_id].color_seetings;
+                
+                $.each(varientArray, function(index, variant) {                        
+                  if (variant.name === lowerCaseOption) {
+                    colorimage = variant.image; 
+                    return false;
+                  } else {
+                    colorimage = '';
+                  }  
+                });
+                
+                colers.add(variant.option1);
+                if(filteredProducts_color.length > 0){ 
+                  const colormatched = filteredProducts_color.filter(products_size => {
+                    const parts = products_size.split('_');              
+                    const colorMatch = prduct_sizes ? parts[parts.length - 1] === prduct_sizes : true;
+                    const sizeMatch = parts[parts.length - 2] === lowerCaseOption;              
+                    return sizeMatch && colorMatch;
+                  });
+                  
+                  if (colormatched.length > 0) {
+                    colormatches= 'style="display:block;"';                    
+                  } else {
+                    colormatches= 'style="display:none;"';
+                  }
+                } else {
+                  colormatches=  'style="display:block;"';
+                }
+                
+                let activeClass = '';
+                if (colormatches === 'style="display:block;"' && isFirstColorOption == true) {
+                  prduct_color = lowerCaseOption;
+                  activeClass = 'color-swatch-active';
+                  isFirstColorOption = false;
+                }
+                
+                sizeOptionHtmlcolor +=`<div ${colormatches} id="${activeClass}">
+                  <div class="cl-color-checkboxnew loadImage">
+                    <input class="cl-color-checkbox" data-color="${lowerCaseOption}" type="checkbox" id="upsell-patch-color-${lowerCaseOption}" name="color-option">
+                    <label class="color-swatch rounded-full colorbundle-${lowerCaseOption} ${activeClass}" for="upsell-patch-color-${lowerCaseOption}" data-option-value="${lowerCaseOption}" style="background-image: url('/${colorimage}')"></label>
+                  </div>
+                </div>`;
+              }  
+            });
+            
+            sizeOptionHtmlsizes += `</select></div>`;
+          }
+
+          if(sizes_array == 'false'){ sizeOptionHtmlsizes=''; }
+          
+          const accordionParent = accordion.closest('.accordion.cl-accordion-label-customise');
+          const isExpanded = accordionParent.getAttribute('aria-expanded') === 'true';
+          accordionParent.setAttribute('aria-expanded', !isExpanded);
+          
+          let existingModal = document.querySelector('#simple-bundle-template-popup');
+          if (existingModal) {
+            existingModal.remove();
+          }
+
+          const modal = document.createElement('x-modal');
+          modal.setAttribute('id', 'simple-bundle-template-popup');
+          modal.setAttribute('class', 'modal modal--lg modal-app-ezy');
+          modal.setAttribute('role', 'dialog');
+          modal.setAttribute('aria-modal', 'true');
+          modal.setAttribute('open', '');
+          modal.setAttribute('style', 'display: block; opacity: 1;');
+          let productSizes = prduct_sizes;       
+          let productColor = prduct_color;
+          let filteredProducts = filterProductsBySizeColorAndId(product_id, productSizes, productColor);  
+
+          const content = `
+            <div class="popup-content-wrapper" id="poup-${filteredProducts[0].product_id}">
+              <div class="popupcontent">
+                <div class="row-cust">
+                  <div class="first-column-wrapper">
+                    <div class="column-cust first-column imageoverlay">
+                      <img src="${filteredProducts[0].variant_image}" data-zoom="${filteredProducts[0].variant_image}" width="100%" height="100%">
+                    </div>
+                  </div>
+                  <div class="second-column-wrapper">
+                    <div class="customizer container">
+                      <div class="banner">
+                        <b>CHOOSE YOUR ${filteredProducts[0].product_title}</b>
+                      </div>                      
+                      ${sizeOptionHtml}                       
+                      ${sizeOptionHtmlsizes}
+                      <div class="select-color">
+                        <label>Choose your Color</label>
+                        <div class="cl-color-selector-wrapper">
+                          <div class="cl-color-selector" id="color-options">
+                            <div class="color-option_silder1" id="slicesslider">${sizeOptionHtmlcolor}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div id="button-wrapper_new" class="button-wrapper1" style="display: flex; align-items: center; margin-top: 28px; gap: 8px;">
+                        <button class="button btn-cancel-custom" id="popupclose-cancel" style="background-color: black; border-color: black;">Cancel</button>
+                        <button id="upsell-patch_new" class="d-block button button-" data-product-id="${product_id}" data-class="${classelement}" style="margin-top: 0px; width: 100%;">
+                          <span id="add-patch-text_new" class="add-text-">ADD TO BUNDLE</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          
+          modal.innerHTML += content;
+
+          const checkSoldOutStatus = function() {
+            const sizeSelect = document.querySelector('.select-sizes.select-option1');
+            const addButton = document.querySelector('#add-patch-text_new');
+            
+            if (sizeSelect && addButton) {
+              const sizeOptions = Array.from(sizeSelect.querySelectorAll('option')).slice(1);
+              const allSoldOut = sizeOptions.length > 0 && sizeOptions.every(option => option.disabled);
+              
+              if (allSoldOut) {
+                addButton.textContent = 'SOLD OUT';
+                const button = document.querySelector('#upsell-patch_new');
+                if (button) {
+                  button.disabled = true;
+                  button.style.opacity = '0.5';
+                  button.style.cursor = 'not-allowed';
+                }
+              } else {
+                addButton.textContent = 'ADD TO BUNDLE';
+                const button = document.querySelector('#upsell-patch_new');
+                if (button) {
+                  button.disabled = false;
+                  button.style.opacity = '1';
+                  button.style.cursor = 'pointer';
+                }
+              }
+            }
+          };
+
+          checkSoldOutStatus();
+
+          document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('select-sizes') || e.target.classList.contains('select-option1')) {
+              checkSoldOutStatus();
+            }
+          });
+
+          document.body.appendChild(modal);
+          const bundlepopupcancle = document.querySelector('#popupclose-cancel');
+          
+          if(bundlepopupcancle){
+            bundlepopupcancle.addEventListener('click', function () { 
+              const bundlepopup = document.querySelector('#simple-bundle-template-popup');
+              bundlepopup.remove();
+            });     
+          }
+        });   
+      });
+
+      $(document).on('change','#select-leash .select-option',function(){
+        let val = $(this).val();   
+        $(this).find('option').removeAttr('selected');
+        $(this).find('option:selected').attr('selected', 'selected');
+        $('#simple-bundle-template-popup #upsell-patch_new').attr('data-product-id',val);
+        
+        let pruduct = products_new[val]; 
+        let classelement = $(this).parents('#select-leash').attr('class').replace('first-product-slect', '').trim();
+        const products_color = [{{ array_bundleoption_main }}];
+        const products_sizes = [{{ array_bundleoption_main_sizes }}];
+        const filteredProducts_color = products_color.filter(products_color => products_color.includes(classelement) && products_color.includes(val));
+        const filteredProducts_sizes = products_sizes.filter(products_sizes => products_sizes.includes(classelement) && products_sizes.includes(val));
+
+        var $labelCollectionDetails_change = $labelCollectionDetails_new[val];
+        $('.first-column-wrapper .imageoverlay img').attr('src',pruduct.product_image);
+        var sizeschangehtml='<option value="">Choose your Size</option>'; 
+        var colorchangehtml=''; 
+        let sizes = new Set();
+        let colers = new Set();
+        let isFirstOptionSizes = true;
+        let isFirstColorOption = true;
+        let colormatches= '';
+        let sizesmatches= '';
+        let prduct_color ='';
+        let prduct_sizes='';
+        
+        if($labelCollectionDetails_change){
+          $labelCollectionDetails_change.variants.forEach(variant => {
+            if (variant.option2 && !sizes.has(variant.option2)) {                       
+              sizes.add(variant.option2);                   
+              if(filteredProducts_sizes.length > 0){ 
+                var sizesmatched = filteredProducts_sizes.filter(filteredProducts_sizes => filteredProducts_sizes.includes(variant.option2)); 
+                if (sizesmatched.length > 0) {
+                  sizesmatches= 'style="display:block;"';
+                } else {
+                  sizesmatches= 'style="display:none;"';
+                } 
+              } else {
+                sizesmatches= 'style="display:block;"';
+              }
+              
+              let selectedAttrSize = '';
+              if (sizesmatches === 'style="display:block;"' && isFirstOptionSizes == true) {
+                prduct_sizes = variant.option2;
+                selectedAttrSize = 'selected';
+                isFirstOptionSizes = false;
+              }
+              
+              sizeschangehtml += `<option value="${variant.option2}" ${selectedAttrSize} ${sizesmatches}>${variant.option2}</option>`;
+            }
+
+            if (variant.option1 && !colers.has(variant.option1)) {
+              let lowerCaseOption = variant.option1.toLowerCase().replace(/ /g, '-');
+              let colorimage = products_new[val].color_seetings[lowerCaseOption];
+              
+              if (colorimage && typeof colorimage.image !== 'undefined') {
+                colorimage = colorimage.image;          
+              } else {
+                colorimage = '';
+              }
+              
+              colers.add(variant.option1);
+              if(filteredProducts_color.length > 0){ 
+                const colormatched = filteredProducts_color.filter(products_size => {
+                  const parts = products_size.split('_');              
+                  const colorMatch = prduct_sizes ? parts[parts.length - 1] === prduct_sizes : true;
+                  const sizeMatch = parts[parts.length - 2] === lowerCaseOption;              
+                  return sizeMatch && colorMatch;
+                });
+                
+                if (colormatched.length > 0) {
+                  colormatches= 'style="display:block;"';                                  
+                } else {
+                  colormatches= 'style="display:none;"';
+                }    
+              } else {
+                colormatches= 'style="display:block;"';
+              }
+              
+              let activeClass = '';
+              if (colormatches === 'style="display:block;"' && isFirstColorOption == true) {
+                prduct_color = lowerCaseOption;
+                activeClass = 'color-swatch-active';
+                isFirstColorOption = false;
+              }
+
+              colorchangehtml +=`<div ${colormatches} id="${activeClass}">
+                <div class="cl-color-checkboxnew loadImage">
+                  <input class="cl-color-checkbox" data-color="${lowerCaseOption}" type="checkbox" id="upsell-patch-color-${lowerCaseOption}" name="color-option">
+                  <label class="color-swatch rounded-full colorbundle-${lowerCaseOption} ${activeClass}" for="upsell-patch-color-${lowerCaseOption}" data-option-value="${lowerCaseOption}" style="background-image: url('/${colorimage}')"></label>
+                </div>
+              </div>`;
+            }                
+          });
+          
+          $('#slicesslider').html(colorchangehtml);
+          $('#select-sizes .select-option').html(sizeschangehtml);
+          $('.banner b').text('CHOOSE YOUR ' + pruduct.product_title);
+          let productSizes = prduct_sizes;
+          let productColor = prduct_color;
+          let filteredProducts = filterProductsBySizeColorAndId(val, productSizes, productColor);
+          $('.imageoverlay img').attr('src',filteredProducts[0].variant_image);          
+        }      
+      });
+
+      $(document).on('change','#simple-bundle-template-popup #select-sizes .select-sizes',function(event){
+        event.preventDefault();        
+        let val=$(this).val();
+        let product_id = $('#upsell-patch_new').attr('data-product-id');
+        let classelement = $('#upsell-patch_new').attr('data-class');
+        const products_color = [{{ array_bundleoption_main }}];
+        const filteredProducts_color = products_color.filter(products_color => products_color.includes(classelement) && products_color.includes(product_id));
+        var $labelCollectionDetails = $labelCollectionDetails_new[product_id];
+        let colers = new Set();
+        let sizeOptionHtmlcolor = ``;
+        let colormatches= '';
+        let prduct_color ='';
+        let isFirstColorOption = true;
+        
+        if($labelCollectionDetails){
+          $labelCollectionDetails.variants.forEach(variant => {
+            if (variant.option1 && !colers.has(variant.option1)) {
+              let lowerCaseOption = variant.option1.toLowerCase().replace(/ /g, '-');
+              let colorimage='';
+              let varientArray=products_new[product_id].color_seetings;
+              
+              $.each(varientArray, function(index, variant) { 
+                if (variant.name === lowerCaseOption) {
+                  colorimage = variant.image; 
+                  return false;
+                } else {
+                  colorimage = '';
+                }
+              }); 
+              
+              colers.add(variant.option1);
+              if(filteredProducts_color.length > 0){ 
+                const colormatched = filteredProducts_color.filter(products_size => {
+                  const parts = products_size.split('_');              
+                  const colorMatch = parts[parts.length - 1] === val;
+                  const sizeMatch = parts[parts.length - 2] === lowerCaseOption;              
+                  return sizeMatch && colorMatch;
+                });
+                
+                if (colormatched.length > 0) {
+                  colormatches= 'style="display:block;"';                    
+                } else {
+                  colormatches= 'style="display:none;"';
+                }      
+              } else {
+                colormatches= 'style="display:block;"';
+              }
+              
+              let activeClass = '';
+              if (colormatches === 'style="display:block;"' && isFirstColorOption == true) {
+                prduct_color = lowerCaseOption;
+                activeClass = 'color-swatch-active';
+                isFirstColorOption = false;
+              }
+              
+              sizeOptionHtmlcolor +=`<div ${colormatches} id="${activeClass}">
+                <div class="cl-color-checkboxnew loadImage">
+                  <input class="cl-color-checkbox" data-color="${lowerCaseOption}" type="checkbox" id="upsell-patch-color-${lowerCaseOption}" name="color-option">
+                  <label class="color-swatch rounded-full colorbundle-${lowerCaseOption} ${activeClass}" for="upsell-patch-color-${lowerCaseOption}" data-option-value="${lowerCaseOption}" style="background-image: url('/${colorimage}')"></label>
+                </div>
+              </div>`;      
+            }
+          });
+          
+          $('.color-option_silder1').html(sizeOptionHtmlcolor);
+        }
+      });
+
+      $(document).on('click','#upsell-patch_new',function(event){
+        event.preventDefault(); 
+        var selectLeash = document.querySelector('#select-leash');
+        let productId = '';
+        let title_leash = '';
+
+        if(selectLeash) {
+          productId = $('#select-leash option:selected').val();
+          title_leash = ' - '+$('#select-leash option:selected').text();
+        } else {
+          productId = $(this).attr('data-product-id');
+          title_leash = '';
+        }    
+
+        let productSizes = $('#select-sizes option:selected').val();   
+        let productColor = $('#color-options label.color-swatch-active').attr('data-option-value'); 
+        let classelemtns = $(this).attr('data-class'); 
+        let selectedProductId = productId;
+        let selectedSize = productSizes;   
+        let selectedColor = productColor ? productColor[0].toUpperCase() + productColor.slice(1) : '';
+        let p_title = '';
+        let p_id = '';
+        let p_price = ''; 
+        let filteredProducts = filterProductsBySizeColorAndId(selectedProductId, selectedSize, productColor);        
+
+        if (!filteredProducts[0]) {
+          console.error('No matching product found. Check productId, size, and color selections.');
+          return; 
+        }
+
+        if(filteredProducts[0].variant_title){ p_title=filteredProducts[0].variant_title; } else { p_title=filteredProducts[0].product_title; }
+        if(filteredProducts[0].variant_id){ p_id=filteredProducts[0].variant_id; } else { p_id=productId; }
+        if(filteredProducts[0].product_title === 'EzyBones Chew Toy' || filteredProducts[0].product_id === '8865809957160') {
+          p_price = '$0.00';
+        } else if(filteredProducts[0].variant_price){ 
+          p_price = filteredProducts[0].variant_price; 
+        } else { 
+          p_price = filteredProducts[0].product_price; 
+        }
+
+        if (!p_price) {
+          p_price = '$0.00';
+        }
+
+        const specialDiscountIds = ['49696573096232','47186342543656','8785901682984', '8785890935080', '8785900044584', '8785898307880'];
+        let originalPrice = parseFloat(p_price.replace('$', '')) * 100;
+        let discountedPrice;
+        if (filteredProducts[0].product_title === 'EzyBones Chew Toy' || filteredProducts[0].product_id === '8865809957160') {
+          discountedPrice = 0;
+        } else if (specialDiscountIds.includes(filteredProducts[0].product_id)) {
+          discountedPrice = (originalPrice * 0.8 / 100).toFixed(2); // 20% discount
+        } else {
+          discountedPrice = (originalPrice * 0.9 / 100).toFixed(2); // 10% discount
+        }
+
+        let apendbundlehtml = `
+          <div class="crard-show row" id="crard-show_${classelemtns}" data-id="${p_id}" data-product-id="${filteredProducts[0].product_id}" data-prices="${(filteredProducts[0].product_title === 'EzyBones Chew Toy' || filteredProducts[0].product_id === '8865809957160') ? 0 : originalPrice / 100}" data-title="${filteredProducts[0].product_title}">
+            <div class="container">
+              <div class="col-first">
+                <figure>
+                  <img id="image-product" src="${filteredProducts[0].variant_image}" width="100px" height="100px">
+                </figure>
+              </div>
+              <div class="col-second">
+                <h3>${filteredProducts[0].product_title}${title_leash}</h3>
+                <span class="color-p">${filteredProducts[0].variant_title}</span>
+                <span class="price">Price: ${p_price}</span>
+              </div>
+            </div>
+            <button type="button" class="card-close-button" data-class_element="${classelemtns}">
+              <svg aria-hidden="true" focusable="false" fill="none" width="14" class="icon icon-close" viewBox="0 0 16 16">
+                <path d="m1 1 14 14M1 15 15 1" stroke="currentColor" stroke-width="1.5"></path>
+              </svg>
+            </button>
+          </div>`;
+
+        $('.' + classelemtns).append(apendbundlehtml);
+        let optionlength = $('.simple-bundle-sections .bundle-template-option').length;
+        let cardlength = $('.simple-bundle-sections .crard-show').length + $('.simple-bundle-sections .crard-show_single-product').length;
+
+        if(optionlength == cardlength){
+          $('.buy-buttons-simplebundle button').attr('id','product-buy-button-simplebundle');
+          let button_label = $('.buy-buttons-simplebundle button').text().trim();
+          if(button_label !== 'Sold Out'){
+            $('.buy-buttons-simplebundle button').removeAttr('disabled');
+          }
+        }  
+
+        updateTotalPrice();
+
+        const bundlepopup = document.querySelector('#simple-bundle-template-popup');
+        bundlepopup.remove();        
+      });
+
+      function filterProductsBySizeColorAndId(productId, size, color) {
+        let filtered = {};
+        if (productId && products_new[productId]) { 
+          let product = products_new[productId];
+          let matchingVariant = product.product_variants.find(variant => {
+            return (size ? variant.option_2 === size : true) &&
+                  (color ? variant.option_1 === color : true);
+          });
+
+          if (matchingVariant) {    
+            filtered[0] = {
+              "product_id": productId,
+              "product_title": product.product_title,
+              "product_price": product.product_price, 
+              "variant_id": matchingVariant.variant_id,
+              "variant_title": matchingVariant.variant_title,
+              "variant_option1": matchingVariant.option_1,
+              "variant_option2": matchingVariant.option_2,
+              "variant_image": matchingVariant.variant_image,
+              "variant_price": matchingVariant.variant_price,
+              "available": matchingVariant.available
+            };
+          } else {
+            console.warn(`No matching variant found for productId: ${productId}, size: ${size}, color: ${color}`);
+          }
+        } else {
+          console.warn(`Product not found for productId: ${productId}`);
+        }
+        return filtered;
+      }
+
+      $(document).on('click','.color-option_silder1 .loadImage .color-swatch',function(event){ 
+        event.preventDefault();
+        $('.color-option_silder1 .loadImage .color-swatch-active').removeClass('color-swatch-active');
+        $(this).addClass('color-swatch-active');
+        var selectLeash = document.querySelector('#select-leash');
+        let productId='';
+        
+        if (selectLeash) {
+          productId = $('#select-leash option:selected').val();
+        } else {
+          productId = $('#upsell-patch_new').attr('data-product-id');
+        }
+
+        let productSizes = $('#select-sizes option:selected').val();   
+        let productColor = $('#color-options label.color-swatch-active').attr('data-option-value');
+        let filteredProducts = filterProductsBySizeColorAndId(productId, productSizes, productColor);
+        $('.imageoverlay img').attr('src',filteredProducts[0].variant_image);          
+      });
+
+      function updateTotalPrice() {
+        const specialDiscountIds = ['49696573096232','47186342543656','8785901682984', '8785890935080', '8785900044584', '8785898307880'];
+        let totalPrice = 0; // Discounted total for sale price
+        let totalComparePrice = 0; // Original total for compare-at price
+
+        $(".crard-show").each(function() {
+          let productId = $(this).attr('data-product-id'); // Use product ID for bundle items
+          let price = parseFloat($(this).attr('data-prices'));
+          let discountMultiplier = specialDiscountIds.includes(productId) ? 0.8 : 0.9;
+          if ($(this).attr('data-title') === 'EzyBones Chew Toy' || productId === '8865809957160') {
+            discountMultiplier = 0; // Special case for free product
+          }
+          totalPrice += price * discountMultiplier;
+          totalComparePrice += price;
+        });
+
+        $(".crard-show_single-product").each(function() {
+          let productId = $(this).attr('data-id');
+          let price = parseFloat($(this).attr('data-prices'));
+          let discountMultiplier = specialDiscountIds.includes(productId) ? 0.8 : 0.9;
+          totalPrice += price * discountMultiplier;
+          totalComparePrice += price;
+        });
+
+        // Update sale price
+        $('sale-price span#product-price').text(`$${totalPrice.toFixed(2)}`);
+        $('sale-price').text(`$${totalPrice.toFixed(2)}`);
+        $('square-placement').attr('data-amount', totalPrice.toFixed(2));
+
+        // Update compare-at price
+        if ($('compare-at-price').length) {
+          $('compare-at-price').text(`$${totalComparePrice.toFixed(2)}`);
+          if (totalComparePrice > totalPrice) {
+            $('compare-at-price').show();
+          } else {
+            $('compare-at-price').hide();
+          }
+        } else {
+          console.warn('compare-at-price element not found');
+        }
+      }
+
+      $(document).on('click', 'button#product-buy-button-simplebundle', function(event) {
+        event.preventDefault();
+        var itemsToAdd = [];
+        const bundleIdentifier = `Bundle-${Date.now()}`;
+        const quantity = 1;
+        var properties = '';
+        let bundle_product = {}; 
+        let bundleName = "{{ product.title }}";
+        let bundleItems = [];
+        let totalBundlePrice = 0;
+
+        const specialDiscountIds = ['49696573096232','47186342543656','8785901682984', '8785890935080', '8785900044584', '8785898307880'];
+        $(".crard-show").each(function(index) {
+          let heading = $(this).parents('#simple-bundles-options').find('h3.heading').text();
+          let productTitle = $(this).find('h3:first').text() || 'test product';
+          let productSize = $(this).find('span.color-p').text() || 'product size';
+          let productImage = $(this).find('figure img').attr('src');
+          let productId = $(this).attr('data-product-id'); // Use product ID for discount
+          let variantId = $(this).attr('data-id'); // Use variant ID for cart
+          let discountMultiplier = specialDiscountIds.includes(productId) ? 0.8 : 0.9;
+          if (productTitle === 'EzyBones Chew Toy' || productId === '8865809957160') {
+            discountMultiplier = 0; // Special case for free product
+          }
+          let productPrice = parseFloat($(this).attr('data-prices')) * discountMultiplier;
+          let label_key = heading;
+          
+          totalBundlePrice += productPrice;
+          bundle_product[label_key] = `${productTitle}---${productSize}`;
+          if (variantId && productPrice) {
+            var bundleItem = {
+              variantId: `gid://shopify/ProductVariant/${variantId}`,
+              quantity: 1,
+              price: parseFloat(productPrice.toFixed(2))
+            };
+            bundleItems.push(bundleItem);
+          }
+        });
+
+        $(".crard-show_single-product").each(function(index) {
+          let heading_single = $(this).parents('#simple-bundles-options').find('h3.heading').text();
+          let productTitle_single = $(this).find('h3').text();
+          let productSize_single = $(this).find('span.color-p').text();
+          let productImage_single = $(this).find('figure img').attr('src');
+          let productId_single = $(this).attr('data-id');
+          let discountMultiplier = specialDiscountIds.includes(productId_single) ? 0.8 : 0.9;
+          let productPrice_single = parseFloat($(this).attr('data-prices')) * discountMultiplier;
+          
+          totalBundlePrice += productPrice_single;
+          if(productTitle_single && productSize_single){    
+            bundle_product[`${heading_single}`] = `${productTitle_single}---${productSize_single}`; 
+            var bundleItem = {
+              variantId: `gid://shopify/ProductVariant/${productId_single}`,
+              quantity: 1,
+              price: parseFloat(productPrice_single.toFixed(2))
+            };
+            bundleItems.push(bundleItem);
+          }
+        });
+
+        var vId = $(".product-info__block-item[data-block-type=variant-picker]").find("input[name=id]").val();
+        if (!vId) {
+          vId = $(".product-info__block-item[data-block-type=variant-picker]").find("select[name=id]").val();
+        }
+
+        const formDataw = {
+          id: vId,
+          quantity: 1,
+          price: totalBundlePrice.toFixed(2),
+          properties: {
+            _bundle_product: bundle_product,
+            _bundle: JSON.stringify(bundleItems)
+          }
+        };
+        
+        itemsToAdd.push(formDataw); 
+        
+        if (itemsToAdd.length > 0) {
+          addToCartsimplebundle(itemsToAdd, "{{product.title }}");
+        }
+      });
+
+      function addToCartsimplebundle(items, bundleName) {
+        if (!bundleName) bundleName = `Bundle ${Date.now()}`;
+
+        $.getJSON('/cart.js', function(cart) {
+          let existingGroups = [];
+          let rawGroups = cart.attributes?.bundleGroups;
+
+          try {
+            existingGroups = typeof rawGroups === 'string' ? 
+                            JSON.parse(rawGroups) : 
+                            (Array.isArray(rawGroups) ? rawGroups : []);
+          } catch (e) {
+            console.warn('Could not parse existing bundleGroups:', e);
+          }
+
+          // Create proper bundle structure with variant_id
+          const newBundleGroup = {
+            name: bundleName,
+            items: items.map(item => ({
+              id: item.id,
+              variant_id: item.id, // CRITICAL: Add variant_id for proper deletion
+              quantity: item.quantity,
+              properties: {
+                ...(item.properties || {}),
+                _bundle: JSON.stringify([{
+                  variantId: `gid://shopify/ProductVariant/${item.id}`,
+                  quantity: item.quantity
+                }])
+              }
+            }))
+          };
+
+          existingGroups.push(newBundleGroup);
+
+          // Add PRODUCT X attributes for proper deletion
+          const attributes = {
+            bundleGroups: existingGroups
+          };
+          
+          items.forEach((item, index) => {
+            attributes[`PRODUCT ${index + 1}`] = JSON.stringify({
+              variantId: `gid://shopify/ProductVariant/${item.id}`
+            });
+          });
+
+          $.ajax({
+            type: 'POST',
+            url: '/cart/add.js',
+            data: JSON.stringify({
+              items: items,
+              attributes: attributes
+            }),
+            dataType: 'json',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            success: function(response) {
+              document.dispatchEvent(new CustomEvent('cart:refresh'));
+              const cartDrawerElement = document.querySelector('#cart-drawer');
+              if (cartDrawerElement) {
+                cartDrawerElement.show();
+                $('.crard-show').remove();
+              }
+            },
+            error: function(xhr, status, error) {
+              console.error('Error adding items to cart:', error);
+            }
+          });
+        });
+      } 
+
+      $('.buy-buttons-simplebundle').click(function(){
+        setTimeout(function(){
+          const labels = document.querySelectorAll('.accordion.cl-accordion-label-customise.group #label-select-text');
+          
+          if (labels.length > 0) {
+            labels.forEach(label => {
+              label.textContent = 'Choose Product';
+            });
+          } else {
+            console.log('No labels found to update');
+          }
+          if ($('sale-price span#product-price').length || $('sale-price').length) {
+            $('sale-price span#product-price').text('$0.00');
+            $('sale-price').text('$0.00');
+          } else {
+            console.warn('sale-price element not found');
+          }
+
+          if ($('compare-at-price').length) {
+            $('compare-at-price').text('$0.00');
+          } else {
+            console.warn('compare-at-price element not found');
+          }
+          
+          $('#product-buy-button-simplebundle').attr('disabled',true);
+        },500);
+      });
+    });
+  </script>
+
+  <style>
+    .product-info__block-item variant-picker{
+      display:none !important;
+    }
+    .simple_bunde_template .buy-buttons-simplebundle button#product-buy-button-simplebundle[disabled] {
+      background-color: #939598 !important;
+      border-color: #939598 !important;
+    }
+    
+    #simple-bundle-template-popup{
+      --modal-body-max-width: 70%;
+    }
+    .popup-content-wrapper {
+      padding: 28px;
+      position: relative;
+      z-index: 1000000000001;
+      background: #fff;
+      width: 100%;
+      min-width: 1200px;
+      height: 100%;
+    }
+    .popupcontent {
+      height: 100%;
+      position: relative;
+    }
+    .row-cust {
+      display: grid;
+      grid-template-columns: auto 600px;
+      gap: 32px;
+      height: 100%;
+    }
+    .column-cust.first-column {
+      background: #f8f8f8;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .second-column .customizer {
+      margin: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 17px;
+    }
+    .second-column .customizer .banner {
+      background-color: #939598;
+      color: rgb(255, 255, 255);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      column-gap: 8px;
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+    .cl-color-selector-wrapper {
+      padding-top: 12px !important;
+      padding-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cl-color-selector {
+      display: flex;
+      gap: 10px;
+    }
+    .color-option_silder1 {
+      display: flex;
+      align-items: center;
+      gap: 0 !important;
+      height: 35px !important;
+      width: 350px;
+      transition: all 300ms ease-in-out;
+    }
+    .color-option_silder1 .cl-color-checkboxnew {
+      margin-right: 8px;
+      margin-left: 8px;
+    }
+    .cl-color-checkbox {
+      display: none;
+    }
+    #simple-bundle-template-popup .cl-color-selector .cl-color-checkboxnew .color-swatch {
+      width: 28px !important;
+      height: 28px !important;
+    }
+    #slicesslider .colorbundle-charcoal{background-color:#474747;}
+    #slicesslider .colorbundle-blue{background-color:#123965;}
+    #slicesslider .colorbundle-black{background-color:#030303;}
+    #slicesslider .colorbundle-purple{background-color:#480f78;}
+    #slicesslider .colorbundle-pink{background-color:#ed1e8e;}
+    #slicesslider .colorbundle-brown{background-color:#6f3f2f;}
+    #slicesslider .colorbundle-tan{background: url('//i6pqnlihvjyeadsf-79637807400.shopifypreview.com/cdn/shop/files/Corduroy_Swatch.png?v=1698804309&width=72') no-repeat center / cover;}
+    #slicesslider .colorbundle-green{background: url('//i6pqnlihvjyeadsf-79637807400.shopifypreview.com/cdn/shop/files/Camo_Swatch.png?v=1698804308&width=72') no-repeat center / cover;}
+    #slicesslider .colorbundle-blush{background: url('//a7tfrujg79tnr1fe-79637807400.shopifypreview.com/cdn/shop/files/Oxford_Blush_Swatch.png?v=1698804307&width=72') no-repeat center / cover;}
+    #slicesslider .colorbundle-lilac{background: url('//a7tfrujg79tnr1fe-79637807400.shopifypreview.com/cdn/shop/files/Oxford_Lilac_Swatch.png?v=1698804312&width=72') no-repeat center / cover;}
+    #slicesslider .colorbundle-powder-blue{background: url('//a7tfrujg79tnr1fe-79637807400.shopifypreview.com/cdn/shop/files/Oxford_Powder_Blue_Swatch.png?v=1698804307&width=72') no-repeat center / cover;}
+    #slicesslider .colorbundle-red{background-color:#ed0a09;}
+    .color-swatch-active {
+      outline: 1px solid #1a1a1a !important;
+      outline-offset: 3px !important;
+      scale: 0.9 !important;
+    }
+  </style>
+{% endif %}

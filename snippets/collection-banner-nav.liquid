@@ -1,0 +1,112 @@
+<!-- collection-banner-nav -->
+
+  {%- assign current_collection_handle = collection.handle -%}
+  {%- for link in linklists.main-menu.links -%}
+    {%- if link.title == "Shop The Range" -%}
+      {%- assign link_count = link.links.size -%}
+      <div class="collection-nav-banner section-mb section-mt section-x-spacing">
+        <ul class="collection-grid__linklist unstyled-list">
+          {% for subcollection in collection.metafields.custom.subcollections.value %}
+          {% assign link_count  = link_count | plus: 1 %}
+            <li class="">
+              {%- assign sub_collection = collections[sub_link.object.handle] -%}
+                {%- assign sub_collection_title_downcase =  sub_collection.title | downcase -%}
+                {%- assign collection_titles = "shop, walking, hiking, active, beach, cityscapes, boating, all activities, daily use, travel, training, all purpose, premium, bundles, essentials" | split: ", " -%}
+                {%- if collection_titles contains sub_collection_title_downcase -%}
+                  <a data-url="{{ subcollection.url  }}" class="h6 d-block h-100  banner-collection-item">
+                {%- else -%}
+                  <a href="{{ subcollection.url  }}" class="h6 d-block h-100  banner-collection-item">
+                {%- endif -%}
+                  {%- if sub_collection.image -%}
+                  <div class="d-flex-col justify-between h-100 items-center">
+                    <span class="banner-nav-title Barlow {%- if sub_collection.handle == current_collection_handle -%}banner-active-collection{%- endif -%}">{{ subcollection.title }}</span>
+                  </div>
+                  {%- endif -%}
+                </a>
+           
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+
+
+
+{% assign subnav = collection.metafields.custom.sub_menu_handle.value | escape %}
+{% if subnav != blank %}
+<div class="collection-nav-banner section-mb section-mt section-x-spacing">
+  <ul class="collection-grid__linklist unstyled-list">
+    {%- for link in linklists[collection.metafields.custom.sub_menu_handle.value.first].links -%}
+      <li class="">
+        <a href="{{ link.url }}" class="banner-nav-title Barlow {% if link.active %}banner-active-collection{% endif %}">{{ link.title }}</a>
+      </li>
+    {%- endfor -%}       
+  </ul>
+</div>
+{% endif %}
+
+                  
+
+                  
+                  
+<style>
+
+  
+  .banner-nav-image{
+    width: 60px; height: 60px;
+    filter: grayscale(1); 
+    transition: filter .1s;
+  }
+  
+  .banner-collection-item .banner-nav-title,
+  .banner-collection-item {
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .banner-nav-collection-all{  border: 1px solid #333; border-radius: 50%; height: 40px; width: 40px;  display: flex; justify-content: center;  align-items: center; margin: auto;}
+  .banner-nav-collection-all > span{ font-size: 14px; color: #333;  }
+  .collection-nav-banner > ul{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+    flex-wrap: wrap;
+    margin: auto;
+    gap: 30px;
+  }
+  .banner-nav-title{color: #333; font-size: 14px; align-self: flex-end;}
+  .banner-active-collection{ color: #EA2D24; }
+
+
+  @media screen and (max-width: 640px){
+    .collection-nav-banner > ul{ gap: 8px; }
+    
+    .banner-collection-item:hover .banner-nav-title, .banner-nav-all-wrapper.active .banner-nav-title{ color: #fff !important; background: #EA2D24;}
+    
+    .banner-nav-collection-all{ display: none !important; }
+
+    .collection-nav-banner > ul{ display: flex;
+      justify-content: start;
+    }
+
+    .banner-collection-item{ color: #333333;  letter-spacing: 1px; }
+    .banner-active-collection{ color: #fff; background: #EA2D24 }
+    .banner-nav-title { padding: 3px 8px;  }
+    .collection-nav-banner > ul{ display: grid; grid-template-columns: repeat({{link_count}}, 1fr); }
+    .collection-nav-banner::-webkit-scrollbar { display: none; }
+    .collection-nav-banner { -ms-overflow-style: none;  scrollbar-width: none; }
+
+    .collection-nav-banner{ overflow-x: auto; white-space: nowrap; margin-top: 24px !important; margin-bottom: 20px !important; margin-right: 0; margin-left: 0; padding: 0 32px; }
+    .collection-nav-banner > .collection-grid__linklist > li:last-of-type{padding-right: 32px;}
+  }
+
+  .banner-nav-title:hover {
+    color: #EA2D24 !important;
+  }
+  @media screen and (max-width: 767px){
+    .product-list {
+      --product-list-default-row-gap: 0.5rem; /* 2.1875rem; */
+    }
+  }
+</style>

@@ -1,0 +1,33 @@
+<div class="column-{{section.id}} d-grid">
+  <div>
+  {% if heading %}
+    <p class="dfs-20 mfs-20 Barlow-Medium hidden-phone text-mb-sm" style="color: {{ heading_color }};">{{ heading }}</p>
+  {% endif %}
+    <a href="{{ link }}">
+      
+      <div class="grid-item-{{ section.id }} grid-item-{{ section.id | append: column }} h-stack" style="
+        padding-left: 0 20px;
+        background: url({{ image | img_url: '800x800' }});
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        text-align: center;">
+      </div>
+    </a>
+    <div class="text-content-{{section.id}}">
+      <p class="dsf-30 mfs-30 Barlow hidden-tablet-and-up text-mb-sm heading-{{section.id}}" style="color: {{ heading_color }};">{{ heading }}</p>
+
+      {%- assign content_id = "content_" | append: column -%}
+      {%- if body != blank -%}
+        <p class="Open-Sans dfs-14 content-{{ section.id }}" style="color: {{ body_color }};">{{ body }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="text-content-{{section.id}} button-wrapper-{{section.id}}">
+    {%- if link_text != blank -%}
+      <a class="button img-text-mt-lg" href="{{ link }}">{{ link_text }}</a>
+    {% endif %}
+    </div>
+  
+</div>

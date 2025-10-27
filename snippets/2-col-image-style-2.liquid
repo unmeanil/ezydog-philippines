@@ -1,0 +1,160 @@
+<!-- sections/2-column-image-style-2 -->
+<section id="section-{{ section.id }}" 
+  class="{% if section.settings.apply_top_padding %} section-pt {% endif %}
+         {% if section.settings.apply_bottom_padding %} section-pb {% endif %}
+        section-x-spacing">
+  <div class="heading-wrapper-{{ section.id }}">
+    <p class="Barlow-Medium dfs-30 mfs-30 ">{{ block.settings.title }}</p>
+    <p  class="dfs-14 mfs-14 text-mt-lg img-text-mb-lg">{{ block.settings.body }}</p>
+  </div>
+  <div class="grid-{{ section.id }}">
+    {% for i in (1..2) %}
+      <div class="column-{{section.id}} d-grid">
+        <div>
+          {% assign heading_id = "heading_" | append: i %}
+          <p class="dfs-22 mfs-22 Barlow-Medium hidden-phone text-mb-sm">{{ block.settings[heading_id] }}</p>
+          
+          {% assign text_color = "text_color_" | append: i %}
+          {% assign url_id = "url_" | append: i %}
+          <a data-url="{{ block.settings[url_id] }}">
+            {% assign image_id = "image_" | append: i %}
+            <div class="grid-item-{{ section.id }} grid-item-{{ section.id | append: i }} h-stack" style="
+              padding-left: 0 20px;
+              background: url({{ block.settings[image_id] | img_url: '800x800' }});
+              background-position: center;
+              background-repeat: no-repeat;
+              background-size: cover;
+              text-align: center;">
+            </div>
+          </a>
+          <div class="text-content-{{section.id}}">
+            <p class="dfs-22 mfs-22 Barlow-Medium hidden-tablet-and-up text-mb-sm heading-{{section.id}}">{{ block.settings[heading_id] }}</p>
+
+            {%- assign content_id = "content_" | append: i -%}
+            {%- if block.settings[content_id] != blank -%}
+              <p class="Open-Sans dfs-14 content-{{ section.id }}">{{ block.settings[content_id] }}</p>
+            {% endif %}
+            {%- assign button_text_id = "button_text_" | append: i -%}
+          </div>
+        </div>
+        
+        {%- assign use_chat_id = "use_chat_" | append: i -%}
+        {%- assign use_scheduler_id = "use_scheduler_" | append: i -%}
+      
+        <div class="text-content-{{section.id}} button-wrapper-{{section.id}}">
+          
+          {%- if block.settings[button_text_id] != blank -%}
+            
+            {% if block.settings[use_chat_id] %}
+              <a href="#" onclick="GorgiasChat.open();" class="button button-{{ section.id }}">{{ block.settings[button_text_id]  }}</a>
+            {% endif %}  
+            
+            {% if block.settings[use_scheduler_id] %}
+              <a href="https://app.acuityscheduling.com/schedule.php?owner=31473248" target="_blank" 
+                class="acuity-embed-button">
+                {{ block.settings[button_text_id] }}</a>
+              <script src="https://embed.acuityscheduling.com/embed/button/31473248.js" async></script>
+            {% endif %}
+
+            {% if block.settings[use_chat_id] == false and block.settings[use_scheduler_id] == false %}
+              <a class="button button-{{ section.id }}" href="{{ block.settings[url_id] }}" target="_blank">{{ block.settings[button_text_id] }}</a>
+            {% endif %}
+            
+          {% endif %}
+        </div>
+        
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+
+<style>
+
+.acuity-embed-button{
+  font-family: "Barlow-Medium", Arial, sans-serif !important;
+  text-transform: uppercase !important;
+  padding: 8px 30px !important;
+  border-radius: 7px !important;
+  letter-spacing: inherit !important;
+  background: #ed0a09 !important;
+  transition: all .2s ease;
+  color: #FFF !important;
+}
+
+.acuity-embed-button:hover{ background: #fff !important; color: #000 !important; border: 1px solid #ed0a09 !important;}
+
+  {% if section.settings.minimise_bottom_padding %}
+    #section-{{ section.id }}{ padding-bottom: 10px; }
+    @media screen and (max-width: 640px){
+      #section-{{ section.id }}{ padding-bottom: 24px; }
+    }
+  {% endif %}
+  
+  .button-{{ section.id }}{ margin-top: 24px; }
+  
+  #section-{{ section.id }} { 
+    background: {{ section.settings.background }}; 
+  }
+
+  .heading-wrapper-{{ section.id }}{
+    max-width: 60%;
+  }
+  
+  .text-content-{{ section.id }}, .heading-wrapper-{{ section.id }}{
+    margin-left: 30px; 
+  }
+
+  .content-{{ section.id }}{ margin-right: 10%; margin-top: 32px; }
+  .grid-{{ section.id }}{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .body-{{ section.id }}{
+    max-width: 60%;
+    margin: auto;
+  }
+  
+  .grid-item-{{ section.id }}{
+    border-radius: 10px;
+    /* display: grid; align-content: center; justify-content: center; position: relative; */
+     position: relative;
+    padding: 2em;
+  }
+  
+  .button-wrapper-{{section.id}}{
+    align-self: flex-end;
+  }
+
+  @media screen and (max-width: 640px){
+    #section-{{ section.id }} { padding-left: 0; padding-right: 0; }
+    .heading-{{section.id}}{ margin-top: 16px; }
+    .grid-{{ section.id }} {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .content-{{ section.id }}{ margin-top: 16px; }
+    .grid-item-{{ section.id }} { min-height: 260px; border-radius: 0px }
+  }
+
+  @media screen and (min-width: 641px){
+    .grid-item-{{ section.id }}{
+      min-height: 300px;
+      height: 30vw;
+      max-height: 600px;
+    }
+  }
+
+
+  {% if block.settings.style == '1' %}
+    @media screen and (max-width: 640px){
+      .grid-{{section.id}}{ gap: 55px; }
+    }
+    @media screen and (min-width: 641px){
+      .grid-{{section.id}}{ gap: 55px; }
+    }
+  {% endif %}
+
+</style>

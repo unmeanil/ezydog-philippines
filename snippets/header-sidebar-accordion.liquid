@@ -1,0 +1,341 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+HEADER SIDEBAR COMPONENT
+----------------------------------------------------------------------------------------------------------------------
+
+This snippet the navigation sidebar for the header. It is used for both the mobile menu and for the desktop menu when
+the merchant configures the drawer mode.
+
+********************************************
+Supported variables
+********************************************
+
+* menu: the menu to render
+* show_dividers: whether dividers are shown for the collapsible
+{%- endcomment -%}
+
+{%- comment -%}
+IMPLEMENTATION NOTE: while being a drawer, the sidebar has a completely different structure for the content. We are
+therefore using a different structure for the Shadow DOM template
+{%- endcomment -%}
+
+<template id="header-sidebar-template">
+  <div part="base">
+    <div part="overlay"></div>
+
+    <div part="content">
+      <header part="header">
+        <button type="button" is="dialog-close-button" part="close-button tap-area" aria-label="{{ 'general.accessibility.close' | t | escape }}">
+          {%- render 'icon' with 'close', width: 16 -%}
+        </button>
+      </header>
+
+      <div part="panel-list">
+        <slot name="main-panel"></slot>
+
+        {%- if menu.levels > 0 -%}
+          <slot name="collapsible-panel"></slot>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</template>
+
+<header-sidebar id="sidebar-menu" class="header-sidebar drawer drawer--sm" template="header-sidebar-template" open-from="left">
+  {%- comment -%}We are using a Shadow DOM where each panel has a slot, so we can directly render each level individually{%- endcomment -%}
+
+  {%- comment -%}Panel 1 is the first level{%- endcomment -%}
+  <div class="header-sidebar__main-panel" slot="main-panel">
+    <div class="header-sidebar__scroller">
+    {% assign after_action_link = false %}
+    
+      <ul class="header-sidebar__linklist {% if show_dividers %}divide-y{% endif %} unstyled-list">
+        {%- for link in menu.links -%}
+        <li>
+        {% assign link_title = link.title | downcase %}
+
+        {% if link_title == "ezydog in action" %}
+          
+          {% assign is_action_link = true %}
+          {% assign after_action_link = true %}
+          {% assign action_index = forloop.index0 %}
+        {% endif %}
+          
+        {% capture accordion_content %}
+        {% assign summary_class = "" %}
+        {% assign wrapper_content_class = "sidebar-accordion-content" %}
+          {%- for sub_link in link.links -%}
+          {% assign has_nested_links = false %}
+            <div>
+              {%- if sub_link.links.size > 0 -%}
+                {% assign has_nested_links = true %}
+                {% assign summary_class = " nested-summary" %}
+                {% assign wrapper_content_class = "sidebar-accordion-content has-nested-sidebar-accordion" %}
+                {% capture inner_accordion_content %}
+                  <div class="nested-sidebar-links">
+                    {%- for sub_sub_link in sub_link.links -%}
+                      
+                      {% assign sub_sub_link_downcase = sub_sub_link.title | downcase %}
+                      {% assign special_sub_sub_links = "new,customise,non-pull,designer,personalised,travel,walking,hiking,active,beach,cityscapes,boating,all activities,daily use,travel,all purpose" | split:"," %}
+                      {% if special_sub_sub_links contains sub_sub_link_downcase %}
+                        <a data-url="{{ sub_sub_link.url }}" class="Barlow dfs-14 mfs-14">{{ sub_sub_link.title }}</a>
+                      {% else %}
+                        <a href="{{ sub_sub_link.url }}" class="Barlow dfs-14 mfs-14">{{ sub_sub_link.title }}</a>
+                      {% endif %}
+                    
+                    {%- endfor -%}
+                  </div>
+                {% endcapture %}
+                {% render 'accordion', title: sub_link.title, content: inner_accordion_content, summary_class: summary_class, heading_class: "Barlow-Medium dfs-14 mfs-14 sidebar-accordion-heading", content_class: 'sidebar-accordion-content nested-sidebar-accordion-content' %}
+              {%- else -%}
+                {% assign sub_link_downcase = sub_link.title | downcase %}
+                {% if sub_link_downcase == "shop all" or sub_link_downcase == "essentials" or sub_link_downcase == "premium" or sub_link_downcase == "bundles" %}
+                  <a data-url="{{ sub_link.url }}" class="Barlow dfs-14 mfs-14 sidebar-accordion-sublink">{{- sub_link.title -}}</a>
+                {% else %}
+                   <a href="{{ sub_link.url }}" class="Barlow dfs-14 mfs-14 sidebar-accordion-sublink">{{- sub_link.title -}}</a>
+                {% endif %}
+                
+              {%- endif -%}              
+              
+            </div>
+          {%- endfor -%}
+          {%- liquid
+                assign link_title_downcase = link.title | strip | downcase
+                assign mega_menu_block = ''
+
+                for block in section.blocks
+                  assign menu_item_downcase = block.settings.menu_item | strip | downcase
+
+                  if menu_item_downcase == link_title_downcase
+                    assign mega_menu_block = block
+                    break
+                  endif
+
+                endfor
+              -%}
+
+          
+             {%- for i in (1..2) -%}
+              {%- assign heading_setting = 'image_' | append: i | append: '_heading' -%}
+              {%- assign link_setting = 'image_' | append: i | append: '_link' -%}
+              {%- if mega_menu_block.settings[heading_setting] != blank -%}
+                  {%- if mega_menu_block.settings[heading_setting] != blank -%}
+                     <li>
+                    <a href="{{ mega_menu_block.settings[link_setting] }}" class="v-stack justify-items-left gap-4 sm:gap-5 group">
+                      <p class="Barlow-Medium dfs-14 mfs-14">{{ mega_menu_block.settings[heading_setting] }}</p>
+                    </a>
+                     </li>
+                  {%- endif -%}
+              {%- endif -%}
+  
+          {%- endfor -%}
+                    
+          
+        {% endcapture %}
+
+        {% if link.links.size > 0 %}
+          {% render 'accordion', title: link.title, summary_class: 'sidebar-accordion-summary', content: accordion_content, heading_class: "Barlow-Medium dfs-14 mfs-14 sidebar-accordion-heading", content_class: wrapper_content_class %}
+        {% else %}
+           <div class="header-sidebar-link">
+              <a href="{{ link.url }}" class="accordion-heading Barlow-Medium dfs-14 mfs-14 sidebar-accordion-heading">
+                {% if is_action_link %}
+                  {% assign link_parts = link_title | split: ' ' %}
+                  <span>{{link_parts[0]}}<span style="color: #EA2D24; "> {{link_parts[1]}} {{link_parts[2]}}</span></span>
+                {% else %}
+                  <span class="link__title">{{- link_title -}}
+                  {% if after_action_link %} <span>{%- render 'icon' with 'chevron-right', width: 12, direction_aware: true -%}</span> {% endif %}
+                  </span>
+                {% endif %}
+              </a>
+           </div>
+        {% endif %}
+        {%- if forloop.index0 == action_index -%}
+          {%- break -%}
+        {%- endif -%}
+        </li>         
+        {% endfor %}
+ </ul>
+    </div>
+    
+    {%- liquid
+      if section.settings.show_country_selector and localization.available_countries.size > 1
+        assign show_country_selector = true
+      endif
+
+      if section.settings.show_locale_selector and localization.available_languages.size > 1
+        assign show_locale_selector = true
+      endif
+    -%}
+
+    {%- if shop.customer_accounts_enabled or show_country_selector or show_locale_selector -%}
+      <div class="header-sidebar__footer">
+
+        {%- for link in menu.links -%}
+          {%- if forloop.index0 > action_index -%}
+            {% assign link_title = link.title | downcase %}
+          <div class="header-sidebar-link">
+              <a href="{{ link.url }}" class="accordion-heading Barlow-Medium dfs-14 mfs-14 sidebar-accordion-heading">
+                <span class="link__title">{{- link_title -}}
+                  <span>{%- render 'icon' with 'chevron-right', width: 12, direction_aware: true -%}</span>
+                </span>
+              </a>
+           </div>
+      {% endif %}
+        {%- endfor -%}
+        
+        {%- if shop.customer_accounts_enabled -%}
+          <a href="{{ routes.account_url }}" class="text-with-icon smallcaps sm:hidden">
+            {%- render 'icon' with 'account', width: 20 -%}
+            {{- 'header.general.account' | t -}}
+          </a>
+        {%- endif -%}
+
+        {%- if show_country_selector or show_locale_selector -%}
+          <div class="localization-selectors">
+            {%- if show_country_selector -%}
+              {%- render 'localization-selector', type: 'country', placement: 'top-start', show_country_name: section.settings.show_country_name, show_country_flag: section.settings.show_country_flag, id_prefix: 'header-sidebar' -%}
+            {%- endif -%}
+
+            {%- if show_country_selector and show_locale_selector -%}
+              <span class="localization-selectors__separator" aria-hidden="true"></span>
+            {%- endif -%}
+
+            {%- if show_locale_selector -%}
+              {%- render 'localization-selector', type: 'locale', placement: 'top-start', id_prefix: 'header-sidebar' -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</header-sidebar>
+
+<style>
+
+  .header-sidebar__scroller{ display: grid; }
+  .header-sidebar__promo img{ border-radius: 5px; }
+  .header-sidebar__promo>* {
+    min-width: unset;
+  }
+  
+  .header-sidebar__linklist-after-action{ align-self: flex-end; }
+  .header-sidebar__linklist-after-action > div {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 15px 20px !important;
+  }
+  .header-sidebar__footer > div:first-child { background: #EA2D24; margin-bottom: 6px;  }
+  .header-sidebar__footer > div:first-child > a{ color: #fff;  }
+
+  .header-sidebar__footer > div:nth-child(2){
+    background: #DBDBDB;
+    margin-bottom: 6px; 
+  }
+
+  .link__title { display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    width: inherit;
+  }
+
+  .header-sidebar__linklist:not(.header-sidebar__linklist-after-action){
+    padding: 0 20px;
+  }
+
+  .header-sidebar__linklist-button, .header-sidebar__back-button {
+    color: black;
+    font-size: 16px ;
+    font-weight: 650 ;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: inherit;
+  }
+  
+  .header-sidebar__back-button + .header-sidebar__linklist {
+    /* display: grid;
+    grid-template-columns: 1fr 1fr; */
+  }
+
+  .header-sidebar__back-button + .header-sidebar__linklist > li {
+    border: none;
+  }
+  
+  .header-sidebar__back-button + .header-sidebar__linklist > li > a {
+    color: #6A6A6A ;
+    font-size: 18px;
+    font-family: Barlow;
+    font-weight: 400;
+    text-transform: capitalize;
+    line-height: 19px;
+    word-wrap: break-word
+  }
+
+
+  
+   .header-sidebar__linklist .accordion{ border-block-width: 0;  }
+   .header-sidebar__linklist > li{ padding: 30px 0; }
+   .header-sidebar__linklist .accordion{  }
+  
+  .sidebar-accordion-content{
+    padding-top: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-block-start: 0 !important;
+    margin-block-end: 0 !important;
+  }
+    
+  .accordion-disclosure[aria-expanded="true"] {
+    color: red;
+  }
+
+  
+  .header-sidebar__nested-linklist{
+    margin-top: 26px;
+    display: grid; 
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 12px;
+    padding-left: 0;
+  }
+  
+  sidebar-accordion-content:has(.header-sidebar__nested-linklist){
+    grid-template-columns: 1fr !important; 
+  }
+  .sidebar-accordion-heading{
+    text-transform: uppercase !important; 
+  }
+
+  
+  .sidebar-accordion-sublink{
+    text-transform: capitalize;
+    padding-block-end: 0 !important;
+    padding-block-start: 0 !important;
+  }
+
+   .nested-summary .accordion-heading{ text-transform: capitalize !important;  }
+  
+  .accordion__toggle:has(.sidebar-accordion-heading) { padding-block: 0; }
+  
+  .nested-sidebar-accordion-content{ border: none; grid-template-columns: 1fr; }
+
+  .sidebar-accordion-content:has(.sidebar-accordion-content){ grid-template-columns: 1fr;  border: none;}
+  .sidebar-accordion-content:has(.sidebar-accordion-content)  .accordion{ border: none; padding: 0; }
+  .sidebar-accordion-content:has(.sidebar-accordion-content) .sidebar-accordion-heading {
+    margin-bottom: 0px;
+  }
+ .nested-sidebar-accordion-content{ padding-top: 0; }
+ .has-nested-sidebar-accordion{ padding-top: 30px; gap: 20px; }
+ .nested-sidebar-links{
+   display: grid;
+    margin: 15px 0;
+   gap: 12px; 
+    border: none;
+    grid-template-columns: 1fr;
+    border-left: 1px solid;
+    padding-left: 1em;
+ }
+
+  .header-sidebar__linklist > .accordion[aria-expanded="true"]  > .sidebar-accordion-summary  > .accordion__toggle{ color: #000; }
+</style>
+
