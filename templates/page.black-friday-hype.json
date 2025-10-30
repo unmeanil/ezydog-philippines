@@ -332,6 +332,151 @@
         "remove_vertical_spacing": false
       }
     },
+    "media_grid_mfP3YJ": {
+      "type": "media-grid",
+      "blocks": {
+        "image_7BzXCe": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/BF_Collection_Tile_Leashes_46e25901-81ff-4759-929c-4f0f8dcabf9f.gif",
+            "column_count": "4",
+            "row_count": 1,
+            "title": "",
+            "heading_tag": "h4",
+            "content": "",
+            "link_text": "",
+            "link_url": "shopify://collections/black-friday-leashes",
+            "link_style": "solid",
+            "text_position": "place-self-end-start text-start",
+            "text_color": "#ffffff",
+            "button_background": "",
+            "button_text_color": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        },
+        "image_MaVgfU": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/BF_Collection_Tile_Travel_2c448c16-b1ce-4d25-b6b6-38fd91dbeceb.gif",
+            "column_count": "4",
+            "row_count": 1,
+            "title": "",
+            "heading_tag": "h4",
+            "content": "",
+            "link_text": "",
+            "link_url": "shopify://collections/black-friday-travel",
+            "link_style": "solid",
+            "text_position": "place-self-center-start text-start",
+            "text_color": "#ffffff",
+            "button_background": "",
+            "button_text_color": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        },
+        "image_Py9wPY": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/BF_Collection_Tile_Collars_0e84dc13-5283-4e2a-acd5-a6afe7c7fced.gif",
+            "column_count": "4",
+            "row_count": 1,
+            "title": "",
+            "heading_tag": "h4",
+            "content": "",
+            "link_text": "",
+            "link_url": "shopify://collections/black-friday-collars",
+            "link_style": "solid",
+            "text_position": "place-self-center-start text-start",
+            "text_color": "#ffffff",
+            "button_background": "",
+            "button_text_color": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        },
+        "image_NVkD3e": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/BF_Collection_Tile_Harnesses_4841e886-a0ef-4fb0-85ed-6473db67fd37.gif",
+            "column_count": "4",
+            "row_count": 1,
+            "title": "",
+            "heading_tag": "h4",
+            "content": "",
+            "link_text": "",
+            "link_url": "shopify://collections/black-friday-harnesses",
+            "link_style": "link",
+            "text_position": "place-self-center-start text-start",
+            "text_color": "#ffffff",
+            "button_background": "",
+            "button_text_color": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        },
+        "image_hjCFGt": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/BF_Collection_Tile_Bedding_50306c67-f726-4fae-8cd9-a60e87607906.gif",
+            "column_count": "4",
+            "row_count": 1,
+            "title": "",
+            "heading_tag": "h4",
+            "content": "",
+            "link_text": "",
+            "link_url": "shopify://collections/black-friday-bedding",
+            "link_style": "link",
+            "text_position": "place-self-center-start text-start",
+            "text_color": "#ffffff",
+            "button_background": "",
+            "button_text_color": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        },
+        "image_GDjA93": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/BF_Collection_Tile_Bundles_c4700517-e2ad-4a25-8e1e-5f3c6b5acdb6.gif",
+            "column_count": "4",
+            "row_count": 1,
+            "title": "",
+            "heading_tag": "h4",
+            "content": "",
+            "link_text": "",
+            "link_url": "shopify://collections/black-friday-bundles",
+            "link_style": "link",
+            "text_position": "place-self-center text-center",
+            "text_color": "#ffffff",
+            "button_background": "",
+            "button_text_color": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        }
+      },
+      "block_order": [
+        "image_7BzXCe",
+        "image_MaVgfU",
+        "image_Py9wPY",
+        "image_NVkD3e",
+        "image_hjCFGt",
+        "image_GDjA93"
+      ],
+      "settings": {
+        "separate_section_with_border": false,
+        "desktop_row_height": 330,
+        "mobile_row_height": 310,
+        "section_width": "sm",
+        "spacing": "xs",
+        "subheading": "",
+        "title": "",
+        "content": "",
+        "background": "",
+        "text_color": ""
+      }
+    },
     "slideshow_yGawNR": {
       "type": "slideshow",
       "blocks": {
@@ -511,6 +656,7 @@
     "main",
     "collection_list_4RAwHU",
     "rich_text_HdbycX",
+    "media_grid_mfP3YJ",
     "slideshow_yGawNR",
     "rich_text_fQjyB7"
   ]
