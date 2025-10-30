@@ -311,6 +311,27 @@
         "circle_button_text_color": "#1c1c1c"
       }
     },
+    "rich_text_HdbycX": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_XGbQhW": {
+          "type": "heading",
+          "settings": {
+            "text": "SHOP BY DISCOUNT",
+            "heading_tag": "h3"
+          }
+        }
+      },
+      "block_order": [
+        "heading_XGbQhW"
+      ],
+      "settings": {
+        "separate_section_with_border": false,
+        "content_width": "sm",
+        "text_position": "center",
+        "remove_vertical_spacing": false
+      }
+    },
     "slideshow_yGawNR": {
       "type": "slideshow",
       "blocks": {
@@ -489,6 +510,7 @@
     "custom_liquid_PDVrLi",
     "main",
     "collection_list_4RAwHU",
+    "rich_text_HdbycX",
     "slideshow_yGawNR",
     "rich_text_fQjyB7"
   ]
