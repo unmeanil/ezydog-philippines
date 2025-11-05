@@ -267,6 +267,7 @@
         "autoplay": true,
         "show_controls": false,
         "video_size": "auto",
+        "video": "shopify://files/videos/PBC_SlimBanner_Video_PalmGreen.mp4",
         "external_video_url": "",
         "text_color": "#ffffff"
       }
@@ -395,6 +396,7 @@
         "autoplay": true,
         "show_controls": false,
         "video_size": "auto",
+        "video": "shopify://files/videos/PBC_SlimBanner_Video_SandDune.mp4",
         "external_video_url": "",
         "text_color": "#ffffff"
       }
