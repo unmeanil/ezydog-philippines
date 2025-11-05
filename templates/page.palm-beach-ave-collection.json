@@ -11,24 +11,772 @@
   "sections": {
     "main": {
       "type": "main-page",
+      "disabled": true,
       "settings": {
-        "show_title": true,
+        "show_title": false,
         "page_width": "xs"
       }
     },
-    "custom_liquid_cxVKtp": {
+    "video_FYqWz7": {
+      "type": "video",
+      "name": "t:sections.video.presets.video.name",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "title": "",
+        "content": "",
+        "autoplay": true,
+        "show_controls": false,
+        "video_size": "md",
+        "external_video_url": "",
+        "text_color": "#ffffff"
+      }
+    },
+    "custom_liquid_b3BKVf": {
       "type": "custom-liquid",
+      "name": "t:sections.custom_liquid.presets.custom_liquid.name",
+      "settings": {
+        "separate_section_with_border": true,
+        "remove_vertical_spacing": false,
+        "remove_horizontal_spacing": false,
+        "liquid": "<div style=\"text-align: center; padding: 0pt; margin-bottom: 18pt;\">\n \n<h1 style=\"\n  font-family: 'Malvides';\n  font-weight: 800;\n  font-style: normal;\n  font-size: 40px;\n  line-height: 1;\n  margin-bottom: .5\nrem;\n\">\n  <strong>Palm Beach Ave.</strong>\n</h1>\n\n <h2 style=\"\n    font-family: 'Barlow Semi Condensed', sans-serif;\n    font-weight: 100;\n    font-style: italic;\n    font-size: 22px;\n    line-height: 1;\n    margin-bottom: 1rem;\n    color: #626643\n;\n  \">\n    <em><strong>The Colours of Our Story</strong></em>\n  </h2>\n\n  <p style=\"\n  font-family: 'Barlow Semi Condensed', sans-serif;\n    font-weight: 400;\n    font-style: normal;\n    font-size: 16px;\n    line-height: 1.3;\n    max-width: 800px;\n    margin: 0 auto;\n  \">\n     It all started here, in the heart of the Gold Coast, where EzyDog was first created. Inspired by the colours and textures of Palm Beach’s natural beauty, this collection is a tribute to our roots.\n  </p>\n</div>",
+        "text_alignment": "center"
+      }
+    },
+    "collection_list_1_C7HpyL": {
+      "type": "collection-list-1",
+      "blocks": {
+        "collection_BKU9Qz": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/EzyDog_Ocean_Blue_Collection.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "OCEAN BLUE",
+            "button_text": "EXPLORE",
+            "button_link": "https://ezydog.com.au/collections/all-gear?filter.v.option.colour=Ocean+Blue",
+            "text_color": "#ffffff",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#1c4c6f",
+            "button_background": "",
+            "button_text_color": ""
+          }
+        },
+        "collection_w77xBz": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/EzyDog_Palm_Green_Collection.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "PALM GREEN",
+            "button_text": "EXPLORE",
+            "button_link": "https://ezydog.com.au/collections/all-gear?filter.v.option.colour=Palm Green",
+            "text_color": "#ffffff",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#626643",
+            "button_background": "",
+            "button_text_color": ""
+          }
+        },
+        "collection_QEYnax": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Sand_Dune_68ab4737-8d68-4e05-b1e1-e8710b462ec8.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "SAND DUNE",
+            "button_text": "EXPLORE",
+            "button_link": "https://ezydog.com.au/collections/all-gear?filter.v.option.colour=Sand+Dune",
+            "text_color": "#ffffff",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#c3ad8b",
+            "button_background": "",
+            "button_text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_BKU9Qz",
+        "collection_w77xBz",
+        "collection_QEYnax"
+      ],
+      "name": "New Collection List",
+      "settings": {
+        "separate_section_with_border": false,
+        "image_size": "auto",
+        "show_text_outside": true,
+        "space_items": true,
+        "stack_collections": false,
+        "heading_position": "top",
+        "collections_per_row_desktop": 3,
+        "collections_per_row_mobile": 2,
+        "subheading": "",
+        "title": "",
+        "content": "",
+        "p_text_color": "#ffffff",
+        "button_text_color": "#ffffff",
+        "background_color": "#1c1c1c",
+        "circle_button_background": "#ffffff",
+        "circle_button_text_color": "#1c1c1c"
+      }
+    },
+    "video_xmKxif": {
+      "type": "video",
+      "name": "Video - Ocean Blue",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "title": "",
+        "content": "",
+        "autoplay": true,
+        "show_controls": false,
+        "video_size": "auto",
+        "external_video_url": "",
+        "text_color": "#ffffff"
+      }
+    },
+    "custom_liquid_crct3x": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom_liquid.presets.custom_liquid.name",
+      "settings": {
+        "separate_section_with_border": true,
+        "remove_vertical_spacing": false,
+        "remove_horizontal_spacing": false,
+        "liquid": "<div style=\"text-align: center; padding: 0pt; margin-bottom: 18pt;\">\n <p style=\"\n  font-family: 'Barlow Semi Condensed', sans-serif;\n    font-weight: 400;\n    font-style: normal;\n    font-size: 16px;\n    line-height: 1.3;\n    max-width: 900px;\n    margin: 0 auto;\n  \">\n    Inspired by the crystal waters of the Gold Coast, Ocean Blue captures the spirit of adventure that drives every EzyDog creation.\n  </p>\n</div>",
+        "text_alignment": "center"
+      }
+    },
+    "collection_list_1_fjQhfg": {
+      "type": "collection-list-1",
+      "blocks": {
+        "collection_wddwTR": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Ocean_Blue.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL CHEST PLATE HARNESS",
+            "button_link": "https://ezydog.com.au/products/essential-chest-plate-harness?variant=50869011448104",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#d4dee6",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_L3TUng": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Collar_Ocean_Blue.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL COLLAR",
+            "button_link": "https://ezydog.com.au/products/essential-adjustable-collar?variant=50868785774888",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#d4dee6",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_ckJggR": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Leash_Ocean_Blue.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL LEASH",
+            "button_link": "https://ezydog.com.au/products/essential-adjustable-leash?variant=50868790657320",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#d4dee6",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_ehnUAQ": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Poop_Bag_Holder_Ocean_Blue.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL POOP BAG HOLDER",
+            "button_link": "https://ezydog.com.au/products/essential-poop-bag-holder?variant=50868778729768",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#d4dee6",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "collection_wddwTR",
+        "collection_L3TUng",
+        "collection_ckJggR",
+        "collection_ehnUAQ"
+      ],
+      "name": "New Collection List",
+      "settings": {
+        "separate_section_with_border": false,
+        "image_size": "auto",
+        "show_text_outside": true,
+        "space_items": true,
+        "stack_collections": false,
+        "heading_position": "bottom",
+        "collections_per_row_desktop": 4,
+        "collections_per_row_mobile": 2,
+        "subheading": "",
+        "title": "",
+        "content": "",
+        "p_text_color": "#ffffff",
+        "button_text_color": "#ffffff",
+        "background_color": "#1c1c1c",
+        "circle_button_background": "#ffffff",
+        "circle_button_text_color": "#1c1c1c"
+      }
+    },
+    "video_8CRF7g": {
+      "type": "video",
+      "name": "Video - Palm Green",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "title": "",
+        "content": "",
+        "autoplay": true,
+        "show_controls": false,
+        "video_size": "auto",
+        "external_video_url": "",
+        "text_color": "#ffffff"
+      }
+    },
+    "custom_liquid_YqFBYy": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom_liquid.presets.custom_liquid.name",
       "settings": {
         "separate_section_with_border": false,
         "remove_vertical_spacing": false,
-        "remove_horizontal_spacing": true,
-        "liquid": "<div style=\"text-align: center;\">\n  <a href=\"https://ezydog.com.au/pages/size-guide\" class=\"custom_button\">How to measure your dog</a>\n</div>\n\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700&display=swap');\n\n.custom_button {\n    background-color: #ED1C24; /* Red Background */\n    color: #ffffff;            /* White Text */\n    text-decoration: none;     /* Remove underline */\n    display: inline-block;\n    padding: 5px 15px;\n    font-size: 16px;\n    cursor: pointer;\n    border-radius: 4px;        /* Slightly rounded corners */\n    border: none;\n    font-family: 'Barlow Semi Condensed', sans-serif;\n    font-weight: 700;          /* Bold */\ntext-transform: uppercase; /* All Caps */\n}\n</style>",
+        "remove_horizontal_spacing": false,
+        "liquid": "<div style=\"text-align: center; padding: 0pt; margin-bottom: 18pt;\">\n <p style=\"\n  font-family: 'Barlow Semi Condensed', sans-serif;\n    font-weight: 400;\n    font-style: normal;\n    font-size: 16px;\n    line-height: 1.3;\n    max-width: 900px;\n    margin: 0 auto;\n  \">\nInspired by the vibrant palms that line our home beach, Palm Green connects back to nature & days spent outdoors with your best mate.\n  </p>\n</div>",
         "text_alignment": "center"
+      }
+    },
+    "collection_list_1_HBFyfU": {
+      "type": "collection-list-1",
+      "blocks": {
+        "collection_mQgDmP": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Palm_Green.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL CHEST PLATE HARNESS",
+            "button_link": "https://ezydog.com.au/products/essential-chest-plate-harness?variant=50869011480872",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#ebece0",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_RBqTpe": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Collar_Palm_Green.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL COLLAR",
+            "button_link": "https://ezydog.com.au/products/essential-adjustable-collar?variant=50868785381672",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#ebece0",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_jUi3P4": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Leash_Palm_Green.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL LEASH",
+            "button_link": "https://ezydog.com.au/products/essential-adjustable-leash?variant=50868790296872",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#ebece0",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_cDqYJy": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Poop_Bag_Holder_Palm_Green.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL POOP BAG HOLDER",
+            "button_link": "https://ezydog.com.au/products/essential-poop-bag-holder?variant=50868778631464",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#ebece0",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "collection_mQgDmP",
+        "collection_RBqTpe",
+        "collection_jUi3P4",
+        "collection_cDqYJy"
+      ],
+      "name": "New Collection List",
+      "settings": {
+        "separate_section_with_border": false,
+        "image_size": "auto",
+        "show_text_outside": true,
+        "space_items": true,
+        "stack_collections": false,
+        "heading_position": "bottom",
+        "collections_per_row_desktop": 4,
+        "collections_per_row_mobile": 2,
+        "subheading": "",
+        "title": "",
+        "content": "",
+        "p_text_color": "#ffffff",
+        "button_text_color": "#ffffff",
+        "background_color": "#1c1c1c",
+        "circle_button_background": "#ffffff",
+        "circle_button_text_color": "#1c1c1c"
+      }
+    },
+    "video_mDcmbf": {
+      "type": "video",
+      "name": "Video - Sand Dune",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "title": "",
+        "content": "",
+        "autoplay": true,
+        "show_controls": false,
+        "video_size": "auto",
+        "external_video_url": "",
+        "text_color": "#ffffff"
+      }
+    },
+    "custom_liquid_Jqgp49": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom_liquid.presets.custom_liquid.name",
+      "settings": {
+        "separate_section_with_border": true,
+        "remove_vertical_spacing": false,
+        "remove_horizontal_spacing": false,
+        "liquid": "<div style=\"text-align: center; padding: 0pt; margin-bottom: 18pt;\">\n <p style=\"\n  font-family: 'Barlow Semi Condensed', sans-serif;\n    font-weight: 400;\n    font-style: normal;\n    font-size: 16px;\n    line-height: 1.3;\n    max-width: 900px;\n    margin: 0 auto;\n  \">\n   Inspired by the sun-bleached shores of Palm Beach, Sand Dune reflects the laid back coastal lifestyle where EzyDog began 30yrs ago.\n  </p>\n</div>",
+        "text_alignment": "center"
+      }
+    },
+    "collection_list_1_7d8PUA": {
+      "type": "collection-list-1",
+      "blocks": {
+        "collection_jGyXyi": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Sand_Dune.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL CHEST PLATE HARNESS",
+            "button_link": "https://ezydog.com.au/products/essential-chest-plate-harness?variant=50869011480872",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#faf4eb",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_mBK8kf": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Collar_Sand_Dune.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL COLLAR",
+            "button_link": "https://ezydog.com.au/products/essential-adjustable-collar?variant=50868785971496",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#faf4eb",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_FpeDrx": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Leash_Sand_Dune.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL LEASH",
+            "button_link": "https://ezydog.com.au/products/essential-adjustable-leash?variant=50868790755624",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#faf4eb",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "collection_tGd8tg": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Essential_Poop_Bag_Holder_Sand_Dune.webp",
+            "expand_collection": false,
+            "content_position": "place-self-end-center text-center",
+            "subheading": "",
+            "title": "",
+            "button_text": "ESSENTIAL POOP BAG HOLDER",
+            "button_link": "https://ezydog.com.au/products/essential-poop-bag-holder?variant=50868778762536",
+            "text_color": "#1c1c1c",
+            "overlay_color": "#ffffff",
+            "overlay_opacity": 0,
+            "background_color": "#faf4eb",
+            "button_background": "#c3ad8b",
+            "button_text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "collection_jGyXyi",
+        "collection_mBK8kf",
+        "collection_FpeDrx",
+        "collection_tGd8tg"
+      ],
+      "name": "New Collection List",
+      "settings": {
+        "separate_section_with_border": false,
+        "image_size": "auto",
+        "show_text_outside": true,
+        "space_items": true,
+        "stack_collections": false,
+        "heading_position": "bottom",
+        "collections_per_row_desktop": 4,
+        "collections_per_row_mobile": 2,
+        "subheading": "",
+        "title": "",
+        "content": "",
+        "p_text_color": "#ffffff",
+        "button_text_color": "#ffffff",
+        "background_color": "#1c1c1c",
+        "circle_button_background": "#ffffff",
+        "circle_button_text_color": "#1c1c1c"
+      }
+    },
+    "featured_collection_yFMWVB": {
+      "type": "featured-collection",
+      "name": "Featured Collection",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": true,
+        "style": "2",
+        "collection": "essential-range",
+        "title": "<strong>SHOP NEW ESSENTIALS</strong>",
+        "link_url": "",
+        "link_text": ""
+      }
+    },
+    "image_with_text_bXA94j": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_QqQYJj": {
+          "type": "heading",
+          "settings": {
+            "text": "<em><strong>ESSENTIAL CHEST PLATE HARNESS</strong></em>"
+          }
+        },
+        "richtext_73HEnB": {
+          "type": "richtext",
+          "settings": {
+            "content": "<p>Engineered for comfort, safety, and style - the iconic Chest Plate Harness is the perfect all-rounder for every dog - from playful pups to seasoned companions.</p>"
+          }
+        },
+        "buttons_eQ9JiJ": {
+          "type": "buttons",
+          "settings": {
+            "button_1_text": "LEARN MORE",
+            "button_1_url": "shopify://products/essential-chest-plate-harness",
+            "cta_background": "#1c4c6f",
+            "cta_text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading_QqQYJj",
+        "richtext_73HEnB",
+        "buttons_eQ9JiJ"
+      ],
+      "name": "t:sections.image_with_text.presets.image_with_text.name",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "background": "#ffffff",
+        "text_color": "#1c1c1c",
+        "separate_section_with_border": false,
+        "image": "shopify://shop_images/EzyDog_Essential_Chest_Plate_Harness_-_Ocean_Blue.webp",
+        "reveal_on_scroll": true,
+        "image_position": "start",
+        "content_width": "sm",
+        "remove_vertical_spacing": true,
+        "heading_size": 25,
+        "heading_spacing": 0,
+        "paragraph_size": 16,
+        "paragraph_spacing": 0,
+        "cta_size": 16,
+        "cta_spacing": 10,
+        "cta_padding": 10,
+        "cta_padding_horizontal": 30,
+        "cta_text_size": 15,
+        "heading_line_height": 1.5,
+        "paragraph_line_height": 1.5
+      }
+    },
+    "image_with_text_AA8kTx": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_QMRXpD": {
+          "type": "heading",
+          "settings": {
+            "text": "<em><strong>ESSENTIAL COLLAR</strong></em>"
+          }
+        },
+        "richtext_6HHifx": {
+          "type": "richtext",
+          "settings": {
+            "content": "<p>Whether you’re out for a morning stroll or relaxing at home, the Essential Collar delivers all-day wearability without compromising style or function.</p>"
+          }
+        },
+        "buttons_nJAhwX": {
+          "type": "buttons",
+          "settings": {
+            "button_1_text": "LEARN MORE",
+            "button_1_url": "shopify://products/essential-adjustable-collar",
+            "cta_background": "#626643",
+            "cta_text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading_QMRXpD",
+        "richtext_6HHifx",
+        "buttons_nJAhwX"
+      ],
+      "name": "t:sections.image_with_text.presets.image_with_text.name",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "background": "#ffffff",
+        "text_color": "",
+        "separate_section_with_border": true,
+        "image": "shopify://shop_images/EzyDog_Essential_Collar_Palm_Green.webp",
+        "reveal_on_scroll": true,
+        "image_position": "end",
+        "content_width": "sm",
+        "remove_vertical_spacing": true,
+        "heading_size": 25,
+        "heading_spacing": 0,
+        "paragraph_size": 16,
+        "paragraph_spacing": 0,
+        "cta_size": 16,
+        "cta_spacing": 10,
+        "cta_padding": 10,
+        "cta_padding_horizontal": 30,
+        "cta_text_size": 15,
+        "heading_line_height": 1.5,
+        "paragraph_line_height": 1.5
+      }
+    },
+    "image_with_text_4CRRdQ": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_39Ukf3": {
+          "type": "heading",
+          "settings": {
+            "text": "<em><strong>ESSENTIAL ADJUSTABLE LEASH</strong></em>"
+          }
+        },
+        "richtext_3QrmWc": {
+          "type": "richtext",
+          "settings": {
+            "content": "<p>Adjustable comfort & control - from relaxed strolls to training sessions on busy streets, the Essential Leash is your go-to for everyday adventures.</p>"
+          }
+        },
+        "buttons_8e8gh9": {
+          "type": "buttons",
+          "settings": {
+            "button_1_text": "LEARN MORE",
+            "button_1_url": "shopify://products/essential-adjustable-leash",
+            "cta_background": "#c3ad8b",
+            "cta_text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading_39Ukf3",
+        "richtext_3QrmWc",
+        "buttons_8e8gh9"
+      ],
+      "name": "t:sections.image_with_text.presets.image_with_text.name",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "background": "#ffffff",
+        "text_color": "",
+        "separate_section_with_border": false,
+        "image": "shopify://shop_images/EzyDog_Essential_Adjustable_Leash_Sand_Dune.webp",
+        "reveal_on_scroll": true,
+        "image_position": "start",
+        "content_width": "sm",
+        "remove_vertical_spacing": true,
+        "heading_size": 25,
+        "heading_spacing": 0,
+        "paragraph_size": 16,
+        "paragraph_spacing": 0,
+        "cta_size": 16,
+        "cta_spacing": 10,
+        "cta_padding": 10,
+        "cta_padding_horizontal": 30,
+        "cta_text_size": 15,
+        "heading_line_height": 1.5,
+        "paragraph_line_height": 1.5
+      }
+    },
+    "image_with_text_6tNQBR": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_bEqK6M": {
+          "type": "heading",
+          "settings": {
+            "text": "<em><strong>ESSENTIAL POOP BAG HOLDER </strong></em>"
+          }
+        },
+        "richtext_JddGYf": {
+          "type": "richtext",
+          "settings": {
+            "content": "<p>Make clean-up effortless with the Essential Poop Bag Holder - your must-have walking companion that combines function with style. </p>"
+          }
+        },
+        "buttons_wznQbr": {
+          "type": "buttons",
+          "settings": {
+            "button_1_text": "LEARN MORE",
+            "button_1_url": "shopify://products/essential-poop-bag-holder",
+            "cta_background": "#626643",
+            "cta_text_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading_bEqK6M",
+        "richtext_JddGYf",
+        "buttons_wznQbr"
+      ],
+      "name": "t:sections.image_with_text.presets.image_with_text.name",
+      "settings": {
+        "apply_top_padding": false,
+        "apply_bottom_padding": false,
+        "background": "#ffffff",
+        "text_color": "",
+        "separate_section_with_border": false,
+        "image": "shopify://shop_images/EzyDog_Essential_Poop_Bag_Holder_Palm_Green.webp",
+        "reveal_on_scroll": true,
+        "image_position": "end",
+        "content_width": "sm",
+        "remove_vertical_spacing": true,
+        "heading_size": 25,
+        "heading_spacing": 0,
+        "paragraph_size": 16,
+        "paragraph_spacing": 0,
+        "cta_size": 16,
+        "cta_spacing": 10,
+        "cta_padding": 10,
+        "cta_padding_horizontal": 30,
+        "cta_text_size": 15,
+        "heading_line_height": 1.5,
+        "paragraph_line_height": 1.5
       }
     }
   },
   "order": [
     "main",
-    "custom_liquid_cxVKtp"
+    "video_FYqWz7",
+    "custom_liquid_b3BKVf",
+    "collection_list_1_C7HpyL",
+    "video_xmKxif",
+    "custom_liquid_crct3x",
+    "collection_list_1_fjQhfg",
+    "video_8CRF7g",
+    "custom_liquid_YqFBYy",
+    "collection_list_1_HBFyfU",
+    "video_mDcmbf",
+    "custom_liquid_Jqgp49",
+    "collection_list_1_7d8PUA",
+    "featured_collection_yFMWVB",
+    "image_with_text_bXA94j",
+    "image_with_text_AA8kTx",
+    "image_with_text_4CRRdQ",
+    "image_with_text_6tNQBR"
   ]
 }
