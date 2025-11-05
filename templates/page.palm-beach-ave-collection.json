@@ -28,6 +28,7 @@
         "autoplay": true,
         "show_controls": false,
         "video_size": "md",
+        "video": "shopify://files/videos/PBA Full Homepage Banner Desktop.mp4",
         "external_video_url": "",
         "text_color": "#ffffff"
       }
@@ -50,7 +51,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/EzyDog_Ocean_Blue_Collection.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -69,7 +69,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/EzyDog_Palm_Green_Collection.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -88,7 +87,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Sand_Dune_68ab4737-8d68-4e05-b1e1-e8710b462ec8.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -140,6 +138,7 @@
         "autoplay": true,
         "show_controls": false,
         "video_size": "auto",
+        "video": "shopify://files/videos/PBC_SlimBanner_Video_OceanBlue (1).mp4",
         "external_video_url": "",
         "text_color": "#ffffff"
       }
@@ -162,7 +161,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Ocean_Blue.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -181,7 +179,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Collar_Ocean_Blue.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -200,7 +197,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Leash_Ocean_Blue.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -219,7 +215,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Poop_Bag_Holder_Ocean_Blue.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -294,7 +289,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Palm_Green.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -313,7 +307,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Collar_Palm_Green.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -332,7 +325,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Leash_Palm_Green.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -351,7 +343,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Poop_Bag_Holder_Palm_Green.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -426,7 +417,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Chest_Plate_Harness_Sand_Dune.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -445,7 +435,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Collar_Sand_Dune.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -464,7 +453,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Leash_Sand_Dune.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -483,7 +471,6 @@
           "type": "collection",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Essential_Poop_Bag_Holder_Sand_Dune.webp",
             "expand_collection": false,
             "content_position": "place-self-end-center text-center",
             "subheading": "",
@@ -575,7 +562,6 @@
         "background": "#ffffff",
         "text_color": "#1c1c1c",
         "separate_section_with_border": false,
-        "image": "shopify://shop_images/EzyDog_Essential_Chest_Plate_Harness_-_Ocean_Blue.webp",
         "reveal_on_scroll": true,
         "image_position": "start",
         "content_width": "sm",
@@ -630,7 +616,6 @@
         "background": "#ffffff",
         "text_color": "",
         "separate_section_with_border": true,
-        "image": "shopify://shop_images/EzyDog_Essential_Collar_Palm_Green.webp",
         "reveal_on_scroll": true,
         "image_position": "end",
         "content_width": "sm",
@@ -685,7 +670,6 @@
         "background": "#ffffff",
         "text_color": "",
         "separate_section_with_border": false,
-        "image": "shopify://shop_images/EzyDog_Essential_Adjustable_Leash_Sand_Dune.webp",
         "reveal_on_scroll": true,
         "image_position": "start",
         "content_width": "sm",
@@ -740,7 +724,6 @@
         "background": "#ffffff",
         "text_color": "",
         "separate_section_with_border": false,
-        "image": "shopify://shop_images/EzyDog_Essential_Poop_Bag_Holder_Palm_Green.webp",
         "reveal_on_scroll": true,
         "image_position": "end",
         "content_width": "sm",
